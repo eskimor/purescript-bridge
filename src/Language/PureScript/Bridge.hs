@@ -26,18 +26,19 @@ import Data.Maybe
 --   Typeable is not needed from ghc-7.10 on.
 --
 --   Then call 'writePSTypes' like this:
---   @
---     let myTypes = [
---          'toSumType' ('Proxy' :: 'Proxy' MyType1)
---        , 'toSumType' ('Proxy' :: 'Proxy' MyType2)
---       ]
---     'writePSTypes' 'defaultBridge' "path\/to\/you\/purescript\/project" myTypes
---   @
+--
+--   >  let myTypes = [
+--   >      'toSumType' ('Proxy' :: 'Proxy' MyType1)
+--   >    , 'toSumType' ('Proxy' :: 'Proxy' MyType2)
+--   >   ]
+--   >
+--   >  'writePSTypes' 'defaultBridge' "path\/to\/you\/purescript\/project" myTypes
 --
 --   You can add new type mappings, like this:
---   @
---     myBridge = 'defaultBridge' <|> mySpecialTypeBridge
---   @
+--   
+--
+--  >  myBridge = 'defaultBridge' \<|\> mySpecialTypeBridge
+--   
 --
 --   Find examples for implementing your own type bridges in: 'Language.PureScript.Bridge.Primitives'
 --   A real world use case of this library can be found <https://github.com/gonimo/gonimo-back/blob/master/src/MkFrontendTypes.hs here>.
@@ -70,7 +71,8 @@ doBridge br info = let
 
 -- | Default bridge for mapping primitive/common types:
 --   You can append your own bridges like this:
---   defaultBridge <|> myBridge1 <|> myBridge2
+--
+-- >  defaultBridge <|> myBridge1 <|> myBridge2
 --
 --   Find examples for bridge definitions in "Language.PureScript.Bridge.Primitives" and
 --   "Language.PureScript.Bridge.Tuple".
