@@ -71,7 +71,11 @@ moduleToText m = T.unlines $
 
 _lensImports :: [ImportLine]
 _lensImports = [
-    ImportLine "Data.Maybe" $ Set.fromList ["Maybe(..)"]
+    ImportLine "Data.Newtype" $ Set.fromList ["class Newtype"]
+  , ImportLine "Data.Lens.Iso.Newtype" $ Set.fromList ["_Newtype"]
+  , ImportLine "Data.Lens.Record" $ Set.fromList ["prop"]
+  , ImportLine "Data.Symbol" $ Set.fromList ["SProxy(..)"]
+  , ImportLine "Data.Maybe" $ Set.fromList ["Maybe(..)"]
   -- , ImportLine "Prelude" mempty
   , ImportLine "Data.Lens" $ Set.fromList ["Prism'", "Lens'", "prism'", "lens"]
   ]
@@ -96,8 +100,12 @@ sumTypeToTypeDecls :: SumType 'PureScript -> Text
 sumTypeToTypeDecls st@(SumType t cs) = T.unlines $
     dataOrNewtype cs <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs)
-  : [ "\nderive instance generic" <> _typeName t <> " :: " <> genericConstrains <> genericInstance t ]
+  <> "\nderive instance generic" <> _typeName t <> " :: " <> genericConstrains <> genericInstance t 
+  : if dataOrNewtype cs == "newtype"
+      then [ "\nderive instance newtype" <> _typeName t <> " :: " <> newtypeInstance t <> " _"]
+      else []
   where
+    newtypeInstance = ("Newtype " <>) . typeInfoToText False
     genericInstance = ("Generic " <>) . typeInfoToText False
     genericConstrains
         | stpLength == 0 = mempty
@@ -120,11 +128,12 @@ sumTypeToPrismsAndLenses :: SumType 'PureScript -> Text
 sumTypeToPrismsAndLenses st = sumTypeToPrisms st <> sumTypeToLenses st
 
 sumTypeToPrisms :: SumType 'PureScript -> Text
-sumTypeToPrisms st = T.unlines $ map (constructorToPrism moreThan1 st) cs
+sumTypeToPrisms st = T.unlines $
+  map (constructorToPrism moreThan1 st) cs <>
+  map (constructorToProps st) cs
   where
     cs = st ^. sumTypeConstructors
     moreThan1 = length cs > 1
-
 
 sumTypeToLenses :: SumType 'PureScript -> Text
 -- Match on SumTypes with a single DataConstructor (that's a list of a single element)
@@ -175,6 +184,11 @@ mkTypeSig :: [RecordEntry 'PureScript] -> Text
 mkTypeSig [] = "Unit"
 mkTypeSig [r] = typeInfoToText False $ r ^. recValue
 mkTypeSig rs = fromEntries recordEntryToText rs
+
+constructorToProps :: SumType 'PureScript -> DataConstructor 'PureScript -> Text
+constructorToProps _ (DataConstructor n (Left cs)) = ""
+constructorToProps _ (DataConstructor n (Right rs)) = T.unlines $ map (mkProp . _recLabel) rs
+  where mkProp t = "_" <> t <> " = _Newtype <<< prop (SProxy :: SProxy \"" <> t <> "\")"
 
 constructorToPrism :: Bool -> SumType 'PureScript -> DataConstructor 'PureScript -> Text
 constructorToPrism otherConstructors st (DataConstructor n args) =
