@@ -61,7 +61,7 @@ moduleToText m = T.unlines $
   : map importLineToText allImports
   ++ [ ""
      , "import Prelude"
-     , "import Data.Generic (class Generic)"
+     , "import Data.Generic.Rep (class Generic)"
      , ""
      ]
   ++ map sumTypeToText (psTypes m)
@@ -96,25 +96,14 @@ sumTypeToText st =
     sep = T.replicate 80 "-"
 
 sumTypeToTypeDecls :: SumType 'PureScript -> Text
-sumTypeToTypeDecls st@(SumType t cs) = T.unlines $
+sumTypeToTypeDecls (SumType t cs) = T.unlines $
     dataOrNewtype <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
-  : "derive instance generic" <> _typeName t <> " :: " <> genericConstraints <> genericInstance t <> "\n"
+  : "derive instance generic" <> _typeName t <> " :: " <> genericInstance t <> "\n"
   : [ "derive instance newtype" <> _typeName t <> " :: " <> newtypeInstance t <> " _\n" | isNewtype cs]
   where
-    genericInstance = ("Generic " <>) . typeInfoToText False
+    genericInstance p = "Generic " <> typeInfoToText False p <> " _"
     newtypeInstance = ("Newtype " <>) . typeInfoToText False
-    genericConstraints
-        | stpLength == 0 = mempty
-        | otherwise = (<> " => ") $
-            if stpLength == 1
-                then genericConstraintsInner
-                else bracketWrap genericConstraintsInner
-    genericConstraintsInner = T.intercalate ", " $ map genericInstance sumTypeParameters
-    stpLength = length sumTypeParameters
-    bracketWrap x = "(" <> x <> ")"
-    sumTypeParameters = filter isTypeParam . Set.toList $ getUsedTypes st
-    isTypeParam typ = _typeName typ `elem` map _typeName (_typeParameters t)
     isNewtype [constr]
       | either isSingletonList (const True) (_sigValues constr) = True
     isNewtype _   = False
