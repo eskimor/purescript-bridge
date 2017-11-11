@@ -99,10 +99,10 @@ sumTypeToTypeDecls :: SumType 'PureScript -> Text
 sumTypeToTypeDecls (SumType t cs) = T.unlines $
     dataOrNewtype <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
-  : "derive instance generic" <> _typeName t <> " :: " <> genericInstance t <> "\n"
+  : "derive instance generic" <> _typeName t <> " :: " <> genericInstance t <> " _\n"
   : [ "derive instance newtype" <> _typeName t <> " :: " <> newtypeInstance t <> " _\n" | isNewtype cs]
   where
-    genericInstance p = "Generic " <> typeInfoToText False p <> " _"
+    genericInstance = ("Generic " <>) . typeInfoToText False
     newtypeInstance = ("Newtype " <>) . typeInfoToText False
     isNewtype [constr]
       | either isSingletonList (const True) (_sigValues constr) = True
