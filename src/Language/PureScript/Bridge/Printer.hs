@@ -62,6 +62,10 @@ moduleToText m = T.unlines $
   ++ [ ""
      , "import Prelude"
      , "import Data.Generic.Rep (class Generic)"
+     , "import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)"
+     , "import Data.Argonaut.Decode.Class (class DecodeJson, decodeJson)"
+     , "import Data.Argonaut.Encode.Generic.Rep (genericEncodeJson)"
+     , "import Data.Argonaut.Decode.Generic.Rep (genericDecodeJson)"
      , ""
      ]
   ++ map sumTypeToText (psTypes m)
@@ -96,14 +100,36 @@ sumTypeToText st =
     sep = T.replicate 80 "-"
 
 sumTypeToTypeDecls :: SumType 'PureScript -> Text
-sumTypeToTypeDecls (SumType t cs) = T.unlines $
+sumTypeToTypeDecls st@(SumType t cs) = T.unlines $
     dataOrNewtype <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
   : "derive instance generic" <> _typeName t <> " :: " <> genericInstance t <> " _\n"
+  : "instance encodeJson" <> _typeName t <> " :: " <> encodeConstraints <> encodeInstance t <> " where encodeJson = genericEncodeJson\n"
+  : "instance decodeJson" <> _typeName t <> " :: " <> decodeConstraints <> decodeInstance t <> " where decodeJson = genericDecodeJson\n"
   : [ "derive instance newtype" <> _typeName t <> " :: " <> newtypeInstance t <> " _\n" | isNewtype cs]
   where
+    encodeInstance = ("EncodeJson " <>) . typeInfoToText False
+    decodeInstance = ("DecodeJson " <>) . typeInfoToText False
     genericInstance = ("Generic " <>) . typeInfoToText False
     newtypeInstance = ("Newtype " <>) . typeInfoToText False
+    encodeConstraints
+      | stpLength == 0 = mempty
+      | otherwise = (<> " => ") $
+          if stpLength == 1
+            then encodeConstraintsInner
+            else bracketWrap encodeConstraintsInner
+      where encodeConstraintsInner = T.intercalate ", " $ map encodeInstance sumTypeParameters
+    decodeConstraints
+      | stpLength == 0 = mempty
+      | otherwise = (<> " => ") $
+          if stpLength == 1
+            then decodeConstraintsInner
+            else bracketWrap decodeConstraintsInner
+      where decodeConstraintsInner = T.intercalate ", " $ map decodeInstance sumTypeParameters
+    stpLength = length sumTypeParameters
+    bracketWrap x = "(" <> x <> ")"
+    sumTypeParameters = filter isTypeParam . Set.toList $ getUsedTypes st
+    isTypeParam typ = _typeName typ `elem` map _typeName (_typeParameters t)
     isNewtype [constr]
       | either isSingletonList (const True) (_sigValues constr) = True
     isNewtype _   = False
