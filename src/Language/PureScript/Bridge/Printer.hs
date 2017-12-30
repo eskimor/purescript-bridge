@@ -62,10 +62,9 @@ moduleToText m = T.unlines $
   ++ [ ""
      , "import Prelude"
      , "import Data.Generic.Rep (class Generic)"
-     , "import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)"
-     , "import Data.Argonaut.Decode.Class (class DecodeJson, decodeJson)"
-     , "import Data.Argonaut.Encode.Generic.Rep (genericEncodeJson)"
-     , "import Data.Argonaut.Decode.Generic.Rep (genericDecodeJson)"
+     , "import Data.Foreign.Class (class Decode, class Encode, decode, encode)"
+     , "import Data.Foreign.Generic (defaultOptions, genericEncode, genericDecode)"
+     , "import Data.Foreign.Generic.Class (class GenericDecode, class GenericEncode)"
      , ""
      ]
   ++ map sumTypeToText (psTypes m)
@@ -104,12 +103,12 @@ sumTypeToTypeDecls st@(SumType t cs) = T.unlines $
     dataOrNewtype <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
   : "derive instance generic" <> _typeName t <> " :: " <> genericInstance t <> " _\n"
-  : "instance encodeJson" <> _typeName t <> " :: " <> encodeConstraints <> encodeInstance t <> " where encodeJson = genericEncodeJson\n"
-  : "instance decodeJson" <> _typeName t <> " :: " <> decodeConstraints <> decodeInstance t <> " where decodeJson = genericDecodeJson\n"
+  : "instance encode" <> _typeName t <> " :: " <> encodeConstraints <> encodeInstance t <> " where encode = genericEncode defaultOptions\n"
+  : "instance decode" <> _typeName t <> " :: " <> decodeConstraints <> decodeInstance t <> " where decode = genericDecode defaultOptions\n"
   : [ "derive instance newtype" <> _typeName t <> " :: " <> newtypeInstance t <> " _\n" | isNewtype cs]
   where
-    encodeInstance = ("EncodeJson " <>) . typeInfoToText False
-    decodeInstance = ("DecodeJson " <>) . typeInfoToText False
+    encodeInstance = ("Encode " <>) . typeInfoToText False
+    decodeInstance = ("Decode " <>) . typeInfoToText False
     genericInstance = ("Generic " <>) . typeInfoToText False
     newtypeInstance = ("Newtype " <>) . typeInfoToText False
     encodeConstraints
