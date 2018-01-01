@@ -64,8 +64,12 @@ moduleToText m = T.unlines $
      , "import Data.Generic.Rep (class Generic)"
      , "import Data.Foreign.Class (class Decode, class Encode, decode, encode)"
      , "import Data.Foreign.Generic (defaultOptions, genericEncode, genericDecode)"
+     , "import Data.Foreign.Generic.Types (Options, SumEncoding(..))"
      , "import Data.Foreign.Generic.Class (class GenericDecode, class GenericEncode)"
+     , "import Data.Generic.Rep.Eq as GEq"
+     , "import Data.Generic.Rep.Show as GShow"
      , ""
+     , "jOpts = defaultOptions { sumEncoding = ObjectWithSingleField, unwrapSingleConstructors = true}"
      ]
   ++ map sumTypeToText (psTypes m)
   where
@@ -103,28 +107,25 @@ sumTypeToTypeDecls st@(SumType t cs) = T.unlines $
     dataOrNewtype <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
   : "derive instance generic" <> _typeName t <> " :: " <> genericInstance t <> " _\n"
-  : "instance encode" <> _typeName t <> " :: " <> encodeConstraints <> encodeInstance t <> " where encode = genericEncode defaultOptions\n"
-  : "instance decode" <> _typeName t <> " :: " <> decodeConstraints <> decodeInstance t <> " where decode = genericDecode defaultOptions\n"
+  : "instance encode" <> _typeName t <> " :: " <> constraints encodeInstance <> encodeInstance t <> " where encode = genericEncode jOpts\n"
+  : "instance decode" <> _typeName t <> " :: " <> constraints decodeInstance <> decodeInstance t <> " where decode = genericDecode jOpts\n"
+  : "instance show" <> _typeName t <> " :: " <> constraints showInstance <> showInstance t <> " where show = GShow.genericShow\n"
+  : "instance eq" <> _typeName t <> " :: " <> constraints eqInstance <> eqInstance t <> " where eq = GEq.genericEq\n"
   : [ "derive instance newtype" <> _typeName t <> " :: " <> newtypeInstance t <> " _\n" | isNewtype cs]
   where
     encodeInstance = ("Encode " <>) . typeInfoToText False
+    showInstance = ("Show " <>) . typeInfoToText False
+    eqInstance = ("Eq " <>) . typeInfoToText False
     decodeInstance = ("Decode " <>) . typeInfoToText False
     genericInstance = ("Generic " <>) . typeInfoToText False
     newtypeInstance = ("Newtype " <>) . typeInfoToText False
-    encodeConstraints
+    constraints inst
       | stpLength == 0 = mempty
       | otherwise = (<> " => ") $
           if stpLength == 1
             then encodeConstraintsInner
             else bracketWrap encodeConstraintsInner
-      where encodeConstraintsInner = T.intercalate ", " $ map encodeInstance sumTypeParameters
-    decodeConstraints
-      | stpLength == 0 = mempty
-      | otherwise = (<> " => ") $
-          if stpLength == 1
-            then decodeConstraintsInner
-            else bracketWrap decodeConstraintsInner
-      where decodeConstraintsInner = T.intercalate ", " $ map decodeInstance sumTypeParameters
+      where encodeConstraintsInner = T.intercalate ", " $ map inst sumTypeParameters
     stpLength = length sumTypeParameters
     bracketWrap x = "(" <> x <> ")"
     sumTypeParameters = filter isTypeParam . Set.toList $ getUsedTypes st
