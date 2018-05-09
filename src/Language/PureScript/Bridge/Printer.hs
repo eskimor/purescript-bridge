@@ -6,6 +6,7 @@ module Language.PureScript.Bridge.Printer where
 
 import           Control.Lens
 import           Control.Monad
+import           Data.Char                           (toUpper, toLower)
 import           Data.Map.Strict                     (Map)
 import qualified Data.Map.Strict                     as Map
 import           Data.Monoid
@@ -155,8 +156,7 @@ recordOptics :: SumType 'PureScript -> Text
 recordOptics st@(SumType _ [_]) = T.unlines $ recordEntryToLens st <$> dcRecords
   where
     cs = st ^. sumTypeConstructors
-    dcRecords = lensableConstructor ^.. traversed.sigValues._Right.traverse.filtered hasUnderscore
-    hasUnderscore e = e ^. recLabel.to (T.isPrefixOf "_")
+    dcRecords = lensableConstructor ^.. traversed.sigValues._Right.traverse
     lensableConstructor = filter singleRecordCons cs ^? _head
     singleRecordCons (DataConstructor _ (Right _)) = True
     singleRecordCons _                             = False
@@ -243,16 +243,20 @@ constructorToOptic otherConstructors typeInfo (DataConstructor n args) =
 
 recordEntryToLens :: SumType 'PureScript -> RecordEntry 'PureScript -> Text
 recordEntryToLens st e =
-  if hasUnderscore
-  then lensName <> forAll <>  "Lens' " <> typName <> " " <> recType <> "\n"
+  lensName <> forAll <>  "Lens' " <> typName <> " " <> recType <> "\n"
       <> lensName <> " = _Newtype <<< prop (SProxy :: SProxy \"" <> recName <> "\")\n"
-  else ""
   where
     (typName, forAll) = typeNameAndForall (st ^. sumTypeInfo)
+    typNameNoTyVar     = _typeName (st ^. sumTypeInfo)
     recName = e ^. recLabel
-    lensName = T.drop 1 recName
+    lensName = "_" <> uncap typNameNoTyVar <> cap recName
     recType = typeInfoToText False (e ^. recValue)
-    hasUnderscore = e ^. recLabel.to (T.isPrefixOf "_")
+    uncap s = case T.uncons s of
+      Just (h,t) -> T.cons (toLower h) t
+      Nothing -> s
+    cap s = case T.uncons s of
+      Just (h,t) -> T.cons (toUpper h) t
+      Nothing -> s
 
 recordEntryToText :: RecordEntry 'PureScript -> Text
 recordEntryToText e = _recLabel e <> " :: " <> typeInfoToText True (e ^. recValue)
