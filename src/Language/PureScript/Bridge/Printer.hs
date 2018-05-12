@@ -108,10 +108,10 @@ sumTypeToTypeDecls st@(SumType t cs) = T.unlines $
     dataOrNewtype <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
   : "derive instance generic" <> _typeName t <> " :: " <> genericInstance t <> " _\n"
-  : "instance encode" <> _typeName t <> " :: " <> constraints encodeInstance <> encodeInstance t <> " where encode = genericEncode jOpts\n"
-  : "instance decode" <> _typeName t <> " :: " <> constraints decodeInstance <> decodeInstance t <> " where decode = genericDecode jOpts\n"
-  : "instance show" <> _typeName t <> " :: " <> constraints showInstance <> showInstance t <> " where show = GShow.genericShow\n"
-  : "instance eq" <> _typeName t <> " :: " <> constraints eqInstance <> eqInstance t <> " where eq = GEq.genericEq\n"
+  : "instance encode" <> _typeName t <> " :: " <> constraints encodeInstance <> encodeInstance t <> " where encode x = genericEncode jOpts x\n"
+  : "instance decode" <> _typeName t <> " :: " <> constraints decodeInstance <> decodeInstance t <> " where decode x = genericDecode jOpts x\n"
+  : "instance show" <> _typeName t <> " :: " <> constraints showInstance <> showInstance t <> " where show x = GShow.genericShow x\n"
+  : "derive instance eq" <> _typeName t <> " :: " <> constraints eqInstance <> eqInstance t <> "\n"
   : [ "derive instance newtype" <> _typeName t <> " :: " <> newtypeInstance t <> " _\n" | isNewtype cs]
   where
     encodeInstance = ("Encode " <>) . typeInfoToText False
