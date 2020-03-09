@@ -25,7 +25,7 @@ main = hspec allTests
 
 allTests :: Spec
 allTests = do
-  describe "buildBridge for purescript 0.11" $ do
+  describe "buildBridge for purescript 0.12" $ do
     let settings = purs_0_11_settings
     it "tests with Int" $
       let bst = buildBridge defaultBridge (mkTypeInfo (Proxy :: Proxy Int))
@@ -51,7 +51,7 @@ allTests = do
                                       ]
                   }
                 ]
-                [Eq, Ord, Generic]
+                [Eq, Ord, Encode, Decode, Generic]
        in bst `shouldBe` st
     it "tests generation of for custom type Foo" $
      let prox = Proxy :: Proxy Foo
