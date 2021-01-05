@@ -98,6 +98,7 @@ _foreignImports settings
   | (isJust . Switches.generateForeign) settings = 
       [ ImportLine "Foreign.Generic" $ Set.fromList ["defaultOptions", "genericDecode", "genericEncode"]
       , ImportLine "Foreign.Class" $ Set.fromList ["class Decode", "class Encode"]
+      , ImportLine "Data.String" $ Set.fromList ["drop"]
       ]
   | otherwise = []
 
@@ -137,7 +138,11 @@ instances settings st@(SumType t _ is) = map go is
       where
         encodeOpts = case Switches.generateForeign settings of
                       Nothing -> ""
-                      Just fopts -> " { unwrapSingleConstructors = " <> (T.toLower . T.pack . show . Switches.unwrapSingleConstructors) fopts <> " }"
+                      Just fopts -> case fopts of
+                                             Switches.ForeignOptions _ True True   -> "{ unwrapSingleConstructors = True , fieldTransform = drop " <> (T.pack .show )( T.length (_typeName t) + 1) <> " }"
+                                             Switches.ForeignOptions _ True False  -> "{ unwrapSingleConstructors = True , fieldTransform = drop 1 }"
+                                             Switches.ForeignOptions _ False True  -> "{ unwrapSingleConstructors = True , fieldTransform = drop " <> (T.pack .show )( T.length (_typeName t)) <> " }"
+                                             Switches.ForeignOptions _ _ _ -> "{ unwrapSingleConstructors = False }"
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
                | otherwise = bracketWrap constraintsInner <> " => "
@@ -150,7 +155,11 @@ instances settings st@(SumType t _ is) = map go is
       where
         decodeOpts = case Switches.generateForeign settings of
                       Nothing -> ""
-                      Just fopts -> " { unwrapSingleConstructors = " <> (T.toLower . T.pack . show . Switches.unwrapSingleConstructors) fopts <> " }"
+                      Just fopts -> case fopts of
+                                             Switches.ForeignOptions _ True True   -> "{ unwrapSingleConstructors = True , fieldTransform = drop " <> (T.pack .show )( T.length (_typeName t) + 1) <> " }"
+					     Switches.ForeignOptions _ True False  -> "{ unwrapSingleConstructors = True , fieldTransform = drop 1 }"
+                                             Switches.ForeignOptions _ False True  -> "{ unwrapSingleConstructors = True , fieldTransform = drop " <> (T.pack .show )( T.length (_typeName t)) <> " }"
+                                             Switches.ForeignOptions _ _ _  -> "{ unwrapSingleConstructors = False }"
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
                | otherwise = bracketWrap constraintsInner <> " => "
