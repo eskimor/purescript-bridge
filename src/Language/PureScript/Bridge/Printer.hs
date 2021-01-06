@@ -17,7 +17,6 @@ import qualified Data.Text.IO as T
 import           System.Directory
 import           System.FilePath
 
-
 import           Language.PureScript.Bridge.SumType
 import           Language.PureScript.Bridge.TypeInfo
 import qualified Language.PureScript.Bridge.CodeGenSwitches as Switches
@@ -98,7 +97,7 @@ _foreignImports settings
   | (isJust . Switches.generateForeign) settings = 
       [ ImportLine "Foreign.Generic" $ Set.fromList ["defaultOptions", "genericDecode", "genericEncode"]
       , ImportLine "Foreign.Class" $ Set.fromList ["class Decode", "class Encode"]
-      , ImportLine "Data.String" $ Set.fromList ["drop","take","toLower"]
+      , ImportLine "Data.String" $ Set.fromList ["drop","take","toLower","stripPrefix","Pattern(..)"]
       ]
   | otherwise = []
 
@@ -139,10 +138,11 @@ instances settings st@(SumType t _ is) = map go is
         encodeOpts = case Switches.generateForeign settings of
                       Nothing -> ""
                       Just fopts -> case fopts of
-                                             Switches.ForeignOptions _ True True   -> "{ unwrapSingleConstructors = true , fieldTransform = (\\x -> toLower (take 1 x) <> drop 1 x) <<< drop " <> (T.pack .show )( T.length (_typeName t) + 1) <> " }"
-                                             Switches.ForeignOptions _ True False  -> "{ unwrapSingleConstructors = true , fieldTransform = drop 1 }"
-                                             Switches.ForeignOptions _ False True  -> "{ unwrapSingleConstructors = true , fieldTransform = (\\x -> toLower (take 1 x) <> drop 1 x) <<< drop " <> (T.pack .show )( T.length (_typeName t)) <> " }"
+                                             Switches.ForeignOptions _ True True -> "{ unwrapSingleConstructors = true , fieldTransform = \\x -> case stripPrefix (Pattern \"_" <> lowercasePrefixDc <> "\") x of\n" <> T.pack (replicate 110 ' ') <> "Just y -> toLower (take 1 y) <> drop 1 y\n" <> T.pack (replicate 110 ' ') <> "Nothing -> x }"
+                                             Switches.ForeignOptions _ True False -> "{ unwrapSingleConstructors = true , fieldTransform = \\x -> case stripPrefix (Pattern \"_\") x of\n" <> T.pack (replicate 110 ' ') <>  "Just y -> y" <> "\n" <> T.pack (replicate 110 ' ')  <>  "Nothing -> x }"
+                                             Switches.ForeignOptions _ False True -> "{ unwrapSingleConstructors = true , fieldTransform = \\x -> case stripPrefix (Pattern \"" <> lowercasePrefixDc <> "\") x of\n" <> T.pack (replicate 110 ' ') <> "Just y -> toLower (take 1 y) <> drop 1 y\n" <> T.pack (replicate 110 ' ') <> "Nothing -> x }"
                                              Switches.ForeignOptions _ _ _ -> "{ unwrapSingleConstructors = false }"
+        lowercasePrefixDc = T.toLower (T.take 1 (_typeName t)) <> T.drop 1 (_typeName t)
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
                | otherwise = bracketWrap constraintsInner <> " => "
@@ -156,10 +156,11 @@ instances settings st@(SumType t _ is) = map go is
         decodeOpts = case Switches.generateForeign settings of
                       Nothing -> ""
                       Just fopts -> case fopts of
-                                             Switches.ForeignOptions _ True True   -> "{ unwrapSingleConstructors = true , fieldTransform = (\\x -> toLower (take 1 x) <> drop 1 x) <<< drop " <> (T.pack .show )( T.length (_typeName t) + 1) <> " }"
-                                             Switches.ForeignOptions _ True False  -> "{ unwrapSingleConstructors = true , fieldTransform = drop 1 }"
-                                             Switches.ForeignOptions _ False True  -> "{ unwrapSingleConstructors = true , fieldTransform = (\\x -> toLower (take 1 x) <> drop 1 x) <<< drop " <> (T.pack .show )( T.length (_typeName t)) <> " }"
+                                             Switches.ForeignOptions _ True True -> "{ unwrapSingleConstructors = true , fieldTransform = \\x -> case stripPrefix (Pattern \"_" <> lowercasePrefixDc <> "\") x of\n" <> T.pack (replicate 110 ' ') <> "Just y -> toLower (take 1 y) <> drop 1 y\n" <> T.pack (replicate 110 ' ') <> "Nothing -> x }"
+                                             Switches.ForeignOptions _ True False -> "{ unwrapSingleConstructors = true , fieldTransform = \\x -> case stripPrefix (Pattern \"_\") x of\n" <> T.pack (replicate 110 ' ') <>  "Just y -> y" <> "\n" <> T.pack (replicate 110 ' ')  <>  "Nothing -> x }"
+                                             Switches.ForeignOptions _ False True -> "{ unwrapSingleConstructors = true , fieldTransform = \\x -> case stripPrefix (Pattern \"" <> lowercasePrefixDc <> "\") x of\n" <> T.pack (replicate 110 ' ') <> "Just y -> toLower (take 1 y) <> drop 1 y\n" <> T.pack (replicate 110 ' ') <> "Nothing -> x }"
                                              Switches.ForeignOptions _ _ _ -> "{ unwrapSingleConstructors = false }"
+        lowercasePrefixDc = T.toLower (T.take 1 (_typeName t)) <> T.drop 1 (_typeName t)
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
                | otherwise = bracketWrap constraintsInner <> " => "
