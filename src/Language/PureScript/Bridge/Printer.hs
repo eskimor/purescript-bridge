@@ -98,10 +98,7 @@ _foreignImports settings
   | (isJust . Switches.generateForeign) settings = 
       [ ImportLine "Foreign.Generic" $ Set.fromList ["defaultOptions", "genericDecode", "genericEncode"]
       , ImportLine "Foreign.Class" $ Set.fromList ["class Decode", "class Encode"]
-      , ImportLine "Data.String" $ Set.fromList ["drop"]
-      , ImportLine "Data.Char.Unicode" $ Set.fromList ["toLower"]
-      , ImportLine "Data.String.CodeUnits" $ Set.fromList ["toCharArray","fromCharArray"]
-      , ImportLine "Data.Array" $ Set.fromList ["modifyAtIndices"]
+      , ImportLine "Data.String" $ Set.fromList ["drop","take","toLower"]
       ]
   | otherwise = []
 
@@ -142,9 +139,9 @@ instances settings st@(SumType t _ is) = map go is
         encodeOpts = case Switches.generateForeign settings of
                       Nothing -> ""
                       Just fopts -> case fopts of
-                                             Switches.ForeignOptions _ True True   -> "{ unwrapSingleConstructors = true , fieldTransform = fromCharArray <<< modifyAtIndices [0] toLower <<< toCharArray <<< drop " <> (T.pack .show )( T.length (_typeName t) + 1) <> " }"
+                                             Switches.ForeignOptions _ True True   -> "{ unwrapSingleConstructors = true , fieldTransform = (\\x -> toLower (take 1 x) <> drop 1 x) <<< drop " <> (T.pack .show )( T.length (_typeName t) + 1) <> " }"
                                              Switches.ForeignOptions _ True False  -> "{ unwrapSingleConstructors = true , fieldTransform = drop 1 }"
-                                             Switches.ForeignOptions _ False True  -> "{ unwrapSingleConstructors = true , fieldTransform = fromCharArray <<< modifyAtIndices [0] toLower <<< toCharArray <<< drop " <> (T.pack .show )( T.length (_typeName t)) <> " }"
+                                             Switches.ForeignOptions _ False True  -> "{ unwrapSingleConstructors = true , fieldTransform = (\\x -> toLower (take 1 x) <> drop 1 x) <<< drop " <> (T.pack .show )( T.length (_typeName t)) <> " }"
                                              Switches.ForeignOptions _ _ _ -> "{ unwrapSingleConstructors = false }"
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
@@ -159,9 +156,9 @@ instances settings st@(SumType t _ is) = map go is
         decodeOpts = case Switches.generateForeign settings of
                       Nothing -> ""
                       Just fopts -> case fopts of
-                                             Switches.ForeignOptions _ True True   -> "{ unwrapSingleConstructors = true , fieldTransform = fromCharArray <<< modifyAtIndices [0] toLower <<< toCharArray <<< drop " <> (T.pack .show )( T.length (_typeName t) + 1) <> " }"
+                                             Switches.ForeignOptions _ True True   -> "{ unwrapSingleConstructors = true , fieldTransform = (\\x -> toLower (take 1 x) <> drop 1 x) <<< drop " <> (T.pack .show )( T.length (_typeName t) + 1) <> " }"
                                              Switches.ForeignOptions _ True False  -> "{ unwrapSingleConstructors = true , fieldTransform = drop 1 }"
-                                             Switches.ForeignOptions _ False True  -> "{ unwrapSingleConstructors = true , fieldTransform = fromCharArray <<< modifyAtIndices [0] toLower <<< toCharArray <<< drop " <> (T.pack .show )( T.length (_typeName t)) <> " }"
+                                             Switches.ForeignOptions _ False True  -> "{ unwrapSingleConstructors = true , fieldTransform = (\\x -> toLower (take 1 x) <> drop 1 x) <<< drop " <> (T.pack .show )( T.length (_typeName t)) <> " }"
                                              Switches.ForeignOptions _ _ _ -> "{ unwrapSingleConstructors = false }"
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
