@@ -26,7 +26,7 @@ data Settings = Settings
 data ForeignOptions = ForeignOptions
     { unwrapSingleConstructors :: Bool
     , dropUnderscore :: Bool
-    , dropHungarianNotation :: Bool
+    , dropDataConstructorPrefixes :: Bool
     }
     deriving (Eq, Show)
 
