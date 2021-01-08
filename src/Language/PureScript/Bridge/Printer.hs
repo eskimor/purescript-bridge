@@ -64,7 +64,7 @@ moduleToText settings m = T.unlines $
      , "import Prelude"
      , ""
      ]
-  <> recLabelToClasses (nub (concat (map (sumLensableRecLabelsToText settings) (psTypes m))))
+  <> sumClassesToText (nub (concat (map (sumLensableRecLabels settings) (psTypes m))))
   <> map (sumTypeToText settings) (psTypes m)
   where
     otherImports = importsFromList (_lensImports settings <> _genericsImports settings <> _foreignImports settings)
@@ -116,8 +116,8 @@ sumTypeToText settings st =
     lenses = "\n" <> sep <> "\n" <> sumTypeToOptics st <> sep
     sep = T.replicate 80 "-"
 
-sumLensableRecLabelsToText :: Switches.Settings -> SumType 'PureScript -> [Text]
-sumLensableRecLabelsToText settings st =
+sumLensableRecLabels :: Switches.Settings -> SumType 'PureScript -> [Text]
+sumLensableRecLabels settings st =
     if Switches.generateLenses settings then lenses else mempty
        where lenses = lensableRecLabels st
 
@@ -242,8 +242,8 @@ lensableRecLabel e =
     lensName = T.drop 1 recName
     hasUnderscore = e ^. recLabel.to (T.isPrefixOf "_")
 
-recLabelToClasses :: [Text] -> [Text]
-recLabelToClasses recLabels = map f recLabels
+sumClassesToText :: [Text] -> [Text]
+sumClassesToText recLabels = map f recLabels
      where f = \x -> "class Has" <> T.toUpper (T.take 1 x) <> T.drop 1 x <> " s a | s -> a where\n  " <> x <> " :: Lens' s a\n"
 
 constructorToText :: Int -> DataConstructor 'PureScript -> Text
@@ -333,7 +333,7 @@ recordEntryToLens st@(SumType t _ _) e =
   else ""
   where
     toUppercaseFirstCharacter x =  T.toUpper (T.take 1 x) <> T.drop 1 x
-    (typName, forAll) = typeNameAndForall (st ^. sumTypeInfo)
+    (typName, _) = typeNameAndForall (st ^. sumTypeInfo)
     recName = e ^. recLabel
     lensName = T.drop 1 recName
     recType = typeInfoToText False (e ^. recValue)

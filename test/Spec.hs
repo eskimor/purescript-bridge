@@ -199,7 +199,7 @@ allTests = do
     it "tests generation of typeclass definition" $
        let recType = bridgeSumType (buildBridge defaultBridge) (mkSumType (Proxy :: Proxy (SingleRecord A B)))
            bar = bridgeSumType (buildBridge defaultBridge) (mkSumType (Proxy :: Proxy (Bar A B M1 C)))
-           classDefinition = recLabelToClasses (nub (concat (map (sumLensableRecLabelsToText settings) [bar,recType])))
+           classDefinition = sumClassesToText (nub (concat (map (sumLensableRecLabels settings) [bar,recType])))
            txt = T.unlines [
                             "class HasA s a | s -> a where"
                            ,"  a :: Lens' s a"
