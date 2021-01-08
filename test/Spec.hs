@@ -11,6 +11,7 @@ import qualified Data.Map                                  as Map
 import           Data.Monoid                               ((<>))
 import           Data.Proxy
 import qualified Data.Text                                 as T
+import           Data.List                                 (nub)
 import           Language.PureScript.Bridge
 import           Language.PureScript.Bridge.TypeParameters
 import           Language.PureScript.Bridge.CodeGenSwitches
@@ -195,17 +196,36 @@ allTests = do
                           , ""
                           ]
       in (barOptics <> fooOptics) `shouldBe` txt
+    it "tests generation of typeclass definition" $
+       let recType = bridgeSumType (buildBridge defaultBridge) (mkSumType (Proxy :: Proxy (SingleRecord A B)))
+           bar = bridgeSumType (buildBridge defaultBridge) (mkSumType (Proxy :: Proxy (Bar A B M1 C)))
+           classDefinition = recLabelToClasses (nub (concat (map (sumLensableRecLabelsToText settings) [bar,recType])))
+           txt = T.unlines [
+                            "class HasA s a | s -> a where"
+                           ,"  a :: Lens' s a"
+                           ,""
+                           ,"class HasB s a | s -> a where"
+                           ,"  b :: Lens' s a"
+                           ,""
+                           ]
+       in T.unlines classDefinition `shouldBe` txt
     it "tests generation of record optics" $
       let recType = bridgeSumType (buildBridge defaultBridge) (mkSumType (Proxy :: Proxy (SingleRecord A B)))
-          bar = bridgeSumType (buildBridge defaultBridge) (mkSumType (Proxy :: Proxy (Bar A B M1 C)))
+          bar = bridgeSumType (buildBridge defaultBridge) (mkSumType (Proxy :: Proxy (SingleRecordWithDuplicateFields A B)))
           barOptics = recordOptics bar
           recTypeOptics = recordOptics recType
           txt = T.unlines [
-                            "a :: forall a b. Lens' (SingleRecord a b) a"
-                          , "a = _Newtype <<< prop (SProxy :: SProxy \"_a\")"
+                            "instance hasASingleRecordWithDuplicateFields :: HasA (SingleRecordWithDuplicateFields a b) a where "
+                          , "  a = _Newtype <<< prop (SProxy :: SProxy \"_a\")"
                           , ""
-                          , "b :: forall a b. Lens' (SingleRecord a b) b"
-                          , "b = _Newtype <<< prop (SProxy :: SProxy \"_b\")"
+                          , "instance hasBSingleRecordWithDuplicateFields :: HasB (SingleRecordWithDuplicateFields a b) b where "
+                          , "  b = _Newtype <<< prop (SProxy :: SProxy \"_b\")"
+                          , ""
+                          , "instance hasASingleRecord :: HasA (SingleRecord a b) a where "
+                          , "  a = _Newtype <<< prop (SProxy :: SProxy \"_a\")"
+                          , ""
+                          , "instance hasBSingleRecord :: HasB (SingleRecord a b) b where "
+                          , "  b = _Newtype <<< prop (SProxy :: SProxy \"_b\")"
                           , ""
                           ]
       in (barOptics <> recTypeOptics) `shouldBe` txt
@@ -226,12 +246,12 @@ allTests = do
                           , "--------------------------------------------------------------------------------"
                           , "_SingleRecord :: forall a b. Iso' (SingleRecord a b) { _a :: a, _b :: b, c :: String}"
                           , "_SingleRecord = _Newtype"
-                          ,""
-                          , "a :: forall a b. Lens' (SingleRecord a b) a"
-                          , "a = _Newtype <<< prop (SProxy :: SProxy \"_a\")"
                           , ""
-                          , "b :: forall a b. Lens' (SingleRecord a b) b"
-                          , "b = _Newtype <<< prop (SProxy :: SProxy \"_b\")"
+                          , "instance hasASingleRecord :: HasA (SingleRecord a b) a where "
+                          , "  a = _Newtype <<< prop (SProxy :: SProxy \"_a\")"
+                          , ""
+                          , "instance hasBSingleRecord :: HasB (SingleRecord a b) b where "
+                          , "  b = _Newtype <<< prop (SProxy :: SProxy \"_b\")"
                           , ""
                           , "--------------------------------------------------------------------------------"
                           ]
