@@ -144,7 +144,6 @@ instances settings st@(SumType t _ is) = map go is
         encodeOpts = case Switches.generateForeign settings of
                       Nothing -> ""
                       Just fopts -> " { unwrapSingleConstructors = " <> (T.toLower . T.pack . show . Switches.unwrapSingleConstructors) fopts <> " }"
-        lowercasePrefixDc = T.toLower (T.take 1 (_typeName t)) <> T.drop 1 (_typeName t)
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
                | otherwise = bracketWrap constraintsInner <> " => "
@@ -158,7 +157,6 @@ instances settings st@(SumType t _ is) = map go is
         decodeOpts = case Switches.generateForeign settings of
                       Nothing -> ""
                       Just fopts -> " { unwrapSingleConstructors = " <> (T.toLower . T.pack . show . Switches.unwrapSingleConstructors) fopts <> " }"
-        lowercasePrefixDc = T.toLower (T.take 1 (_typeName t)) <> T.drop 1 (_typeName t)
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
                | otherwise = bracketWrap constraintsInner <> " => "
