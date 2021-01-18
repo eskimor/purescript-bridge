@@ -8,6 +8,7 @@ import           Control.Lens
 import           Control.Monad
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
+import           Data.Monoid ((<>))
 import           Data.Set (Set)
 import           Data.Maybe (isJust)
 import qualified Data.Set as Set
