@@ -17,7 +17,6 @@ library
                      , transformers
                      , servant >=0.18.0
                      , servant-server >=0.18.0
-                     , squeal-postgresql
                      , text
                      , warp
                      , purescript-bridge
