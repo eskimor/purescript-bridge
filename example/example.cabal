@@ -1,0 +1,39 @@
+cabal-version:       >=1.10
+
+name:                example
+version:             0.1.0.0
+license-file:        LICENSE
+author:              Peter Becich
+maintainer:          peterbecich@gmail.com
+build-type:          Simple
+extra-source-files:  CHANGELOG.md
+
+library
+  exposed-modules:     MyLib, Types
+  hs-source-dirs:      src
+  build-depends:       base >=4.8 && <5
+                     , aeson
+                     , lens
+                     , transformers
+                     , servant >=0.18.0
+                     , servant-server >=0.18.0
+                     , text
+                     , warp
+                     , purescript-bridge
+  default-language:    Haskell2010
+
+executable example
+  main-is:             Main.hs
+  hs-source-dirs:      app
+  build-depends:       base >=4.8 && <5, example
+  default-language:    Haskell2010
+
+executable generate-purescript
+  main-is:             GeneratePurescript.hs
+  hs-source-dirs:      app
+  build-depends:       base >=4.8 && <5
+                     , example
+                     , purescript-bridge
+                     , text
+                     , lens
+  default-language:    Haskell2010
