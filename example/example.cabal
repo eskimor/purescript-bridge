@@ -12,7 +12,9 @@ library
   exposed-modules:     MyLib, Types
   hs-source-dirs:      src
   build-depends:       base >=4.8 && <5
-                     , aeson
+                     , aeson >= 1.5.5.0
+                     , aeson-pretty
+                     , bytestring
                      , lens
                      , transformers
                      , servant >=0.18.0

@@ -21,9 +21,9 @@ newtype Foo =
     }
 
 instance encodeFoo :: Encode Foo where
-  encode = genericEncode $ defaultOptions { unwrapSingleConstructors = false }
+  encode = genericEncode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
 instance decodeFoo :: Decode Foo where
-  decode = genericDecode $ defaultOptions { unwrapSingleConstructors = false }
+  decode = genericDecode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
 derive instance genericFoo :: Generic Foo _
 derive instance newtypeFoo :: Newtype Foo _
 
