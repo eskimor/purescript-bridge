@@ -17,13 +17,13 @@ In this directory:
 - Open the browser's developer console and look for the message received:
 
 ```
-Foo message: Hello	 Foo number: 123
+Foo message: Hello	 Foo number: 123    Foo list length: 11
 ```
 
 - Look at the server's logs for the message sent from the browser:
 
 ```
-Foo message: Hola        Foo number: 124
+Foo message: Hola        Foo number: 124        Foo list length: 22
 ```
 
 ----------------

@@ -1,6 +1,8 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE KindSignatures    #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE LambdaCase        #-}
 
 module Language.PureScript.Bridge.Printer where
 
@@ -127,6 +129,18 @@ sumTypeToTypeDecls settings (SumType t cs is) = T.unlines $
     genForeign Decode = (isJust . Switches.generateForeign) settings
     genForeign _ = True
 
+foreignOptionsToPurescript :: Maybe Switches.ForeignOptions -> Text
+foreignOptionsToPurescript = \case
+  Nothing -> ""
+  Just (Switches.ForeignOptions{..}) ->
+    " { unwrapSingleConstructors = "
+    <> (T.toLower . T.pack . show $ unwrapSingleConstructors)
+    <> " , unwrapSingleArguments = "
+    <> (T.toLower . T.pack . show $ unwrapSingleArguments)
+    <> " }"
+
+
+
 -- | Given a Purescript type, generate instances for typeclass
 -- instances it claims to have.
 instances :: Switches.Settings -> SumType 'PureScript -> [Text]
@@ -136,9 +150,8 @@ instances settings st@(SumType t _ is) = map go is
     go Encode = "instance encode" <> _typeName t <> " :: " <> extras <> "Encode " <> typeInfoToText False t <> " where\n" <>
                 "  encode = genericEncode $ defaultOptions" <> encodeOpts
       where
-        encodeOpts = case Switches.generateForeign settings of
-                      Nothing -> ""
-                      Just fopts -> " { unwrapSingleConstructors = " <> (T.toLower . T.pack . show . Switches.unwrapSingleConstructors) fopts <> " }"
+        encodeOpts =
+          foreignOptionsToPurescript $ Switches.generateForeign settings
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
                | otherwise = bracketWrap constraintsInner <> " => "
@@ -149,9 +162,8 @@ instances settings st@(SumType t _ is) = map go is
     go Decode = "instance decode" <> _typeName t <> " :: " <> extras <> "Decode " <> typeInfoToText False t <> " where\n" <>
                 "  decode = genericDecode $ defaultOptions" <> decodeOpts
       where
-        decodeOpts = case Switches.generateForeign settings of
-                      Nothing -> ""
-                      Just fopts -> " { unwrapSingleConstructors = " <> (T.toLower . T.pack . show . Switches.unwrapSingleConstructors) fopts <> " }"
+        decodeOpts =
+          foreignOptionsToPurescript $ Switches.generateForeign settings
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
                | otherwise = bracketWrap constraintsInner <> " => "

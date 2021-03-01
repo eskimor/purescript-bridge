@@ -18,6 +18,7 @@ import Language.PureScript.Bridge.PSTypes
 data Foo = Foo
   { _fooMessage :: Text
   , _fooNumber  :: Int
+  , _fooList    :: [Int]
   } deriving (Generic, ToJSON, FromJSON)
 
 makeLenses ''Foo

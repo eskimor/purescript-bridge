@@ -10,7 +10,7 @@ import Data.Newtype (class Newtype)
 import Data.Symbol (SProxy(SProxy))
 import Foreign.Class (class Decode, class Encode)
 import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
-import Prim (Int, String)
+import Prim (Array, Int, String)
 
 import Prelude
 
@@ -18,17 +18,18 @@ newtype Foo =
     Foo {
       _fooMessage :: String
     , _fooNumber :: Int
+    , _fooList :: Array Int
     }
 
 instance encodeFoo :: Encode Foo where
-  encode = genericEncode $ defaultOptions { unwrapSingleConstructors = false }
+  encode = genericEncode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
 instance decodeFoo :: Decode Foo where
-  decode = genericDecode $ defaultOptions { unwrapSingleConstructors = false }
+  decode = genericDecode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
 derive instance genericFoo :: Generic Foo _
 derive instance newtypeFoo :: Newtype Foo _
 
 --------------------------------------------------------------------------------
-_Foo :: Iso' Foo { _fooMessage :: String, _fooNumber :: Int}
+_Foo :: Iso' Foo { _fooMessage :: String, _fooNumber :: Int, _fooList :: Array Int}
 _Foo = _Newtype
 
 fooMessage :: Lens' Foo String
@@ -36,5 +37,8 @@ fooMessage = _Newtype <<< prop (SProxy :: SProxy "_fooMessage")
 
 fooNumber :: Lens' Foo Int
 fooNumber = _Newtype <<< prop (SProxy :: SProxy "_fooNumber")
+
+fooList :: Lens' Foo (Array Int)
+fooList = _Newtype <<< prop (SProxy :: SProxy "_fooList")
 
 --------------------------------------------------------------------------------
