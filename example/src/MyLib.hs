@@ -19,7 +19,7 @@ import           Servant
 import           System.Environment (lookupEnv)
 
 import Types
-    (Foo (Foo), fooMessage, fooNumber)
+    (Foo (Foo), fooMessage, fooNumber, fooList)
 
 type FooServer
   = "foo" :> (Get '[JSON] Foo
@@ -27,7 +27,7 @@ type FooServer
              )
 
 foo :: Foo
-foo = Foo (pack "Hello") 123
+foo = Foo (pack "Hello") 123 [10..20]
 
 fooServer :: Server FooServer
 fooServer = getFoo :<|> postFoo
@@ -37,6 +37,7 @@ fooServer = getFoo :<|> postFoo
       let
         logMsg = "Foo message: " <> (unpack $ view fooMessage foo)
           <> "\t Foo number: " <> (show (view fooNumber foo))
+          <> "\t Foo list length: " <> (show . length $ view fooList foo)
       liftIO . putStrLn $ logMsg
       return NoContent
 

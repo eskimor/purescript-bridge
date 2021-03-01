@@ -8,6 +8,7 @@ import Data.Argonaut.Aeson.Options (defaultOptions)
 import Data.Either (Either(Left, Right))
 import Data.Maybe (Maybe(Just))
 import Data.Lens (over, view, set)
+import Data.Foldable (length)
 import Data.Traversable (for_)
 import Effect (Effect)
 import Effect.Console (log)
@@ -17,7 +18,7 @@ import Affjax (get, post_)
 import Affjax.ResponseFormat (json)
 import Affjax.RequestBody as RequestBody
 
-import Types (Foo, fooMessage, fooNumber)
+import Types (Foo, fooMessage, fooNumber, fooList)
 
 main :: Effect Unit
 main = log "Hello, Purescript!" *> launchAff_ do
@@ -37,9 +38,14 @@ main = log "Hello, Purescript!" *> launchAff_ do
       liftEffect do
         log $ "Foo message: " <> (view fooMessage foo)
           <> "\t Foo number: " <> (show $ view fooNumber foo)
+          <> "\t Foo list length: "
+          <> (show (length $ view fooList foo :: Int))
       let
         -- modify the Foo received and send it back
-        foo' = set fooMessage "Hola" $ over fooNumber (_+1) foo
+        foo' = set fooMessage "Hola"
+               $ over fooNumber (_+1)
+               $ over fooList (\l -> l <> l)
+               $ foo
         response = Just $ RequestBody.json $ genericEncodeAeson defaultOptions foo'
       post_ "/foo" response
 
