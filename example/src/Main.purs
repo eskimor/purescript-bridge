@@ -2,6 +2,7 @@ module Main where
 
 import Prelude
 
+import Data.Argonaut.Decode.Error (JsonDecodeError, printJsonDecodeError)
 import Data.Argonaut.Aeson.Decode.Generic (genericDecodeAeson)
 import Data.Argonaut.Aeson.Encode.Generic (genericEncodeAeson)
 import Data.Argonaut.Aeson.Options (defaultOptions)
@@ -29,10 +30,10 @@ main = log "Hello, Purescript!" *> launchAff_ do
   fooResponse <- get json "/foo"
   for_ fooResponse \fooPayload -> do
     let
-      efoo :: Either String Foo
+      efoo :: Either JsonDecodeError Foo
       efoo = genericDecodeAeson defaultOptions fooPayload.body
     case efoo of
-      Left e -> liftEffect $ log $ "Error decoding Foo: " <> e
+      Left e -> liftEffect $ log $ "Error decoding Foo: " <> printJsonDecodeError e
       Right _ -> pure unit
     for_ efoo \foo -> do
       liftEffect do
