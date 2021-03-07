@@ -15,6 +15,7 @@ library
                      , aeson >= 1.5.5.0
                      , aeson-pretty
                      , bytestring
+                     , containers
                      , lens
                      , transformers
                      , servant >=0.18.0

@@ -12,6 +12,7 @@ You can edit this file as you like.
   , "aff"
   , "affjax"
   , "argonaut-aeson-generic"
+  , "ordered-collections"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]

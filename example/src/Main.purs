@@ -18,8 +18,14 @@ import Effect.Aff (launchAff_)
 import Affjax (get, post_)
 import Affjax.ResponseFormat (json)
 import Affjax.RequestBody as RequestBody
-
 import Types (Foo, fooMessage, fooNumber, fooList)
+import Data.Argonaut.Decode.Error (JsonDecodeError)
+import Data.Argonaut.Decode.Generic (genericDecodeJson)
+import Data.Argonaut.Encode.Generic (genericEncodeJson)
+import Types (Foo, fooMessage, fooNumber, fooList, fooMap)
+import Data.Map as Map
+
+import Foreign.Object as Object
 
 main :: Effect Unit
 main = log "Hello, Purescript!" *> launchAff_ do
@@ -41,12 +47,14 @@ main = log "Hello, Purescript!" *> launchAff_ do
           <> "\t Foo number: " <> (show $ view fooNumber foo)
           <> "\t Foo list length: "
           <> (show (length $ view fooList foo :: Int))
+          <> "\t Foo map size: "
+          <> (show (Object.size $ view fooMap foo :: Int))
       let
         -- modify the Foo received and send it back
         foo' = set fooMessage "Hola"
                $ over fooNumber (_+1)
                $ over fooList (\l -> l <> l)
+               $ over fooMap (\o -> Object.insert "abc" 123 o)
                $ foo
         response = Just $ RequestBody.json $ genericEncodeAeson defaultOptions foo'
       post_ "/foo" response
-

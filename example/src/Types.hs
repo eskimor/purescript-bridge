@@ -14,11 +14,13 @@ import Data.Text
 import GHC.Generics
 import Language.PureScript.Bridge
 import Language.PureScript.Bridge.PSTypes
+import qualified Data.Map.Lazy as Map
 
 data Foo = Foo
   { _fooMessage :: Text
   , _fooNumber  :: Int
   , _fooList    :: [Int]
+  , _fooMap     :: Map.Map Text Int
   } deriving (Generic, ToJSON, FromJSON)
 
 makeLenses ''Foo
