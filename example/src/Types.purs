@@ -15,12 +15,33 @@ import Prim (Array, Int, String)
 
 import Prelude
 
+newtype Baz =
+    Baz {
+      _bazMessage :: String
+    }
+
+instance encodeBaz :: Encode Baz where
+  encode = genericEncode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
+instance decodeBaz :: Decode Baz where
+  decode = genericDecode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
+derive instance genericBaz :: Generic Baz _
+derive instance newtypeBaz :: Newtype Baz _
+
+--------------------------------------------------------------------------------
+_Baz :: Iso' Baz { _bazMessage :: String}
+_Baz = _Newtype
+
+bazMessage :: Lens' Baz String
+bazMessage = _Newtype <<< prop (SProxy :: SProxy "_bazMessage")
+
+--------------------------------------------------------------------------------
 newtype Foo =
     Foo {
       _fooMessage :: String
     , _fooNumber :: Int
     , _fooList :: Array Int
     , _fooMap :: Object Int
+    , _fooBaz :: Baz
     }
 
 instance encodeFoo :: Encode Foo where
@@ -31,7 +52,7 @@ derive instance genericFoo :: Generic Foo _
 derive instance newtypeFoo :: Newtype Foo _
 
 --------------------------------------------------------------------------------
-_Foo :: Iso' Foo { _fooMessage :: String, _fooNumber :: Int, _fooList :: Array Int, _fooMap :: Object Int}
+_Foo :: Iso' Foo { _fooMessage :: String, _fooNumber :: Int, _fooList :: Array Int, _fooMap :: Object Int, _fooBaz :: Baz}
 _Foo = _Newtype
 
 fooMessage :: Lens' Foo String
@@ -45,5 +66,8 @@ fooList = _Newtype <<< prop (SProxy :: SProxy "_fooList")
 
 fooMap :: Lens' Foo (Object Int)
 fooMap = _Newtype <<< prop (SProxy :: SProxy "_fooMap")
+
+fooBaz :: Lens' Foo Baz
+fooBaz = _Newtype <<< prop (SProxy :: SProxy "_fooBaz")
 
 --------------------------------------------------------------------------------
