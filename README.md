@@ -3,7 +3,7 @@
 
 [![Haskell library and example](https://github.com/eskimor/purescript-bridge/actions/workflows/haskell.yml/badge.svg)](https://github.com/eskimor/purescript-bridge/actions/workflows/haskell.yml) [![Purescript example](https://github.com/eskimor/purescript-bridge/actions/workflows/purescript.yml/badge.svg)](https://github.com/eskimor/purescript-bridge/actions/workflows/purescript.yml) [![Build Status](https://travis-ci.org/eskimor/purescript-bridge.svg?branch=master)](https://travis-ci.org/eskimor/purescript-bridge)
 
-
+![warning](radiation.jpg "Warning") **Not supported by PureScript > 0.11**
 
 Translate your Haskell types to PureScript types. It should in theory work for almost all Haskell types, including type constructors!
 You just have to instantiate it with dummy parameters from e.g. "Language.PureScript.Bridge.TypeParameters".
