@@ -5,7 +5,7 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TypeSynonymInstances  #-}
-
+{-# LANGUAGE DuplicateRecordFields #-}
 
 module TestData where
 
@@ -45,6 +45,12 @@ data Bar a b m c = Bar1 (Maybe a) | Bar2 (Either a b) | Bar3 a
                  deriving (Generic, Typeable, Show)
 
 data SingleRecord a b = SingleRecord {
+    _a :: a
+  , _b :: b
+  , c  :: String
+  } deriving(Generic, Typeable, Show)
+
+data SingleRecordWithDuplicateFields a b = SingleRecordWithDuplicateFields {
     _a :: a
   , _b :: b
   , c  :: String

@@ -19,7 +19,7 @@ import qualified Data.Text as T
 import qualified Data.Text.IO as T
 import           System.Directory
 import           System.FilePath
-
+import           Data.List (nub)
 
 import           Language.PureScript.Bridge.SumType
 import           Language.PureScript.Bridge.TypeInfo
@@ -67,6 +67,7 @@ moduleToText settings m = T.unlines $
      , "import Prelude"
      , ""
      ]
+  <> sumClassesToText (nub (concat (map (sumLensableRecLabels settings) (psTypes m))))
   <> map (sumTypeToText settings) (psTypes m)
   where
     otherImports = importsFromList (_lensImports settings <> _genericsImports settings <> _foreignImports settings)
@@ -117,6 +118,11 @@ sumTypeToText settings st =
       if Switches.generateLenses settings then lenses else mempty
     lenses = "\n" <> sep <> "\n" <> sumTypeToOptics st <> sep
     sep = T.replicate 80 "-"
+
+sumLensableRecLabels :: Switches.Settings -> SumType 'PureScript -> [Text]
+sumLensableRecLabels settings st =
+    if Switches.generateLenses settings then lenses else mempty
+       where lenses = lensableRecLabels st
 
 sumTypeToTypeDecls :: Switches.Settings -> SumType 'PureScript -> Text
 sumTypeToTypeDecls settings (SumType t cs is) = T.unlines $
@@ -227,6 +233,32 @@ recordOptics st@(SumType _ [_] _) = T.unlines $ recordEntryToLens st <$> dcRecor
     singleRecordCons _                             = False
 recordOptics _ = ""
 
+----
+lensableRecLabels :: SumType 'PureScript -> [Text]
+-- Match on SumTypes with a single DataConstructor (that's a list of a single element)
+lensableRecLabels st@(SumType _ [_] _) = lensableRecLabel <$> dcRecords
+  where
+    cs = st ^. sumTypeConstructors
+    dcRecords = lensableConstructor ^.. traversed.sigValues._Right.traverse.filtered hasUnderscore
+    hasUnderscore e = e ^. recLabel.to (T.isPrefixOf "_")
+    lensableConstructor = filter singleRecordCons cs ^? _head
+    singleRecordCons (DataConstructor _ (Right _)) = True
+    singleRecordCons _                             = False
+lensableRecLabels _ = []
+---
+
+lensableRecLabel :: RecordEntry 'PureScript -> Text
+lensableRecLabel e =
+  if hasUnderscore then lensName else ""
+  where
+    recName = e ^. recLabel
+    lensName = T.drop 1 recName
+    hasUnderscore = e ^. recLabel.to (T.isPrefixOf "_")
+
+sumClassesToText :: [Text] -> [Text]
+sumClassesToText recLabels = map f recLabels
+     where f = \x -> "class Has" <> T.toUpper (T.take 1 x) <> T.drop 1 x <> " s a | s -> a where\n  " <> x <> " :: Lens' s a\n"
+
 constructorToText :: Int -> DataConstructor 'PureScript -> Text
 constructorToText _ (DataConstructor n (Left []))  = n
 constructorToText _ (DataConstructor n (Left ts))  = n <> " " <> T.intercalate " " (map (typeInfoToText False) ts)
@@ -307,13 +339,14 @@ constructorToOptic otherConstructors typeInfo (DataConstructor n args) =
                                 | otherwise = ""
 
 recordEntryToLens :: SumType 'PureScript -> RecordEntry 'PureScript -> Text
-recordEntryToLens st e =
+recordEntryToLens st@(SumType t _ _) e =
   if hasUnderscore
-  then lensName <> forAll <>  "Lens' " <> typName <> " " <> recType <> "\n"
+  then "instance has" <> toUppercaseFirstCharacter lensName <> _typeName t <> " :: Has" <> toUppercaseFirstCharacter lensName <> " " <> typName  <> " "  <> recType <> " where \n  "
       <> lensName <> " = _Newtype <<< prop (SProxy :: SProxy \"" <> recName <> "\")\n"
   else ""
   where
-    (typName, forAll) = typeNameAndForall (st ^. sumTypeInfo)
+    toUppercaseFirstCharacter x =  T.toUpper (T.take 1 x) <> T.drop 1 x
+    (typName, _) = typeNameAndForall (st ^. sumTypeInfo)
     recName = e ^. recLabel
     lensName = T.drop 1 recName
     recType = typeInfoToText False (e ^. recValue)
