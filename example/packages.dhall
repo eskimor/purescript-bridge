@@ -30,9 +30,9 @@ let additions =
           , "assert"
           , "record"
           ]
-        , repo = "git://github.com/peterbecich/purescript-foreign-generic.git"
-        , version = "56bc2056ef706ded4ef4406aced01a23d39af7cf"
+        , repo = "git://github.com/paf31/purescript-foreign-generic.git"
+        , version = "3cddc5fe3e87e426e0f719465ba60b9df4c0c72d"
         }
       }
 
-in  upstream // additions
+in  upstream ⫽ additions
