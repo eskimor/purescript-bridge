@@ -7,14 +7,14 @@
 
 module Types where
 
-import Control.Lens.TH (makeLenses)
-import Data.Aeson
-import Data.Proxy
-import Data.Text
-import GHC.Generics
-import Language.PureScript.Bridge
-import Language.PureScript.Bridge.PSTypes
-import qualified Data.Map.Lazy as Map
+import           Control.Lens.TH                    (makeLenses)
+import           Data.Aeson
+import qualified Data.Map.Lazy                      as Map
+import           Data.Proxy
+import           Data.Text
+import           GHC.Generics
+import           Language.PureScript.Bridge
+import           Language.PureScript.Bridge.PSTypes
 
 data Baz = Baz
   { _bazMessage :: Text
