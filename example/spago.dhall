@@ -1,7 +1,3 @@
-{-
-Welcome to a Spago project!
-You can edit this file as you like.
--}
 { name = "purescript-bridge-example"
 , dependencies =
   [ "console"
@@ -13,6 +9,14 @@ You can edit this file as you like.
   , "affjax"
   , "argonaut-aeson-generic"
   , "ordered-collections"
+  , "argonaut-codecs"
+  , "argonaut-generic"
+  , "either"
+  , "foldable-traversable"
+  , "foreign-object"
+  , "maybe"
+  , "newtype"
+  , "prelude"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs", "test/**/*.purs" ]
