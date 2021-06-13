@@ -87,8 +87,8 @@ _lensImports :: Switches.Settings -> [ImportLine]
 _lensImports settings
   | Switches.generateLenses settings =
     [ ImportLine "Data.Lens" Nothing $ Set.fromList ["Iso'", "Prism'", "Lens'", "prism'", "lens"]
-    , ImportLine "Data.Lens.Record" Nothing $ Set.fromList ["prop"]
     , ImportLine "Data.Lens.Iso.Newtype" Nothing $ Set.fromList ["_Newtype"]
+    , ImportLine "Data.Lens.Record" Nothing $ Set.fromList ["prop"]
     ] <> baseline <>
     [ ImportLine "Data.Symbol" Nothing $ Set.fromList ["SProxy(SProxy)"]
     ]
@@ -113,8 +113,8 @@ _argonautCodecsImports settings
 _foreignImports :: Switches.Settings -> [ImportLine]
 _foreignImports settings
   | (isJust . Switches.generateForeign) settings = 
-      [ ImportLine "Foreign.Generic" Nothing $ Set.fromList ["defaultOptions", "genericDecode", "genericEncode"]
-      , ImportLine "Foreign.Class" Nothing $ Set.fromList ["class Decode", "class Encode"]
+      [ ImportLine "Foreign.Class" Nothing $ Set.fromList ["class Decode", "class Encode"]
+      , ImportLine "Foreign.Generic" Nothing $ Set.fromList ["defaultOptions", "genericDecode", "genericEncode"]
       ]
   | otherwise = mempty
 
