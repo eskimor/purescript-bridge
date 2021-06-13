@@ -55,12 +55,12 @@ sumTypeConstructors inj (SumType info constrs is) = (\cs -> SumType info cs is) 
 --   In order to get the type information we use a dummy variable of type 'Proxy' (YourType).
 mkSumType :: forall t. (Generic t, Typeable t, GDataConstructor (Rep t))
           => Proxy t -> SumType 'Haskell
-mkSumType p = SumType (mkTypeInfo p) constructors (Encode : Decode : Generic : maybeToList (nootype constructors))
+mkSumType p = SumType (mkTypeInfo p) constructors (Encode : Decode : EncodeJson : DecodeJson : Generic : maybeToList (nootype constructors))
   where
     constructors = gToConstructors (from (undefined :: t))
 
 -- | Purescript typeclass instances that can be generated for your Haskell types.
-data Instance = Encode | Decode | Generic | Newtype | Eq | Ord deriving (Eq, Show)
+data Instance = Encode | EncodeJson | Decode | DecodeJson | Generic | Newtype | Eq | Ord deriving (Eq, Show)
 
 -- | The Purescript typeclass `Newtype` might be derivable if the original
 -- Haskell type was a simple type wrapper.
@@ -84,7 +84,6 @@ data DataConstructor (lang :: Language) =
   DataConstructor { _sigConstructor :: !Text -- ^ e.g. `Left`/`Right` for `Either`
                   , _sigValues      :: !(Either [TypeInfo lang] [RecordEntry lang])
                   } deriving (Show, Eq)
-
 
 data RecordEntry (lang :: Language) =
   RecordEntry { _recLabel :: !Text -- ^ e.g. `runState` for `State`
@@ -117,7 +116,6 @@ instance (Constructor a, GRecordEntry b) => GDataConstructor (C1 a b) where
 instance (GRecordEntry a, GRecordEntry b) => GRecordEntry (a :*: b) where
   gToRecordEntries (_ :: (a :*: b) f) = gToRecordEntries (undefined :: a f)
                                      ++ gToRecordEntries (undefined :: b f)
-
 
 instance GRecordEntry U1 where
   gToRecordEntries _ = []

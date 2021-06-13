@@ -130,6 +130,7 @@ defaultBridge = textBridge
     <|> listBridge
     <|> maybeBridge
     <|> eitherBridge
+    <|> strMapBridge
     <|> boolBridge
     <|> intBridge
     <|> doubleBridge

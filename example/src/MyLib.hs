@@ -4,22 +4,23 @@
 
 module MyLib (main) where
 
-import Prelude
+import           Prelude
 
-import           Control.Lens (view)
-import           Control.Monad.IO.Class (liftIO)
+import           Control.Lens               (view)
+import           Control.Monad.IO.Class     (liftIO)
 import           Data.Aeson
-import qualified Data.Aeson.Encode.Pretty as AP
+import qualified Data.Aeson.Encode.Pretty   as AP
 import qualified Data.ByteString.Lazy.Char8 as Char8
-import           Data.Text (pack, unpack)
+import qualified Data.Map.Lazy              as Map
+import           Data.Text                  (pack, unpack)
 import           GHC.Generics
 import           GHC.TypeLits
 import           Network.Wai.Handler.Warp
 import           Servant
-import           System.Environment (lookupEnv)
+import           System.Environment         (lookupEnv)
 
-import Types
-    (Foo (Foo), fooMessage, fooNumber, fooList)
+import           Types                      (Baz (Baz), Foo (Foo), fooList,
+                                             fooMap, fooMessage, fooNumber)
 
 type FooServer
   = "foo" :> (Get '[JSON] Foo
@@ -27,7 +28,12 @@ type FooServer
              )
 
 foo :: Foo
-foo = Foo (pack "Hello") 123 [10..20]
+foo = Foo
+  (pack "Hello")
+  123
+  [10..20]
+  (Map.fromList [(pack "foo", 2), (pack "bar", 3), (pack "baz", 3)])
+  (Baz $ pack "hello")
 
 fooServer :: Server FooServer
 fooServer = getFoo :<|> postFoo
@@ -38,6 +44,7 @@ fooServer = getFoo :<|> postFoo
         logMsg = "Foo message: " <> (unpack $ view fooMessage foo)
           <> "\t Foo number: " <> (show (view fooNumber foo))
           <> "\t Foo list length: " <> (show . length $ view fooList foo)
+          <> "\t Foo Map length: " <> (show . length $ view fooMap foo)
       liftIO . putStrLn $ logMsg
       return NoContent
 
