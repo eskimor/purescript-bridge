@@ -85,7 +85,6 @@ data DataConstructor (lang :: Language) =
                   , _sigValues      :: !(Either [TypeInfo lang] [RecordEntry lang])
                   } deriving (Show, Eq)
 
-
 data RecordEntry (lang :: Language) =
   RecordEntry { _recLabel :: !Text -- ^ e.g. `runState` for `State`
               , _recValue :: !(TypeInfo lang)
@@ -117,7 +116,6 @@ instance (Constructor a, GRecordEntry b) => GDataConstructor (C1 a b) where
 instance (GRecordEntry a, GRecordEntry b) => GRecordEntry (a :*: b) where
   gToRecordEntries (_ :: (a :*: b) f) = gToRecordEntries (undefined :: a f)
                                      ++ gToRecordEntries (undefined :: b f)
-
 
 instance GRecordEntry U1 where
   gToRecordEntries _ = []

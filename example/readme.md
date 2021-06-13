@@ -12,7 +12,7 @@ In this directory:
 
 - `cabal run example`
 
-- Open http://localhost:8080/index.html
+- Open [http://localhost:8080/index.html](http://localhost:8080/index.html)
 
 - Open the browser's developer console and look for the message received:
 

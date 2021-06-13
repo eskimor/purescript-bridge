@@ -20,7 +20,6 @@ import qualified Data.Text.IO as T
 import           System.Directory
 import           System.FilePath
 
-
 import           Language.PureScript.Bridge.SumType
 import           Language.PureScript.Bridge.TypeInfo
 import qualified Language.PureScript.Bridge.CodeGenSwitches as Switches
@@ -77,7 +76,6 @@ moduleToText settings m = T.unlines $
       <> _foreignImports settings
     allImports = Map.elems $ mergeImportLines otherImports (psImportLines m)
 
-
 _genericsImports :: Switches.Settings -> [ImportLine]
 _genericsImports settings
   | Switches.genericsGenRep settings =
@@ -85,31 +83,32 @@ _genericsImports settings
   | otherwise =
     [ ImportLine "Data.Generic" Nothing $ Set.fromList ["class Generic"] ]
 
-
 _lensImports :: Switches.Settings -> [ImportLine]
 _lensImports settings
   | Switches.generateLenses settings =
-    [ ImportLine "Data.Maybe" Nothing $ Set.fromList ["Maybe(..)"]
-    , ImportLine "Data.Lens" Nothing $ Set.fromList ["Iso'", "Prism'", "Lens'", "prism'", "lens"]
+    [ ImportLine "Data.Lens" Nothing $ Set.fromList ["Iso'", "Prism'", "Lens'", "prism'", "lens"]
     , ImportLine "Data.Lens.Record" Nothing $ Set.fromList ["prop"]
     , ImportLine "Data.Lens.Iso.Newtype" Nothing $ Set.fromList ["_Newtype"]
-    , ImportLine "Data.Symbol" Nothing $ Set.fromList ["SProxy(SProxy)"]
-    , ImportLine "Data.Newtype" Nothing $ Set.fromList ["class Newtype"]
+    ] <> baseline <>
+    [ ImportLine "Data.Symbol" Nothing $ Set.fromList ["SProxy(SProxy)"]
     ]
-  | otherwise =
-    [ ImportLine "Data.Maybe" Nothing $ Set.fromList ["Maybe(..)"]
-    , ImportLine "Data.Newtype" Nothing $ Set.fromList ["class Newtype"]
-    ]
+  | otherwise = baseline
+  where
+    baseline =
+      [ ImportLine "Data.Maybe" Nothing $ Set.fromList ["Maybe(..)"]
+      , ImportLine "Data.Newtype" Nothing $ Set.fromList ["class Newtype"]
+      ]
 
 _argonautCodecsImports :: Switches.Settings -> [ImportLine]
 _argonautCodecsImports settings
   | Switches.generateArgonautCodecs settings =
-    [ ImportLine "Data.Argonaut.Decode.Class" Nothing $ Set.fromList [ "class DecodeJson", "decodeJson" ]
-    , ImportLine "Data.Argonaut.Encode.Class" Nothing $ Set.fromList [ "class EncodeJson", "encodeJson" ]
-    , ImportLine "Data.Argonaut.Aeson.Decode.Generic" Nothing $ Set.fromList [ "genericDecodeAeson" ]
+    [ ImportLine "Data.Argonaut.Aeson.Decode.Generic" Nothing $ Set.fromList [ "genericDecodeAeson" ]
     , ImportLine "Data.Argonaut.Aeson.Encode.Generic" Nothing $ Set.fromList [ "genericEncodeAeson" ]
     , ImportLine "Data.Argonaut.Aeson.Options" (Just "Argonaut") $ Set.fromList [ "defaultOptions" ]
+    , ImportLine "Data.Argonaut.Decode.Class" Nothing $ Set.fromList [ "class DecodeJson", "decodeJson" ]
+    , ImportLine "Data.Argonaut.Encode.Class" Nothing $ Set.fromList [ "class EncodeJson", "encodeJson" ]
     ]
+  | otherwise = mempty
 
 _foreignImports :: Switches.Settings -> [ImportLine]
 _foreignImports settings
@@ -117,7 +116,7 @@ _foreignImports settings
       [ ImportLine "Foreign.Generic" Nothing $ Set.fromList ["defaultOptions", "genericDecode", "genericEncode"]
       , ImportLine "Foreign.Class" Nothing $ Set.fromList ["class Decode", "class Encode"]
       ]
-  | otherwise = []
+  | otherwise = mempty
 
 importLineToText :: ImportLine -> Text
 importLineToText = \case
@@ -141,16 +140,26 @@ sumTypeToTypeDecls :: Switches.Settings -> SumType 'PureScript -> Text
 sumTypeToTypeDecls settings (SumType t cs is) = T.unlines $
     dataOrNewtype <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
-  : instances settings (SumType t cs (filter genForeign is))
+  : instances settings (SumType t cs (filter genForeign . filter genArgonautCodec $ is))
   where
     dataOrNewtype = if isJust (nootype cs) then "newtype" else "data"
-    genForeign Encode = (isJust . Switches.generateForeign) settings
-    genForeign Decode = (isJust . Switches.generateForeign) settings
-    genForeign _ = True
+    genForeign :: Instance -> Bool
+    genForeign = \case
+      Encode -> check
+      Decode -> check
+      _      -> True
+      where check = (isJust . Switches.generateForeign) settings
+
+    genArgonautCodec :: Instance -> Bool
+    genArgonautCodec = \case
+      EncodeJson -> check
+      DecodeJson -> check
+      _          -> True
+      where check = Switches.generateArgonautCodecs settings
 
 foreignOptionsToPurescript :: Maybe Switches.ForeignOptions -> Text
 foreignOptionsToPurescript = \case
-  Nothing -> ""
+  Nothing -> mempty
   Just (Switches.ForeignOptions{..}) ->
     " { unwrapSingleConstructors = "
     <> (T.toLower . T.pack . show $ unwrapSingleConstructors)
@@ -205,8 +214,6 @@ instances settings st@(SumType t _ is) = map go is
     go DecodeJson = "instance decodeJson" <> _typeName t <> " :: " <> extras <> "DecodeJson " <> typeInfoToText False t <> " where\n" <>
                 "  decodeJson = genericDecodeAeson Argonaut.defaultOptions"
       where
-        decodeOpts =
-          foreignOptionsToPurescript $ Switches.generateForeign settings
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
                | otherwise = bracketWrap constraintsInner <> " => "
@@ -288,7 +295,6 @@ constructorToText indentation (DataConstructor n (Right rs)) =
 
 spaces :: Int -> Text
 spaces c = T.replicate c " "
-
 
 typeNameAndForall :: TypeInfo 'PureScript -> (Text, Text)
 typeNameAndForall typeInfo = (typName, forAll)

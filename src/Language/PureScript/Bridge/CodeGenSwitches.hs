@@ -3,13 +3,13 @@ module Language.PureScript.Bridge.CodeGenSwitches
     ( Settings (..)
     , ForeignOptions(..)
     , defaultSettings
-    , purs_0_11_settings
     , Switch
     , getSettings
     , defaultSwitch
     , noLenses, genLenses
     , useGen, useGenRep
-    , genForeign, noForeign
+    , genForeign, noForeign, noArgonautCodecs
+    , genArgonautCodecs
     ) where
 
 
@@ -34,12 +34,6 @@ data ForeignOptions = ForeignOptions
 defaultSettings :: Settings
 defaultSettings = Settings True True True Nothing
 
-
--- |settings for purescript 0.11.x
-purs_0_11_settings :: Settings
-purs_0_11_settings = Settings True False False Nothing
-
-
 -- | you can `mappend` switches to control the code generation
 type Switch = Endo Settings
 
@@ -58,6 +52,10 @@ defaultSwitch = mempty
 noLenses :: Switch
 noLenses = Endo $ \settings -> settings { generateLenses = False }
 
+-- | Switch off the generatation of argonaut-codecs
+noArgonautCodecs :: Switch
+noArgonautCodecs = Endo $ \settings ->
+  settings { generateArgonautCodecs = False }
 
 -- | Switch on the generatation of profunctor-lenses
 genLenses :: Switch
@@ -75,6 +73,10 @@ useGen = Endo $ \settings -> settings { genericsGenRep = False }
 
 genForeign :: ForeignOptions -> Switch
 genForeign opts = Endo $ \settings -> settings { generateForeign = Just opts }
+
+genArgonautCodecs :: Switch
+genArgonautCodecs = Endo $ \settings ->
+  settings { generateArgonautCodecs = True }
 
 noForeign :: Switch
 noForeign = Endo $ \settings -> settings { generateForeign = Nothing }
