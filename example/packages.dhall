@@ -17,22 +17,6 @@ let additions =
             "git://github.com/peterbecich/purescript-argonaut-aeson-generic.git"
         , version = "2c8c5ee2381ddb786af7fb79a73e3b83001d68e8"
         }
-      , foreign-generic =
-        { dependencies =
-          [ "console"
-          , "effect"
-          , "psci-support"
-          , "prelude"
-          , "tuples"
-          , "bifunctors"
-          , "foreign"
-          , "foreign-object"
-          , "assert"
-          , "record"
-          ]
-        , repo = "git://github.com/paf31/purescript-foreign-generic.git"
-        , version = "3cddc5fe3e87e426e0f719465ba60b9df4c0c72d"
-        }
       }
 
-in  upstream // additions
+in  upstream ⫽ additions
