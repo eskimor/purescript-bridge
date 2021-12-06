@@ -3,13 +3,13 @@ module Language.PureScript.Bridge.CodeGenSwitches
     ( Settings (..)
     , ForeignOptions(..)
     , defaultSettings
-    , purs_0_11_settings
     , Switch
     , getSettings
     , defaultSwitch
     , noLenses, genLenses
     , useGen, useGenRep
-    , genForeign, noForeign
+    , genForeign, noForeign, noArgonautCodecs
+    , genArgonautCodecs
     ) where
 
 
@@ -19,6 +19,7 @@ import Data.Monoid (Endo(..))
 data Settings = Settings
     { generateLenses :: Bool -- ^use purescript-profunctor-lens for generated PS-types?
     , genericsGenRep :: Bool -- ^generate generics using purescript-generics-rep instead of purescript-generics
+    , generateArgonautCodecs :: Bool -- ^generate Data.Argonaut.Decode.Class EncodeJson and DecodeJson instances
     , generateForeign :: Maybe ForeignOptions -- ^generate Foreign.Generic Encode and Decode instances
     }
     deriving (Eq, Show)
@@ -31,13 +32,7 @@ data ForeignOptions = ForeignOptions
 
 -- | Settings to generate Lenses
 defaultSettings :: Settings
-defaultSettings = Settings True True Nothing
-
-
--- |settings for purescript 0.11.x
-purs_0_11_settings :: Settings
-purs_0_11_settings = Settings True False Nothing
-
+defaultSettings = Settings True True True Nothing
 
 -- | you can `mappend` switches to control the code generation
 type Switch = Endo Settings
@@ -57,6 +52,10 @@ defaultSwitch = mempty
 noLenses :: Switch
 noLenses = Endo $ \settings -> settings { generateLenses = False }
 
+-- | Switch off the generatation of argonaut-codecs
+noArgonautCodecs :: Switch
+noArgonautCodecs = Endo $ \settings ->
+  settings { generateArgonautCodecs = False }
 
 -- | Switch on the generatation of profunctor-lenses
 genLenses :: Switch
@@ -74,6 +73,10 @@ useGen = Endo $ \settings -> settings { genericsGenRep = False }
 
 genForeign :: ForeignOptions -> Switch
 genForeign opts = Endo $ \settings -> settings { generateForeign = Just opts }
+
+genArgonautCodecs :: Switch
+genArgonautCodecs = Endo $ \settings ->
+  settings { generateArgonautCodecs = True }
 
 noForeign :: Switch
 noForeign = Endo $ \settings -> settings { generateForeign = Nothing }

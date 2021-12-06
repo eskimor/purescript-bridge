@@ -32,6 +32,11 @@ psBool = TypeInfo {
 psEither :: MonadReader BridgeData m => m PSType
 psEither = TypeInfo "purescript-either" "Data.Either" "Either" <$> psTypeParameters
 
+psObject :: MonadReader BridgeData m => m PSType
+psObject = do
+  valueTypes <- tail <$> psTypeParameters
+  return $ TypeInfo "purescript-foreign-object" "Foreign.Object" "Object" valueTypes
+
 psInt :: PSType
 psInt = TypeInfo {
     _typePackage = ""

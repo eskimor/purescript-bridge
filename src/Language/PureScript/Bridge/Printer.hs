@@ -20,7 +20,6 @@ import qualified Data.Text.IO as T
 import           System.Directory
 import           System.FilePath
 
-
 import           Language.PureScript.Bridge.SumType
 import           Language.PureScript.Bridge.TypeInfo
 import qualified Language.PureScript.Bridge.CodeGenSwitches as Switches
@@ -36,6 +35,7 @@ type PSModule = Module 'PureScript
 
 data ImportLine = ImportLine {
   importModule :: !Text
+, importAlias  :: !(Maybe Text)
 , importTypes  :: !(Set Text)
 } deriving Show
 
@@ -69,45 +69,63 @@ moduleToText settings m = T.unlines $
      ]
   <> map (sumTypeToText settings) (psTypes m)
   where
-    otherImports = importsFromList (_lensImports settings <> _genericsImports settings <> _foreignImports settings)
+    otherImports = importsFromList $
+      _lensImports settings
+      <> _genericsImports settings
+      <> _argonautCodecsImports settings
+      <> _foreignImports settings
     allImports = Map.elems $ mergeImportLines otherImports (psImportLines m)
-
 
 _genericsImports :: Switches.Settings -> [ImportLine]
 _genericsImports settings
   | Switches.genericsGenRep settings =
-     [ ImportLine "Data.Generic.Rep" $ Set.fromList ["class Generic"] ]
+     [ ImportLine "Data.Generic.Rep" Nothing $ Set.fromList ["class Generic"] ]
   | otherwise =
-    [ ImportLine "Data.Generic" $ Set.fromList ["class Generic"] ]
-
+    [ ImportLine "Data.Generic" Nothing $ Set.fromList ["class Generic"] ]
 
 _lensImports :: Switches.Settings -> [ImportLine]
 _lensImports settings
   | Switches.generateLenses settings =
-    [ ImportLine "Data.Maybe" $ Set.fromList ["Maybe(..)"]
-    , ImportLine "Data.Lens" $ Set.fromList ["Iso'", "Prism'", "Lens'", "prism'", "lens"]
-    , ImportLine "Data.Lens.Record" $ Set.fromList ["prop"]
-    , ImportLine "Data.Lens.Iso.Newtype" $ Set.fromList ["_Newtype"]
-    , ImportLine "Data.Symbol" $ Set.fromList ["SProxy(SProxy)"]
-    , ImportLine "Data.Newtype" $ Set.fromList ["class Newtype"]
+    [ ImportLine "Data.Lens" Nothing $ Set.fromList ["Iso'", "Prism'", "Lens'", "prism'", "lens"]
+    , ImportLine "Data.Lens.Iso.Newtype" Nothing $ Set.fromList ["_Newtype"]
+    , ImportLine "Data.Lens.Record" Nothing $ Set.fromList ["prop"]
+    ] <> baseline <>
+    [ ImportLine "Data.Symbol" Nothing $ Set.fromList ["SProxy(SProxy)"]
     ]
-  | otherwise =
-    [ ImportLine "Data.Maybe" $ Set.fromList ["Maybe(..)"]
-    , ImportLine "Data.Newtype" $ Set.fromList ["class Newtype"]
+  | otherwise = baseline
+  where
+    baseline =
+      [ ImportLine "Data.Maybe" Nothing $ Set.fromList ["Maybe(..)"]
+      , ImportLine "Data.Newtype" Nothing $ Set.fromList ["class Newtype"]
+      ]
+
+_argonautCodecsImports :: Switches.Settings -> [ImportLine]
+_argonautCodecsImports settings
+  | Switches.generateArgonautCodecs settings =
+    [ ImportLine "Data.Argonaut.Aeson.Decode.Generic" Nothing $ Set.fromList [ "genericDecodeAeson" ]
+    , ImportLine "Data.Argonaut.Aeson.Encode.Generic" Nothing $ Set.fromList [ "genericEncodeAeson" ]
+    , ImportLine "Data.Argonaut.Aeson.Options" (Just "Argonaut") $ Set.fromList [ "defaultOptions" ]
+    , ImportLine "Data.Argonaut.Decode.Class" Nothing $ Set.fromList [ "class DecodeJson", "decodeJson" ]
+    , ImportLine "Data.Argonaut.Encode.Class" Nothing $ Set.fromList [ "class EncodeJson", "encodeJson" ]
     ]
+  | otherwise = mempty
 
 _foreignImports :: Switches.Settings -> [ImportLine]
 _foreignImports settings
   | (isJust . Switches.generateForeign) settings = 
-      [ ImportLine "Foreign.Generic" $ Set.fromList ["defaultOptions", "genericDecode", "genericEncode"]
-      , ImportLine "Foreign.Class" $ Set.fromList ["class Decode", "class Encode"]
+      [ ImportLine "Foreign.Class" Nothing $ Set.fromList ["class Decode", "class Encode"]
+      , ImportLine "Foreign.Generic" Nothing $ Set.fromList ["defaultOptions", "genericDecode", "genericEncode"]
       ]
-  | otherwise = []
+  | otherwise = mempty
 
 importLineToText :: ImportLine -> Text
-importLineToText l = "import " <> importModule l <> " (" <> typeList <> ")"
+importLineToText = \case
+  ImportLine importModule Nothing importTypes ->
+    "import " <> importModule <> " (" <> typeList importTypes <> ")"
+  ImportLine importModule (Just importAlias) _ ->
+    "import " <> importModule <> " as " <> importAlias
   where
-    typeList = T.intercalate ", " (Set.toList (importTypes l))
+    typeList s = T.intercalate ", " (Set.toList s)
 
 sumTypeToText :: Switches.Settings -> SumType 'PureScript -> Text
 sumTypeToText settings st =
@@ -122,16 +140,26 @@ sumTypeToTypeDecls :: Switches.Settings -> SumType 'PureScript -> Text
 sumTypeToTypeDecls settings (SumType t cs is) = T.unlines $
     dataOrNewtype <> " " <> typeInfoToText True t <> " ="
   : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
-  : instances settings (SumType t cs (filter genForeign is))
+  : instances settings (SumType t cs (filter genForeign . filter genArgonautCodec $ is))
   where
     dataOrNewtype = if isJust (nootype cs) then "newtype" else "data"
-    genForeign Encode = (isJust . Switches.generateForeign) settings
-    genForeign Decode = (isJust . Switches.generateForeign) settings
-    genForeign _ = True
+    genForeign :: Instance -> Bool
+    genForeign = \case
+      Encode -> check
+      Decode -> check
+      _      -> True
+      where check = (isJust . Switches.generateForeign) settings
+
+    genArgonautCodec :: Instance -> Bool
+    genArgonautCodec = \case
+      EncodeJson -> check
+      DecodeJson -> check
+      _          -> True
+      where check = Switches.generateArgonautCodecs settings
 
 foreignOptionsToPurescript :: Maybe Switches.ForeignOptions -> Text
 foreignOptionsToPurescript = \case
-  Nothing -> ""
+  Nothing -> mempty
   Just (Switches.ForeignOptions{..}) ->
     " { unwrapSingleConstructors = "
     <> (T.toLower . T.pack . show $ unwrapSingleConstructors)
@@ -159,6 +187,18 @@ instances settings st@(SumType t _ is) = map go is
         constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
         instances params = genericInstance settings params <> ", " <> encodeInstance params
         bracketWrap x = "(" <> x <> ")"
+    go EncodeJson = "instance encodeJson" <> _typeName t <> " :: " <> extras <> "EncodeJson " <> typeInfoToText False t <> " where\n" <>
+                "  encodeJson = genericEncodeAeson Argonaut.defaultOptions"
+      where
+        encodeOpts =
+          foreignOptionsToPurescript $ Switches.generateForeign settings
+        stpLength = length sumTypeParameters
+        extras | stpLength == 0 = mempty
+               | otherwise = bracketWrap constraintsInner <> " => "
+        sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
+        constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
+        instances params = genericInstance settings params <> ", " <> encodeInstance params
+        bracketWrap x = "(" <> x <> ")"
     go Decode = "instance decode" <> _typeName t <> " :: " <> extras <> "Decode " <> typeInfoToText False t <> " where\n" <>
                 "  decode = genericDecode $ defaultOptions" <> decodeOpts
       where
@@ -170,6 +210,16 @@ instances settings st@(SumType t _ is) = map go is
         sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
         constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
         instances params = genericInstance settings params <> ", " <> decodeInstance params
+        bracketWrap x = "(" <> x <> ")"
+    go DecodeJson = "instance decodeJson" <> _typeName t <> " :: " <> extras <> "DecodeJson " <> typeInfoToText False t <> " where\n" <>
+                "  decodeJson = genericDecodeAeson Argonaut.defaultOptions"
+      where
+        stpLength = length sumTypeParameters
+        extras | stpLength == 0 = mempty
+               | otherwise = bracketWrap constraintsInner <> " => "
+        sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
+        constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
+        instances params = genericInstance settings params <> ", " <> decodeJsonInstance params
         bracketWrap x = "(" <> x <> ")"
     go i = "derive instance " <> T.toLower c <> _typeName t <> " :: " <> extras i <> c <> " " <> typeInfoToText False t <> postfix i
       where c = T.pack $ show i
@@ -193,8 +243,14 @@ isTypeParam t typ = _typeName typ `elem` map _typeName (_typeParameters t)
 encodeInstance :: PSType -> Text
 encodeInstance params = "Encode " <> typeInfoToText False params
 
+encodeJsonInstance :: PSType -> Text
+encodeJsonInstance params = "EncodeJson " <> typeInfoToText False params
+
 decodeInstance :: PSType -> Text
 decodeInstance params = "Decode " <> typeInfoToText False params
+
+decodeJsonInstance :: PSType -> Text
+decodeJsonInstance params = "DecodeJson " <> typeInfoToText False params
 
 genericInstance :: Switches.Settings -> PSType -> Text
 genericInstance settings params =
@@ -239,7 +295,6 @@ constructorToText indentation (DataConstructor n (Right rs)) =
 
 spaces :: Int -> Text
 spaces c = T.replicate c " "
-
 
 typeNameAndForall :: TypeInfo 'PureScript -> (Text, Text)
 typeNameAndForall typeInfo = (typName, forAll)
@@ -369,20 +424,21 @@ typeToImportLines t ls = typesToImportLines (update ls) (Set.fromList (_typePara
                 then Map.alter (Just . updateLine) (_typeModule t)
                 else id
 
-    updateLine Nothing = ImportLine (_typeModule t) (Set.singleton (_typeName t))
-    updateLine (Just (ImportLine m types)) = ImportLine m $ Set.insert (_typeName t) types
+    updateLine Nothing = ImportLine (_typeModule t) Nothing (Set.singleton (_typeName t))
+    updateLine (Just (ImportLine m alias types)) =
+      ImportLine m alias (Set.insert (_typeName t) types)
 
 importsFromList :: [ImportLine] -> Map Text ImportLine
 importsFromList ls = let
     pairs = zip (map importModule ls) ls
-    merge a b = ImportLine (importModule a) (importTypes a `Set.union` importTypes b)
+    merge a b = ImportLine (importModule a) (importAlias a) (importTypes a `Set.union` importTypes b)
   in
     Map.fromListWith merge pairs
 
 mergeImportLines :: ImportLines -> ImportLines -> ImportLines
 mergeImportLines = Map.unionWith mergeLines
   where
-    mergeLines a b = ImportLine (importModule a) (importTypes a `Set.union` importTypes b)
+    mergeLines a b = ImportLine (importModule a) (importAlias a) (importTypes a `Set.union` importTypes b)
 
 unlessM :: Monad m => m Bool -> m () -> m ()
 unlessM mbool action = mbool >>= flip unless action
