@@ -80,7 +80,7 @@ import Language.PureScript.Bridge.TypeInfo as Bridge
 --
 --  == /WARNING/:
 --   This function overwrites files - make backups or use version control!
-writePSTypes :: FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
+writePSTypes :: Maybe PackageName -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
 writePSTypes = writePSTypesWith Switches.defaultSwitch
 
 -- | Works like `writePSTypes` but you can add additional switches to control the generation of your PureScript code
@@ -92,8 +92,8 @@ writePSTypes = writePSTypesWith Switches.defaultSwitch
 --  == /WARNING/:
 --   This function overwrites files - make backups or use version control!
 writePSTypesWith ::
-  Switches.Switch -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
-writePSTypesWith switch root bridge sts = do
+  Switches.Switch -> Maybe PackageName -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
+writePSTypesWith switch packageName root bridge sts = do
   mapM_ (printModule settings root) modules
   T.putStrLn
     "The following purescript packages are needed by the generated code:\n"
@@ -102,7 +102,7 @@ writePSTypesWith switch root bridge sts = do
   where
     settings = Switches.getSettings switch
     bridged = map (bridgeSumType bridge) sts
-    modules = M.elems $ sumTypesToModules bridged
+    modules = M.elems $ sumTypesToModules packageName bridged
     packages =
       sumTypesToNeededPackages bridged
         <> Set.filter

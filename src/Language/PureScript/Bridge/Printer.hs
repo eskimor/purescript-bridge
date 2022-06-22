@@ -94,6 +94,7 @@ import Text.PrettyPrint.Leijen.Text
     vsep,
     (<+>),
   )
+import qualified Data.Char as C
 
 renderText :: Doc -> Text
 renderText = T.replace " \n" "\n" . displayTStrict . renderPretty 0.4 200
@@ -110,8 +111,16 @@ type PSModule = Module 'PureScript
 
 type Modules = Map Text PSModule
 
-sumTypesToModules :: [SumType 'PureScript] -> Modules
-sumTypesToModules = foldr (Map.unionWith unionModules) Map.empty . fmap sumTypeToModule
+newtype PackageName = PackageName Text
+
+mkPackageName :: String -> Maybe PackageName
+mkPackageName s = if all C.isAlpha s
+  then Just $ PackageName (T.pack s)
+  else Nothing
+
+sumTypesToModules :: Maybe PackageName -> [SumType 'PureScript] -> Modules
+sumTypesToModules packageName =
+  foldr (Map.unionWith unionModules) Map.empty . fmap (sumTypeToModule packageName)
 
 unionModules :: PSModule -> PSModule -> PSModule
 unionModules m1 m2 =
@@ -120,12 +129,12 @@ unionModules m1 m2 =
       psTypes = psTypes m1 <> psTypes m2
     }
 
-sumTypeToModule :: SumType 'PureScript -> Modules
-sumTypeToModule st@(SumType t _ is) =
+sumTypeToModule :: Maybe PackageName -> SumType 'PureScript -> Modules
+sumTypeToModule packageName st@(SumType t _ is) =
   Map.singleton
-    (_typeModule t)
+    typedModuleName
     $ PSModule
-      { psModuleName = _typeModule t,
+      { psModuleName = psModuleName,
         psImportLines =
           dropEmpty $
             dropPrelude $
@@ -141,7 +150,11 @@ sumTypeToModule st@(SumType t _ is) =
     dropEmpty = Map.delete ""
     dropPrelude = Map.delete "Prelude"
     dropPrim = Map.delete "Prim"
-    dropSelf = Map.delete (_typeModule t)
+    typedModuleName = _typeModule t
+    dropSelf = Map.delete typedModuleName
+    psModuleName = fromMaybe typedModuleName do
+      PackageName pn <- packageName
+      pure $ pn <> "." <> typedModuleName
 
 unionQualifiedImports :: Map Text Text -> Map Text Text -> Map Text Text
 unionQualifiedImports = Map.unionWith const
