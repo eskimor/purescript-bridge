@@ -9,6 +9,7 @@ module Language.PureScript.Bridge
     module Bridge,
     writePSTypes,
     writePSTypesWith,
+    writePSTypesWithNamespace,
     defaultSwitch,
     noLenses,
     genLenses,
@@ -91,9 +92,12 @@ writePSTypes = writePSTypesWith Switches.defaultSwitch
 --
 --  == /WARNING/:
 --   This function overwrites files - make backups or use version control!
-writePSTypesWith ::
-  Switches.Switch -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
-writePSTypesWith switch root bridge sts = do
+writePSTypesWith :: Switches.Switch -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
+writePSTypesWith switch = writePSTypesWithNamespace switch Nothing
+
+writePSTypesWithNamespace ::
+  Switches.Switch -> Maybe PackageName -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
+writePSTypesWithNamespace switch packageName root bridge sts = do
   mapM_ (printModule settings root) modules
   T.putStrLn
     "The following purescript packages are needed by the generated code:\n"
@@ -102,7 +106,7 @@ writePSTypesWith switch root bridge sts = do
   where
     settings = Switches.getSettings switch
     bridged = map (bridgeSumType bridge) sts
-    modules = M.elems $ sumTypesToModules bridged
+    modules = M.elems $ sumTypesToModules packageName bridged
     packages =
       sumTypesToNeededPackages bridged
         <> Set.filter
