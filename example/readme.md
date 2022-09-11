@@ -2,6 +2,8 @@
 
 This project demonstrates the libraries Purescript Bridge and [Purescript Argonaut Aeson Generic](https://github.com/coot/purescript-argonaut-aeson-generic).
 
+It needs Purescript 0.15.
+
 The Haskell type `Foo`, in `src/Types.hs`, is generated for Purescript by Purescript Bridge.  Purescript Argonaut Aeson Generic is used to decode and encode this type, client-side.
 
 In this directory:

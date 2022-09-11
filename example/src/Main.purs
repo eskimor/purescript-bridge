@@ -15,7 +15,7 @@ import Effect (Effect)
 import Effect.Console (log)
 import Effect.Class (liftEffect)
 import Effect.Aff (launchAff_)
-import Affjax (get, post_)
+import Affjax.Web (get, post_)
 import Affjax.ResponseFormat (json)
 import Affjax.RequestBody as RequestBody
 import Types (Foo, fooMessage, fooNumber, fooList)
