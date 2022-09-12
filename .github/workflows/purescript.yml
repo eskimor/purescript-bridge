@@ -22,7 +22,7 @@ jobs:
       - name: Set up a PureScript toolchain
         uses: purescript-contrib/setup-purescript@main
         with: # https://github.com/purescript-contrib/setup-purescript#specify-versions
-          purescript: "0.14.1"
+          purescript: "0.15.4"
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v2
@@ -33,7 +33,9 @@ jobs:
             output
 
       - name: Install dependencies
-        run: spago install
+        run: |
+          npm install -g esbuild
+          spago install
 
       - name: Build source
         run: spago build --no-install

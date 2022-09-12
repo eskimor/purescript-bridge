@@ -12,11 +12,11 @@ import Data.Lens.Iso.Newtype (_Newtype)
 import Data.Lens.Record (prop)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
-import Data.Symbol (SProxy(SProxy))
 import Foreign.Class (class Decode, class Encode)
 import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Foreign.Object (Object)
 import Prim (Array, Int, String)
+import Type.Proxy (Proxy(..))
 
 import Prelude
 
@@ -41,7 +41,7 @@ _Baz :: Iso' Baz { _bazMessage :: String}
 _Baz = _Newtype
 
 bazMessage :: Lens' Baz String
-bazMessage = _Newtype <<< prop (SProxy :: SProxy "_bazMessage")
+bazMessage = _Newtype <<< prop (Proxy :: Proxy "_bazMessage")
 
 --------------------------------------------------------------------------------
 newtype Foo =
@@ -69,18 +69,18 @@ _Foo :: Iso' Foo { _fooMessage :: String, _fooNumber :: Int, _fooList :: Array I
 _Foo = _Newtype
 
 fooMessage :: Lens' Foo String
-fooMessage = _Newtype <<< prop (SProxy :: SProxy "_fooMessage")
+fooMessage = _Newtype <<< prop (Proxy :: Proxy "_fooMessage")
 
 fooNumber :: Lens' Foo Int
-fooNumber = _Newtype <<< prop (SProxy :: SProxy "_fooNumber")
+fooNumber = _Newtype <<< prop (Proxy :: Proxy "_fooNumber")
 
 fooList :: Lens' Foo (Array Int)
-fooList = _Newtype <<< prop (SProxy :: SProxy "_fooList")
+fooList = _Newtype <<< prop (Proxy :: Proxy "_fooList")
 
 fooMap :: Lens' Foo (Object Int)
-fooMap = _Newtype <<< prop (SProxy :: SProxy "_fooMap")
+fooMap = _Newtype <<< prop (Proxy :: Proxy "_fooMap")
 
 fooBaz :: Lens' Foo Baz
-fooBaz = _Newtype <<< prop (SProxy :: SProxy "_fooBaz")
+fooBaz = _Newtype <<< prop (Proxy :: Proxy "_fooBaz")
 
 --------------------------------------------------------------------------------

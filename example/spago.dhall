@@ -2,11 +2,11 @@
 , dependencies =
   [ "console"
   , "effect"
-  , "psci-support"
   , "foreign-generic"
   , "profunctor-lenses"
   , "aff"
   , "affjax"
+  , "affjax-web"
   , "argonaut-aeson-generic"
   , "ordered-collections"
   , "argonaut-codecs"

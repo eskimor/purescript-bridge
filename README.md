@@ -21,6 +21,7 @@ For compatible JSON representations:
     * [This branch](https://github.com/coot/purescript-argonaut-aeson-generic/pull/15) is updated for Purescript 0.14.
     * [This branch](https://github.com/coot/purescript-argonaut-aeson-generic/pull/17) is updated for Purescript 0.15.
   * Or use [`purescript-foreign-generic`](https://pursuit.purescript.org/packages/purescript-foreign-generic).
+    * [This branch](https://github.com/paf31/purescript-foreign-generic/pull/76) is updated for Purescript 0.15.
 
 ## Documentation
 
