@@ -111,7 +111,7 @@ allTests = do
                           , "import Data.Lens.Record (prop)"
                           , "import Data.Maybe (Maybe, Maybe(..))"
                           , "import Data.Newtype (class Newtype)"
-                          , "import Data.Symbol (SProxy(SProxy))"
+                          , "import Type.Proxy (Proxy(Proxy))"
                           , ""
                           , "import Prelude"
                           , ""
@@ -214,10 +214,10 @@ allTests = do
           recTypeOptics = recordOptics recType
           txt = T.unlines [
                             "a :: forall a b. Lens' (SingleRecord a b) a"
-                          , "a = _Newtype <<< prop (SProxy :: SProxy \"_a\")"
+                          , "a = _Newtype <<< prop (Proxy :: Proxy \"_a\")"
                           , ""
                           , "b :: forall a b. Lens' (SingleRecord a b) b"
-                          , "b = _Newtype <<< prop (SProxy :: SProxy \"_b\")"
+                          , "b = _Newtype <<< prop (Proxy :: Proxy \"_b\")"
                           , ""
                           ]
       in (barOptics <> recTypeOptics) `shouldBe` txt
@@ -244,10 +244,10 @@ allTests = do
                           , "_SingleRecord = _Newtype"
                           ,""
                           , "a :: forall a b. Lens' (SingleRecord a b) a"
-                          , "a = _Newtype <<< prop (SProxy :: SProxy \"_a\")"
+                          , "a = _Newtype <<< prop (Proxy :: Proxy \"_a\")"
                           , ""
                           , "b :: forall a b. Lens' (SingleRecord a b) b"
-                          , "b = _Newtype <<< prop (SProxy :: SProxy \"_b\")"
+                          , "b = _Newtype <<< prop (Proxy :: Proxy \"_b\")"
                           , ""
                           , "--------------------------------------------------------------------------------"
                           ]

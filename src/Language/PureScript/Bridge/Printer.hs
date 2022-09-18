@@ -90,7 +90,7 @@ _lensImports settings
     , ImportLine "Data.Lens.Iso.Newtype" Nothing $ Set.fromList ["_Newtype"]
     , ImportLine "Data.Lens.Record" Nothing $ Set.fromList ["prop"]
     ] <> baseline <>
-    [ ImportLine "Data.Symbol" Nothing $ Set.fromList ["SProxy(SProxy)"]
+    [ ImportLine "Type.Proxy" Nothing $ Set.fromList ["Proxy(Proxy)"]
     ]
   | otherwise = baseline
   where
@@ -365,7 +365,7 @@ recordEntryToLens :: SumType 'PureScript -> RecordEntry 'PureScript -> Text
 recordEntryToLens st e =
   if hasUnderscore
   then lensName <> forAll <>  "Lens' " <> typName <> " " <> recType <> "\n"
-      <> lensName <> " = _Newtype <<< prop (SProxy :: SProxy \"" <> recName <> "\")\n"
+      <> lensName <> " = _Newtype <<< prop (Proxy :: Proxy \"" <> recName <> "\")\n"
   else ""
   where
     (typName, forAll) = typeNameAndForall (st ^. sumTypeInfo)
