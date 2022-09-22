@@ -10,6 +10,8 @@ You just have to instantiate it with dummy parameters from e.g. "Language.PureSc
 
 Data type translation is fully and easily customizable by providing your own `BridgePart` instances!
 
+The latest version of this project requires **Purescript 0.15**.
+
 ## JSON encoding / decoding
 
 For compatible JSON representations:
@@ -18,7 +20,6 @@ For compatible JSON representations:
   * Use [`aeson`](http://hackage.haskell.org/package/aeson)'s generic encoding/decoding with default options
 * On Purescript side:
   * Use [`purescript-argonaut-aeson-generic`](https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic). 
-    * [This branch](https://github.com/coot/purescript-argonaut-aeson-generic/pull/15) is updated for Purescript 0.14.
     * [This branch](https://github.com/coot/purescript-argonaut-aeson-generic/pull/17) is updated for Purescript 0.15.
   * Or use [`purescript-foreign-generic`](https://pursuit.purescript.org/packages/purescript-foreign-generic).
     * [This branch](https://github.com/paf31/purescript-foreign-generic/pull/76) is updated for Purescript 0.15.

@@ -16,7 +16,7 @@ import Foreign.Class (class Decode, class Encode)
 import Foreign.Generic (defaultOptions, genericDecode, genericEncode)
 import Foreign.Object (Object)
 import Prim (Array, Int, String)
-import Type.Proxy (Proxy(..))
+import Type.Proxy (Proxy(Proxy))
 
 import Prelude
 
