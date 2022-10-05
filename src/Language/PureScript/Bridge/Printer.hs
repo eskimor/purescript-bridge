@@ -188,7 +188,7 @@ instances settings st@(SumType t _ is) = map go is
         instances params = genericInstance settings params <> ", " <> encodeInstance params
         bracketWrap x = "(" <> x <> ")"
     go EncodeJson = "instance encodeJson" <> _typeName t <> " :: " <> extras <> "EncodeJson " <> typeInfoToText False t <> " where\n" <>
-                "  encodeJson = genericEncodeAeson Argonaut.defaultOptions"
+                "  encodeJson x = genericEncodeAeson Argonaut.defaultOptions x"
       where
         encodeOpts =
           foreignOptionsToPurescript $ Switches.generateForeign settings
@@ -212,7 +212,7 @@ instances settings st@(SumType t _ is) = map go is
         instances params = genericInstance settings params <> ", " <> decodeInstance params
         bracketWrap x = "(" <> x <> ")"
     go DecodeJson = "instance decodeJson" <> _typeName t <> " :: " <> extras <> "DecodeJson " <> typeInfoToText False t <> " where\n" <>
-                "  decodeJson = genericDecodeAeson Argonaut.defaultOptions"
+                "  decodeJson x = genericDecodeAeson Argonaut.defaultOptions x"
       where
         stpLength = length sumTypeParameters
         extras | stpLength == 0 = mempty
