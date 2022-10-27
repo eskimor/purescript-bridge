@@ -197,7 +197,7 @@ instances settings st@(SumType t _ is) = map go is
                | otherwise = bracketWrap constraintsInner <> " => "
         sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
         constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
-        instances params = genericInstance settings params <> ", " <> encodeInstance params
+        instances params = genericInstance settings params <> ", " <> encodeJsonInstance params
         bracketWrap x = "(" <> x <> ")"
     go Decode = "instance decode" <> _typeName t <> " :: " <> extras <> "Decode " <> typeInfoToText False t <> " where\n" <>
                 "  decode = genericDecode $ defaultOptions" <> decodeOpts
