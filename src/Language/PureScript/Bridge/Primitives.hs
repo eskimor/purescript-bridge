@@ -52,3 +52,18 @@ unitBridge = typeName ^== "()" >> return psUnit
 
 noContentBridge :: BridgePart
 noContentBridge = typeName ^== "NoContent" >> return psUnit
+
+wordBridge :: BridgePart
+wordBridge = typeName ^== "Word" >> return psWord
+
+word8Bridge :: BridgePart
+word8Bridge = typeName ^== "Word8" >> return psWord8
+
+word16Bridge :: BridgePart
+word16Bridge = typeName ^== "Word16" >> return psWord16
+
+word32Bridge :: BridgePart
+word32Bridge = typeName ^== "Word32" >> return psWord32
+
+word64Bridge :: BridgePart
+word64Bridge = typeName ^== "Word64" >> return psWord64

@@ -80,3 +80,43 @@ psUnit = TypeInfo  {
   , _typeName = "Unit"
   , _typeParameters = []
   }
+
+psWord :: PSType
+psWord = TypeInfo  {
+    _typePackage = "purescript-word"
+  , _typeModule = "Data.Word"
+  , _typeName = "Word"
+  , _typeParameters = []
+  }
+
+psWord8 :: PSType
+psWord8 = TypeInfo  {
+    _typePackage = "purescript-word"
+  , _typeModule = "Data.Word"
+  , _typeName = "Word8"
+  , _typeParameters = []
+  }
+
+psWord16 :: PSType
+psWord16 = TypeInfo  {
+    _typePackage = "purescript-word"
+  , _typeModule = "Data.Word"
+  , _typeName = "Word16"
+  , _typeParameters = []
+  }
+
+psWord32 :: PSType
+psWord32 = TypeInfo  {
+    _typePackage = "purescript-word"
+  , _typeModule = "Data.Word"
+  , _typeName = "Word32"
+  , _typeParameters = []
+  }
+
+psWord64 :: PSType
+psWord64 = TypeInfo  {
+    _typePackage = "purescript-word"
+  , _typeModule = "Data.Word"
+  , _typeName = "Word64"
+  , _typeParameters = []
+  }
