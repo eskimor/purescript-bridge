@@ -105,7 +105,7 @@ _argonautCodecsImports settings
     [ ImportLine "Data.Argonaut.Aeson.Decode.Generic" Nothing $ Set.fromList [ "genericDecodeAeson" ]
     , ImportLine "Data.Argonaut.Aeson.Encode.Generic" Nothing $ Set.fromList [ "genericEncodeAeson" ]
     , ImportLine "Data.Argonaut.Aeson.Options" (Just "Argonaut") $ Set.fromList [ "defaultOptions" ]
-    , ImportLine "Data.Argonaut.Decode.Class" Nothing $ Set.fromList [ "class DecodeJson", "decodeJson" ]
+    , ImportLine "Data.Argonaut.Decode.Class" Nothing $ Set.fromList [ "class DecodeJson", "class DecodeJsonField", "decodeJson" ]
     , ImportLine "Data.Argonaut.Encode.Class" Nothing $ Set.fromList [ "class EncodeJson", "encodeJson" ]
     ]
   | otherwise = mempty
@@ -197,7 +197,7 @@ instances settings st@(SumType t _ is) = map go is
                | otherwise = bracketWrap constraintsInner <> " => "
         sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
         constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
-        instances params = genericInstance settings params <> ", " <> encodeInstance params
+        instances params = genericInstance settings params <> ", " <> encodeJsonInstance params
         bracketWrap x = "(" <> x <> ")"
     go Decode = "instance decode" <> _typeName t <> " :: " <> extras <> "Decode " <> typeInfoToText False t <> " where\n" <>
                 "  decode = genericDecode $ defaultOptions" <> decodeOpts
@@ -219,7 +219,7 @@ instances settings st@(SumType t _ is) = map go is
                | otherwise = bracketWrap constraintsInner <> " => "
         sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
         constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
-        instances params = genericInstance settings params <> ", " <> decodeJsonInstance params
+        instances params = genericInstance settings params <> ", " <> decodeJsonInstance params <> ", " <> decodeJsonFieldInstance params
         bracketWrap x = "(" <> x <> ")"
     go i = "derive instance " <> T.toLower c <> _typeName t <> " :: " <> extras i <> c <> " " <> typeInfoToText False t <> postfix i
       where c = T.pack $ show i
@@ -251,6 +251,9 @@ decodeInstance params = "Decode " <> typeInfoToText False params
 
 decodeJsonInstance :: PSType -> Text
 decodeJsonInstance params = "DecodeJson " <> typeInfoToText False params
+
+decodeJsonFieldInstance :: PSType -> Text
+decodeJsonFieldInstance params = "DecodeJsonField " <> typeInfoToText False params
 
 genericInstance :: Switches.Settings -> PSType -> Text
 genericInstance settings params =
