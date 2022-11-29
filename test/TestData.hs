@@ -30,6 +30,8 @@ stringBridge = do
    haskType ^== mkTypeInfo (Proxy :: Proxy String)
    return psString
 
+data Simple a = Simple a deriving (Generic, Typeable, Show)
+
 data Foo = Foo
          | Bar Int
          | FooBar Int Text
