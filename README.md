@@ -19,8 +19,7 @@ For compatible JSON representations:
 * On Haskell side:
   * Use [`aeson`](http://hackage.haskell.org/package/aeson)'s generic encoding/decoding with default options
 * On Purescript side:
-  * Use [`purescript-argonaut-aeson-generic`](https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic). 
-    * [This branch](https://github.com/coot/purescript-argonaut-aeson-generic/pull/17) is updated for Purescript 0.15.
+  * Use [`purescript-argonaut-aeson-generic >=0.4.1`](https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic/0.4.1) ([GitHub](https://github.com/coot/purescript-argonaut-aeson-generic))
   * Or use [`purescript-foreign-generic`](https://pursuit.purescript.org/packages/purescript-foreign-generic).
     * [This branch](https://github.com/paf31/purescript-foreign-generic/pull/76) is updated for Purescript 0.15.
 

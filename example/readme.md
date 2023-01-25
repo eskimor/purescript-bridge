@@ -1,6 +1,6 @@
 # Purescript Bridge example
 
-This project demonstrates the libraries Purescript Bridge and [Purescript Argonaut Aeson Generic](https://github.com/coot/purescript-argonaut-aeson-generic).
+This project demonstrates the libraries Purescript Bridge and [`purescript-argonaut-aeson-generic`](https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic) ([GitHub](https://github.com/coot/purescript-argonaut-aeson-generic)).
 
 It needs Purescript 0.15.
 
