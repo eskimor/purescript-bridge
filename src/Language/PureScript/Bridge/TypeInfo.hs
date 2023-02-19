@@ -26,8 +26,8 @@ module Language.PureScript.Bridge.TypeInfo (
 
 import           Control.Lens
 import           Data.Proxy
-import           Data.Text     (Text)
-import qualified Data.Text     as T
+import           Data.Text (Text)
+import qualified Data.Text as T
 import           Data.Typeable
 
 data Language = Haskell | PureScript

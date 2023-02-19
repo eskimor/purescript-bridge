@@ -8,16 +8,15 @@
 {-# LANGUAGE TypeSynonymInstances  #-}
 
 module Main where
-import qualified Data.Map                                  as Map
-import           Data.Monoid                               ((<>))
+import qualified Data.Map as Map
+import           Data.Monoid ((<>))
 import           Data.Proxy
-import qualified Data.Text                                 as T
-import           Data.Word                                 (Word, Word64)
+import qualified Data.Text as T
+import           Data.Word (Word, Word64)
 import           Language.PureScript.Bridge
-import           Language.PureScript.Bridge.TypeParameters
 import           Language.PureScript.Bridge.CodeGenSwitches
-import           Test.Hspec                                (Spec, describe,
-                                                            hspec, it)
+import           Language.PureScript.Bridge.TypeParameters
+import           Test.Hspec (Spec, describe, hspec, it)
 import           Test.Hspec.Expectations.Pretty
 import           TestData
 
@@ -493,7 +492,7 @@ allTests = do
                           , "derive instance genericSingleProduct :: Generic SingleProduct _"
                           ]
       in recTypeText `shouldBe` txt
- 
+
   describe "tests bridging Haskells Data.Word to PureScripts Data.Word from purescript-word" $ do
     describe "moduleToText" $
       it "should contain the right import and datatype" $ do

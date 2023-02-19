@@ -1,5 +1,5 @@
 -- | General switches for the code generation, such as generating profunctor-lenses or not
-module Language.PureScript.Bridge.CodeGenSwitches 
+module Language.PureScript.Bridge.CodeGenSwitches
     ( Settings (..)
     , ForeignOptions(..)
     , defaultSettings
@@ -13,14 +13,14 @@ module Language.PureScript.Bridge.CodeGenSwitches
     ) where
 
 
-import Data.Monoid (Endo(..))
+import           Data.Monoid (Endo (..))
 
 -- | General settings for code generation
 data Settings = Settings
-    { generateLenses :: Bool -- ^use purescript-profunctor-lens for generated PS-types?
-    , genericsGenRep :: Bool -- ^generate generics using purescript-generics-rep instead of purescript-generics
+    { generateLenses         :: Bool -- ^use purescript-profunctor-lens for generated PS-types?
+    , genericsGenRep         :: Bool -- ^generate generics using purescript-generics-rep instead of purescript-generics
     , generateArgonautCodecs :: Bool -- ^generate Data.Argonaut.Decode.Class EncodeJson and DecodeJson instances
-    , generateForeign :: Maybe ForeignOptions -- ^generate Foreign.Generic Encode and Decode instances
+    , generateForeign        :: Maybe ForeignOptions -- ^generate Foreign.Generic Encode and Decode instances
     }
     deriving (Eq, Show)
 

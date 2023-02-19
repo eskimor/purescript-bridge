@@ -1,8 +1,8 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE KindSignatures    #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}
-{-# LANGUAGE LambdaCase        #-}
 
 module Language.PureScript.Bridge.Printer where
 
@@ -10,9 +10,9 @@ import           Control.Lens
 import           Control.Monad
 import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
+import           Data.Maybe (isJust)
 import           Data.Monoid ((<>))
 import           Data.Set (Set)
-import           Data.Maybe (isJust)
 import qualified Data.Set as Set
 import           Data.Text (Text)
 import qualified Data.Text as T
@@ -20,9 +20,9 @@ import qualified Data.Text.IO as T
 import           System.Directory
 import           System.FilePath
 
+import qualified Language.PureScript.Bridge.CodeGenSwitches as Switches
 import           Language.PureScript.Bridge.SumType
 import           Language.PureScript.Bridge.TypeInfo
-import qualified Language.PureScript.Bridge.CodeGenSwitches as Switches
 
 
 data Module (lang :: Language) = PSModule {
@@ -112,7 +112,7 @@ _argonautCodecsImports settings
 
 _foreignImports :: Switches.Settings -> [ImportLine]
 _foreignImports settings
-  | (isJust . Switches.generateForeign) settings = 
+  | (isJust . Switches.generateForeign) settings =
       [ ImportLine "Foreign.Class" Nothing $ Set.fromList ["class Decode", "class Encode"]
       , ImportLine "Foreign.Generic" Nothing $ Set.fromList ["defaultOptions", "genericDecode", "genericEncode"]
       ]

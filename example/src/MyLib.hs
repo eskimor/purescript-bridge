@@ -6,21 +6,21 @@ module MyLib (main) where
 
 import           Prelude
 
-import           Control.Lens               (view)
-import           Control.Monad.IO.Class     (liftIO)
+import           Control.Lens (view)
+import           Control.Monad.IO.Class (liftIO)
 import           Data.Aeson
-import qualified Data.Aeson.Encode.Pretty   as AP
+import qualified Data.Aeson.Encode.Pretty as AP
 import qualified Data.ByteString.Lazy.Char8 as Char8
-import qualified Data.Map.Lazy              as Map
-import           Data.Text                  (pack, unpack)
+import qualified Data.Map.Lazy as Map
+import           Data.Text (pack, unpack)
 import           GHC.Generics
 import           GHC.TypeLits
 import           Network.Wai.Handler.Warp
 import           Servant
-import           System.Environment         (lookupEnv)
+import           System.Environment (lookupEnv)
 
-import           Types                      (Baz (Baz), Foo (Foo), fooList,
-                                             fooMap, fooMessage, fooNumber)
+import           Types (Baz (Baz), Foo (Foo), fooList, fooMap, fooMessage,
+                        fooNumber)
 
 type FooServer
   = "foo" :> (Get '[JSON] Foo
