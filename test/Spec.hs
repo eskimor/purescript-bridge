@@ -42,8 +42,8 @@ custom (SumType t cs is) = SumType t cs $ customInstance : is
       Custom $
         CustomInstance [] (TypeInfo "" "Data.MyClass" "MyClass" [TypeInfo "" "" "Foo" []]) $
           Explicit
-            [ InstanceMember "member1" ["foo", "bar"] "undefined" [],
-              InstanceMember "member2" [] "do\npure unit" []
+            [ InstanceMember "member1" ["foo", "bar"] "undefined" [] mempty,
+              InstanceMember "member2" [] "do\npure unit" [] mempty
             ]
 
 customNewtypeDerived :: SumType 'Haskell -> SumType 'Haskell
@@ -141,11 +141,13 @@ allTests = do
               ]
        in doc `shouldRender` txt
     it "tests the generation of a whole (dummy) module" $
-      let advanced' =
+      let advanced' :: SumType 'PureScript
+          advanced' =
             bridgeSumType
               (buildBridge defaultBridge)
               (mkSumType @(Bar A B M1 C))
-          modules = sumTypeToModule advanced'
+          modules :: Modules
+          modules = sumTypeToModule Nothing advanced'
           m = head . map (moduleToText settings) . Map.elems $ modules
           txt =
             T.unlines

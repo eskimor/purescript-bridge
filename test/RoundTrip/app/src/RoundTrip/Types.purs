@@ -4,10 +4,10 @@ module RoundTrip.Types where
 import Prelude
 
 import Control.Lazy (defer)
-import Data.Argonaut.Core (jsonNull)
+import Data.Argonaut (encodeJson, jsonNull)
 import Data.Argonaut.Decode (class DecodeJson)
 import Data.Argonaut.Decode.Aeson ((</$\>), (</*\>), (</\>))
-import Data.Argonaut.Encode (class EncodeJson, encodeJson)
+import Data.Argonaut.Encode (class EncodeJson)
 import Data.Argonaut.Encode.Aeson ((>$<), (>/\<))
 import Data.Bounded.Generic (genericBottom, genericTop)
 import Data.Either (Either)
@@ -456,14 +456,14 @@ data TestMultiInlineRecords
     , _bar2 :: Boolean
     }
 
-derive instance eqTestMultiInlineRecords :: Eq TestMultiInlineRecords
+derive instance Eq TestMultiInlineRecords
 
-instance showTestMultiInlineRecords :: Show TestMultiInlineRecords where
+instance Show TestMultiInlineRecords where
   show a = genericShow a
 
-derive instance ordTestMultiInlineRecords :: Ord TestMultiInlineRecords
+derive instance Ord TestMultiInlineRecords
 
-instance encodeJsonTestMultiInlineRecords :: EncodeJson TestMultiInlineRecords where
+instance EncodeJson TestMultiInlineRecords where
   encodeJson = defer \_ -> case _ of
     Foo {_foo1, _foo2} -> encodeJson
       { tag: "Foo"
@@ -476,7 +476,7 @@ instance encodeJsonTestMultiInlineRecords :: EncodeJson TestMultiInlineRecords w
       , _bar2: flip E.encode _bar2 E.value
       }
 
-instance decodeJsonTestMultiInlineRecords :: DecodeJson TestMultiInlineRecords where
+instance DecodeJson TestMultiInlineRecords where
   decodeJson = defer \_ -> D.decode
     $ D.sumType "TestMultiInlineRecords" $ Map.fromFoldable
       [ "Foo" /\ (Foo <$> D.object "Foo"
@@ -489,7 +489,7 @@ instance decodeJsonTestMultiInlineRecords :: DecodeJson TestMultiInlineRecords w
         })
       ]
 
-derive instance genericTestMultiInlineRecords :: Generic TestMultiInlineRecords _
+derive instance Generic TestMultiInlineRecords _
 
 --------------------------------------------------------------------------------
 
