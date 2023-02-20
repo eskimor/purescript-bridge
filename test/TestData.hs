@@ -10,9 +10,9 @@
 module TestData where
 
 import           Data.Proxy
-import           Data.Text                          (Text)
+import           Data.Text (Text)
 import           Data.Typeable
-import           GHC.Generics                       (Generic)
+import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge
 import           Language.PureScript.Bridge.PSTypes
 

@@ -30,3 +30,12 @@ Usage of this library is documented in `Language.Purescript.Bridge`, with `write
 ## Status
 
 It works for my use case and is used in production. PRs for more `PSType`s definitions and bridges are very welcome! 
+
+## Contributing
+
+### Formatting the source code
+
+This repo uses [`stylish-haskell`](https://github.com/haskell/stylish-haskell). `.stylish-haskell.yaml` is provided.
+```
+find . -name '*.hs' | xargs stylish-haskell -i
+```
