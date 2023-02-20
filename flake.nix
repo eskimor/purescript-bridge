@@ -26,7 +26,7 @@
       in
       flake // {
         # Built by `nix build .`
-        defaultPackage = flake.packages."purescript-bridge:test:purescript-bridge";
+        defaultPackage = flake.packages."purescript-bridge:test:tests";
         devShell = pkgs.purescript-bridge.shellFor {
           withHoogle = true;
           tools = {
