@@ -40,7 +40,9 @@ import           Generics.Deriving
 import           Language.PureScript.Bridge.TypeInfo
 
 -- | Generic representation of your Haskell types.
-data SumType (lang :: Language) = SumType (TypeInfo lang) [DataConstructor lang] [Instance] deriving (Show, Eq)
+data SumType (lang :: Language)
+  = SumType (TypeInfo lang) [DataConstructor lang] [Instance]
+  deriving (Eq, Show)
 
 -- | TypInfo lens for 'SumType'.
 sumTypeInfo :: Functor f => (TypeInfo lang -> f (TypeInfo lang) ) -> SumType lang -> f (SumType lang)
@@ -60,7 +62,8 @@ mkSumType p = SumType (mkTypeInfo p) constructors (Encode : Decode : EncodeJson 
     constructors = gToConstructors (from (undefined :: t))
 
 -- | Purescript typeclass instances that can be generated for your Haskell types.
-data Instance = Encode | EncodeJson | Decode | DecodeJson | Generic | Newtype | Eq | Ord deriving (Eq, Show)
+data Instance = Encode | EncodeJson | Decode | DecodeJson | Generic | Newtype | Eq | Ord
+  deriving (Eq, Show)
 
 -- | The Purescript typeclass `Newtype` might be derivable if the original
 -- Haskell type was a simple type wrapper.
@@ -80,15 +83,21 @@ equal _ (SumType ti dc is) = SumType ti dc . nub $ Eq : is
 order :: Ord a => Proxy a -> SumType t -> SumType t
 order _ (SumType ti dc is) = SumType ti dc . nub $ Eq : Ord : is
 
-data DataConstructor (lang :: Language) =
-  DataConstructor { _sigConstructor :: !Text -- ^ e.g. `Left`/`Right` for `Either`
-                  , _sigValues      :: !(Either [TypeInfo lang] [RecordEntry lang])
-                  } deriving (Show, Eq)
+data DataConstructor (lang :: Language)
+  = DataConstructor
+      { _sigConstructor :: !Text
+        -- ^ e.g. `Left`/`Right` for `Either`
+      , _sigValues      :: !(Either [TypeInfo lang] [RecordEntry lang])
+      }
+  deriving (Eq, Show)
 
-data RecordEntry (lang :: Language) =
-  RecordEntry { _recLabel :: !Text -- ^ e.g. `runState` for `State`
-              , _recValue :: !(TypeInfo lang)
-              } deriving (Show, Eq)
+data RecordEntry (lang :: Language)
+  = RecordEntry
+      { _recLabel :: !Text
+        -- ^ e.g. `runState` for `State`
+      , _recValue :: !(TypeInfo lang)
+      }
+  deriving (Eq, Show)
 
 class GDataConstructor f where
   gToConstructors :: f a -> [DataConstructor 'Haskell]

@@ -45,9 +45,9 @@ import           Data.Monoid ((<>))
 import qualified Data.Text as T
 import           Language.PureScript.Bridge.TypeInfo
 
-newtype BridgeBuilder a =
-  BridgeBuilder (ReaderT BridgeData Maybe a)
-    deriving (Functor, Applicative, Monad, MonadReader BridgeData)
+newtype BridgeBuilder a
+  = BridgeBuilder (ReaderT BridgeData Maybe a)
+  deriving (Applicative, Functor, Monad, MonadReader BridgeData)
 
 type BridgePart = BridgeBuilder PSType
 
@@ -78,18 +78,21 @@ type BridgePart = BridgeBuilder PSType
 -- > psEither :: FixUpBridge
 -- > psEither = ....
 --
-newtype FixUpBuilder a = FixUpBuilder (Reader BridgeData a) deriving (Functor, Applicative, Monad, MonadReader BridgeData)
+newtype FixUpBuilder a
+  = FixUpBuilder (Reader BridgeData a)
+  deriving (Applicative, Functor, Monad, MonadReader BridgeData)
 
 type FixUpBridge = FixUpBuilder PSType
 
 type FullBridge = HaskellType -> PSType
 
-data BridgeData = BridgeData {
-  -- | The Haskell type to translate.
-    _haskType   :: HaskellType
-  -- | Reference to the bridge itself, needed for translation of type constructors.
-  , _fullBridge :: FullBridge
-  }
+data BridgeData
+  = BridgeData
+      { -- | The Haskell type to translate.
+        _haskType   :: HaskellType
+        -- | Reference to the bridge itself, needed for translation of type constructors.
+      , _fullBridge :: FullBridge
+      }
 
 -- | By implementing the 'haskType' lens in the HasHaskType class, we are able
 --   to use it for both 'BridgeData' and a plain 'HaskellType', therefore

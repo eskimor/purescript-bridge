@@ -33,14 +33,16 @@ import           Data.Typeable
 data Language = Haskell | PureScript
 
 -- | Basic info about a data type:
-data TypeInfo (lang :: Language) = TypeInfo {
-  -- | Hackage package
-  _typePackage    :: !Text
-  -- | Full Module path
-, _typeModule     :: !Text
-, _typeName       :: !Text
-, _typeParameters :: ![TypeInfo lang]
-} deriving (Eq, Ord, Show)
+data TypeInfo (lang :: Language)
+  = TypeInfo
+      { -- | Hackage package
+        _typePackage    :: !Text
+        -- | Full Module path
+      , _typeModule     :: !Text
+      , _typeName       :: !Text
+      , _typeParameters :: ![TypeInfo lang]
+      }
+  deriving (Eq, Ord, Show)
 
 makeLenses ''TypeInfo
 

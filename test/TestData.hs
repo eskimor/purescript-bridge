@@ -30,46 +30,63 @@ stringBridge = do
    haskType ^== mkTypeInfo (Proxy :: Proxy String)
    return psString
 
-data Simple a = Simple a deriving (Generic, Typeable, Show)
+data Simple a
+  = Simple a
+  deriving (Generic, Show, Typeable)
 
-data Foo = Foo
-         | Bar Int
-         | FooBar Int Text
-         deriving (Eq, Ord, Generic, Typeable, Show)
+data Foo
+  = Foo
+  | Bar Int
+  | FooBar Int Text
+  deriving (Eq, Generic, Ord, Show, Typeable)
 
-data Test = TestIntInt Int Int
-          | TestBool {bool :: Bool}
-          | TestVoid
-          deriving (Generic, Typeable, Show)
+data Test
+  = TestIntInt Int Int
+  | TestBool
+      { bool :: Bool
+      }
+  | TestVoid
+  deriving (Generic, Show, Typeable)
 
-data Bar a b m c = Bar1 (Maybe a) | Bar2 (Either a b) | Bar3 a
-                 | Bar4 { myMonadicResult :: m b }
-                 deriving (Generic, Typeable, Show)
+data Bar a b m c
+  = Bar1 (Maybe a)
+  | Bar2 (Either a b)
+  | Bar3 a
+  | Bar4
+      { myMonadicResult :: m b
+      }
+  deriving (Generic, Show, Typeable)
 
-data SingleRecord a b = SingleRecord {
-    _a :: a
-  , _b :: b
-  , c  :: String
-  } deriving(Generic, Typeable, Show)
+data SingleRecord a b
+  = SingleRecord
+      { _a :: a
+      , _b :: b
+      , c  :: String
+      }
+  deriving (Generic, Show, Typeable)
 
 data TwoRecords
-  = FirstRecord {
-    _fra :: String
-  , _frb :: Int
-  }
-  | SecondRecord {
-    _src :: Int
-  , _srd :: [Int]
-  } deriving(Generic, Typeable, Show)
+  = FirstRecord
+      { _fra :: String
+      , _frb :: Int
+      }
+  | SecondRecord
+      { _src :: Int
+      , _srd :: [Int]
+      }
+  deriving (Generic, Show, Typeable)
 
-newtype SomeNewtype = SomeNewtype Int
-  deriving (Generic, Typeable, Show)
+newtype SomeNewtype
+  = SomeNewtype Int
+  deriving (Generic, Show, Typeable)
 
-data SingleValueConstr = SingleValueConstr Int
-  deriving (Generic, Typeable, Show)
+data SingleValueConstr
+  = SingleValueConstr Int
+  deriving (Generic, Show, Typeable)
 
-data SingleProduct = SingleProduct Text Int
-  deriving (Generic, Typeable, Show)
+data SingleProduct
+  = SingleProduct Text Int
+  deriving (Generic, Show, Typeable)
 
 a :: HaskellType
 a = mkTypeInfo (Proxy :: Proxy (Either String Int))

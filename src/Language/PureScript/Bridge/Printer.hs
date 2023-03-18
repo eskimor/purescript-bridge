@@ -25,19 +25,23 @@ import           Language.PureScript.Bridge.SumType
 import           Language.PureScript.Bridge.TypeInfo
 
 
-data Module (lang :: Language) = PSModule {
-  psModuleName  :: !Text
-, psImportLines :: !(Map Text ImportLine)
-, psTypes       :: ![SumType lang]
-} deriving Show
+data Module (lang :: Language)
+  = PSModule
+      { psModuleName  :: !Text
+      , psImportLines :: !(Map Text ImportLine)
+      , psTypes       :: ![SumType lang]
+      }
+  deriving (Show)
 
 type PSModule = Module 'PureScript
 
-data ImportLine = ImportLine {
-  importModule :: !Text
-, importAlias  :: !(Maybe Text)
-, importTypes  :: !(Set Text)
-} deriving Show
+data ImportLine
+  = ImportLine
+      { importModule :: !Text
+      , importAlias  :: !(Maybe Text)
+      , importTypes  :: !(Set Text)
+      }
+  deriving (Show)
 
 type Modules = Map Text PSModule
 type ImportLines = Map Text ImportLine
