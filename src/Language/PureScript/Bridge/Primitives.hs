@@ -1,14 +1,14 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Language.PureScript.Bridge.Primitives where
 
-import Control.Monad.Reader.Class
-import Data.Proxy
-import Language.PureScript.Bridge.Builder
-import Language.PureScript.Bridge.PSTypes
-import Language.PureScript.Bridge.TypeInfo
+import           Control.Monad.Reader.Class
+import           Data.Proxy
+import           Language.PureScript.Bridge.Builder
+import           Language.PureScript.Bridge.PSTypes
+import           Language.PureScript.Bridge.TypeInfo
 
 boolBridge :: BridgePart
 boolBridge = typeName ^== "Bool" >> return psBool

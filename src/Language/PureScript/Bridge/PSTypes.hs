@@ -1,18 +1,18 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE DataKinds            #-}
+{-# LANGUAGE FlexibleContexts     #-}
+{-# LANGUAGE FlexibleInstances    #-}
+{-# LANGUAGE OverloadedStrings    #-}
 {-# LANGUAGE TypeSynonymInstances #-}
 
 -- | PureScript types to be used for bridges, e.g. in "Language.PureScript.Bridge.Primitives".
 module Language.PureScript.Bridge.PSTypes where
 
-import Control.Lens (views)
-import Control.Monad.Reader.Class
+import           Control.Lens (views)
+import           Control.Monad.Reader.Class
 import qualified Data.Text as T
 
-import Language.PureScript.Bridge.Builder
-import Language.PureScript.Bridge.TypeInfo
+import           Language.PureScript.Bridge.Builder
+import           Language.PureScript.Bridge.TypeInfo
 
 -- | Uses  type parameters from 'haskType' (bridged).
 psArray :: MonadReader BridgeData m => m PSType

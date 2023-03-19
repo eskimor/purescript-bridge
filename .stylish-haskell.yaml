@@ -93,7 +93,7 @@ steps:
       # Whether or not to break single constructor data types before `=` sign
       #
       # Default: true
-      break_single_constructors: true
+      break_single_constructors: false
 
       # Whether or not to curry constraints on function.
       #

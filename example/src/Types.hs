@@ -16,10 +16,9 @@ import           GHC.Generics
 import           Language.PureScript.Bridge
 import           Language.PureScript.Bridge.PSTypes
 
-data Baz
-  = Baz
-      { _bazMessage :: Text
-      }
+data Baz = Baz
+  { _bazMessage :: Text
+  }
   deriving (FromJSON, Generic, ToJSON)
 
 makeLenses ''Baz
@@ -27,14 +26,13 @@ makeLenses ''Baz
 bazProxy :: Proxy Baz
 bazProxy = Proxy
 
-data Foo
-  = Foo
-      { _fooMessage :: Text
-      , _fooNumber  :: Int
-      , _fooList    :: [Int]
-      , _fooMap     :: Map.Map Text Int
-      , _fooBaz     :: Baz
-      }
+data Foo = Foo
+  { _fooMessage :: Text
+  , _fooNumber  :: Int
+  , _fooList    :: [Int]
+  , _fooMap     :: Map.Map Text Int
+  , _fooBaz     :: Baz
+  }
   deriving (FromJSON, Generic, ToJSON)
 
 makeLenses ''Foo

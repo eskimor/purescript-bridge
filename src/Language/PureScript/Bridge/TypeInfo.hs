@@ -1,10 +1,10 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE KindSignatures             #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE TypeSynonymInstances       #-}
 
 module Language.PureScript.Bridge.TypeInfo
     ( TypeInfo (..)
@@ -22,24 +22,24 @@ module Language.PureScript.Bridge.TypeInfo
     , flattenTypeInfo
     ) where
 
-import Control.Lens
-import Data.Proxy
-import Data.Text (Text)
+import           Control.Lens
+import           Data.Proxy
+import           Data.Text (Text)
 import qualified Data.Text as T
-import Data.Typeable
+import           Data.Typeable
 
 data Language = Haskell | PureScript
 
 -- | Basic info about a data type:
 data TypeInfo (lang :: Language) = TypeInfo
-    { _typePackage :: !Text
+  { _typePackage    :: !Text
     -- ^ Hackage package
-    , _typeModule :: !Text
+  , _typeModule     :: !Text
     -- ^ Full Module path
-    , _typeName :: !Text
-    , _typeParameters :: ![TypeInfo lang]
-    }
-    deriving (Eq, Ord, Show)
+  , _typeName       :: !Text
+  , _typeParameters :: ![TypeInfo lang]
+  }
+  deriving (Eq, Ord, Show)
 
 makeLenses ''TypeInfo
 

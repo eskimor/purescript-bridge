@@ -1,11 +1,11 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE DataKinds                  #-}
+{-# LANGUAGE FlexibleContexts           #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE MultiParamTypeClasses      #-}
+{-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE RankNTypes                 #-}
+{-# LANGUAGE TypeSynonymInstances       #-}
 
 {- | A bridge builder DSL, powered by 'Monad', 'Alternative' and lens.
 
@@ -36,19 +36,19 @@ module Language.PureScript.Bridge.Builder
     , buildBridgeWithCustomFixUp
     ) where
 
-import Control.Applicative
-import Control.Lens
-import Control.Monad (MonadPlus, guard, mplus, mzero)
-import Control.Monad.Reader.Class
-import Control.Monad.Trans.Reader (Reader, ReaderT (..), runReader)
-import Data.Maybe (fromMaybe)
-import Data.Monoid ((<>))
+import           Control.Applicative
+import           Control.Lens
+import           Control.Monad (MonadPlus, guard, mplus, mzero)
+import           Control.Monad.Reader.Class
+import           Control.Monad.Trans.Reader (Reader, ReaderT (..), runReader)
+import           Data.Maybe (fromMaybe)
+import           Data.Monoid ((<>))
 import qualified Data.Text as T
-import Language.PureScript.Bridge.TypeInfo
+import           Language.PureScript.Bridge.TypeInfo
 
 newtype BridgeBuilder a
-    = BridgeBuilder (ReaderT BridgeData Maybe a)
-    deriving (Applicative, Functor, Monad, MonadReader BridgeData)
+  = BridgeBuilder (ReaderT BridgeData Maybe a)
+  deriving (Applicative, Functor, Monad, MonadReader BridgeData)
 
 type BridgePart = BridgeBuilder PSType
 
@@ -81,19 +81,19 @@ type BridgePart = BridgeBuilder PSType
 -- > psEither = ....
 --
 newtype FixUpBuilder a
-    = FixUpBuilder (Reader BridgeData a)
-    deriving (Applicative, Functor, Monad, MonadReader BridgeData)
+  = FixUpBuilder (Reader BridgeData a)
+  deriving (Applicative, Functor, Monad, MonadReader BridgeData)
 
 type FixUpBridge = FixUpBuilder PSType
 
 type FullBridge = HaskellType -> PSType
 
 data BridgeData = BridgeData
-    { _haskType :: HaskellType
+  { _haskType   :: HaskellType
     -- ^ The Haskell type to translate.
-    , _fullBridge :: FullBridge
+  , _fullBridge :: FullBridge
     -- ^ Reference to the bridge itself, needed for translation of type constructors.
-    }
+  }
 
 {- | By implementing the 'haskType' lens in the HasHaskType class, we are able
   to use it for both 'BridgeData' and a plain 'HaskellType', therefore

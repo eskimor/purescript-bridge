@@ -1,44 +1,44 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE KindSignatures #-}
-{-# LANGUAGE LambdaCase #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE KindSignatures    #-}
+{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 module Language.PureScript.Bridge.Printer where
 
-import Control.Lens
-import Control.Monad
-import Data.Map.Strict (Map)
+import           Control.Lens
+import           Control.Monad
+import           Data.Map.Strict (Map)
 import qualified Data.Map.Strict as Map
-import Data.Maybe (isJust)
-import Data.Monoid ((<>))
-import Data.Set (Set)
+import           Data.Maybe (isJust)
+import           Data.Monoid ((<>))
+import           Data.Set (Set)
 import qualified Data.Set as Set
-import Data.Text (Text)
+import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
-import System.Directory
-import System.FilePath
+import           System.Directory
+import           System.FilePath
 
 import qualified Language.PureScript.Bridge.CodeGenSwitches as Switches
-import Language.PureScript.Bridge.SumType
-import Language.PureScript.Bridge.TypeInfo
+import           Language.PureScript.Bridge.SumType
+import           Language.PureScript.Bridge.TypeInfo
 
 data Module (lang :: Language) = PSModule
-    { psModuleName :: !Text
-    , psImportLines :: !(Map Text ImportLine)
-    , psTypes :: ![SumType lang]
-    }
-    deriving (Show)
+  { psModuleName  :: !Text
+  , psImportLines :: !(Map Text ImportLine)
+  , psTypes       :: ![SumType lang]
+  }
+  deriving (Show)
 
 type PSModule = Module 'PureScript
 
 data ImportLine = ImportLine
-    { importModule :: !Text
-    , importAlias :: !(Maybe Text)
-    , importTypes :: !(Set Text)
-    }
-    deriving (Show)
+  { importModule :: !Text
+  , importAlias  :: !(Maybe Text)
+  , importTypes  :: !(Set Text)
+  }
+  deriving (Show)
 
 type Modules = Map Text PSModule
 type ImportLines = Map Text ImportLine
@@ -309,9 +309,9 @@ sumTypeToOptics st = constructorOptics st <> recordOptics st
 constructorOptics :: SumType 'PureScript -> Text
 constructorOptics st =
     case st ^. sumTypeConstructors of
-        [] -> mempty -- No work required.
+        []  -> mempty -- No work required.
         [c] -> constructorToOptic False typeInfo c
-        cs -> T.unlines $ map (constructorToOptic True typeInfo) cs
+        cs  -> T.unlines $ map (constructorToOptic True typeInfo) cs
   where
     typeInfo = st ^. sumTypeInfo
 
@@ -324,7 +324,7 @@ recordOptics st@(SumType _ [_] _) = T.unlines $ recordEntryToLens st <$> dcRecor
     hasUnderscore e = e ^. recLabel . to (T.isPrefixOf "_")
     lensableConstructor = filter singleRecordCons cs ^? _head
     singleRecordCons (DataConstructor _ (Right _)) = True
-    singleRecordCons _ = False
+    singleRecordCons _                             = False
 recordOptics _ = ""
 
 constructorToText :: Int -> DataConstructor 'PureScript -> Text
@@ -363,9 +363,9 @@ mkFnArgs [r] = r ^. recLabel
 mkFnArgs rs = fromEntries (\recE -> recE ^. recLabel <> ": " <> recE ^. recLabel) rs
 
 mkTypeSig :: [RecordEntry 'PureScript] -> Text
-mkTypeSig [] = "Unit"
+mkTypeSig []  = "Unit"
 mkTypeSig [r] = typeInfoToText False $ r ^. recValue
-mkTypeSig rs = fromEntries recordEntryToText rs
+mkTypeSig rs  = fromEntries recordEntryToText rs
 
 constructorToOptic :: Bool -> TypeInfo 'PureScript -> DataConstructor 'PureScript -> Text
 constructorToOptic otherConstructors typeInfo (DataConstructor n args) =

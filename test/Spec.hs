@@ -1,25 +1,25 @@
-{-# LANGUAGE CPP #-}
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE CPP                   #-}
+{-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RankNTypes #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE OverloadedStrings     #-}
+{-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE TypeApplications      #-}
+{-# LANGUAGE TypeSynonymInstances  #-}
 
 module Main where
 
 import qualified Data.Map as Map
-import Data.Monoid ((<>))
-import Data.Proxy
+import           Data.Monoid ((<>))
+import           Data.Proxy
 import qualified Data.Text as T
-import Data.Word (Word, Word64)
-import Language.PureScript.Bridge
-import Language.PureScript.Bridge.CodeGenSwitches
-import Language.PureScript.Bridge.TypeParameters
-import Test.Hspec (Spec, describe, hspec, it)
-import Test.Hspec.Expectations.Pretty
-import TestData
+import           Data.Word (Word, Word64)
+import           Language.PureScript.Bridge
+import           Language.PureScript.Bridge.CodeGenSwitches
+import           Language.PureScript.Bridge.TypeParameters
+import           Test.Hspec (Spec, describe, hspec, it)
+import           Test.Hspec.Expectations.Pretty
+import           TestData
 
 main :: IO ()
 main = hspec allTests

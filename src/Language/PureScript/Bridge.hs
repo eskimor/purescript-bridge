@@ -1,4 +1,4 @@
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Language.PureScript.Bridge
@@ -12,18 +12,18 @@ module Language.PureScript.Bridge
     , genLenses
     ) where
 
-import Control.Applicative
+import           Control.Applicative
 import qualified Data.Map as M
 import qualified Data.Set as Set
 import qualified Data.Text.IO as T
 
-import Language.PureScript.Bridge.Builder as Bridge
-import Language.PureScript.Bridge.CodeGenSwitches as Switches
-import Language.PureScript.Bridge.Primitives as Bridge
-import Language.PureScript.Bridge.Printer as Bridge
-import Language.PureScript.Bridge.SumType as Bridge
-import Language.PureScript.Bridge.Tuple as Bridge
-import Language.PureScript.Bridge.TypeInfo as Bridge
+import           Language.PureScript.Bridge.Builder as Bridge
+import           Language.PureScript.Bridge.CodeGenSwitches as Switches
+import           Language.PureScript.Bridge.Primitives as Bridge
+import           Language.PureScript.Bridge.Printer as Bridge
+import           Language.PureScript.Bridge.SumType as Bridge
+import           Language.PureScript.Bridge.Tuple as Bridge
+import           Language.PureScript.Bridge.TypeInfo as Bridge
 
 {- | Your entry point to this library and quite likely all you will need.
   Make sure all your types derive `Generic` and `Typeable`.
