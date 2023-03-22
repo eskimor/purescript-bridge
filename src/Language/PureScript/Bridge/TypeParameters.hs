@@ -1,26 +1,25 @@
--- | As we translate types and not type constructors, we have to pass dummy types
---   to any type constructor.
---
---   'buildBridge' will translate all parameter types which
---   come from a module TypeParameters (e.g. this one) to lower case.
---
---   For translating something like Maybe:
---
---   @
---     data Maybe' a = Nothing' | Just' a
---   @
---
---   you would use:
---
---   @
---     import "Language.PureScript.Bridge"
---     import "Language.PureScript.Bridge.TypeParameters"
---
---     st = mkSumType ('Proxy' :: 'Proxy' (Maybe' A)) -- Note that we use "Maybe' A" instead of just Maybe - which would not work.
---   @
+{- | As we translate types and not type constructors, we have to pass dummy types
+  to any type constructor.
 
+  'buildBridge' will translate all parameter types which
+  come from a module TypeParameters (e.g. this one) to lower case.
+
+  For translating something like Maybe:
+
+  @
+    data Maybe' a = Nothing' | Just' a
+  @
+
+  you would use:
+
+  @
+    import "Language.PureScript.Bridge"
+    import "Language.PureScript.Bridge.TypeParameters"
+
+    st = mkSumType ('Proxy' :: 'Proxy' (Maybe' A)) -- Note that we use "Maybe' A" instead of just Maybe - which would not work.
+  @
+-}
 module Language.PureScript.Bridge.TypeParameters where
-
 
 data A
 data B
@@ -49,11 +48,13 @@ data X
 data Y
 data Z
 
--- | You can use those if your type parameters are actually type constructors as well:
---   @
---   st = mkSumType (Proxy :: Proxy ('ReaderT' R M1 A))
---   @
+{- | You can use those if your type parameters are actually type constructors as well:
+  @
+  st = mkSumType (Proxy :: Proxy ('ReaderT' R M1 A))
+  @
+-}
 data A1 a
+
 data B1 a
 data C1 a
 data D1 a

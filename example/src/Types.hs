@@ -18,7 +18,8 @@ import           Language.PureScript.Bridge.PSTypes
 
 data Baz = Baz
   { _bazMessage :: Text
-  } deriving (Generic, ToJSON, FromJSON)
+  }
+  deriving (FromJSON, Generic, ToJSON)
 
 makeLenses ''Baz
 
@@ -31,7 +32,8 @@ data Foo = Foo
   , _fooList    :: [Int]
   , _fooMap     :: Map.Map Text Int
   , _fooBaz     :: Baz
-  } deriving (Generic, ToJSON, FromJSON)
+  }
+  deriving (FromJSON, Generic, ToJSON)
 
 makeLenses ''Foo
 

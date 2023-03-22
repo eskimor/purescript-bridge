@@ -2,16 +2,13 @@
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
 
-
 module Language.PureScript.Bridge.Primitives where
-
 
 import           Control.Monad.Reader.Class
 import           Data.Proxy
 import           Language.PureScript.Bridge.Builder
 import           Language.PureScript.Bridge.PSTypes
 import           Language.PureScript.Bridge.TypeInfo
-
 
 boolBridge :: BridgePart
 boolBridge = typeName ^== "Bool" >> return psBool
@@ -39,11 +36,11 @@ maybeBridge :: BridgePart
 maybeBridge = typeName ^== "Maybe" >> psMaybe
 
 stringBridge :: BridgePart
-stringBridge = haskType ^== mkTypeInfo (Proxy :: Proxy String ) >> return psString
+stringBridge = haskType ^== mkTypeInfo (Proxy :: Proxy String) >> return psString
 
 textBridge :: BridgePart
 textBridge = do
-    typeName   ^== "Text"
+    typeName ^== "Text"
     typeModule ^== "Data.Text.Internal" <|> typeModule ^== "Data.Text.Internal.Lazy"
     return psString
 
