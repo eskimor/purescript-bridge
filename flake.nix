@@ -1,50 +1,51 @@
 {
-  description = "Generate PureScript data types from Haskell data types";
-  inputs.haskellNix.url = "github:input-output-hk/haskell.nix";
-  inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.easy-ps = {
-    url = "github:justinwoo/easy-purescript-nix";
-    flake = false;
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    haskell-flake.url = "github:srid/haskell-flake";
   };
-  outputs = { self, nixpkgs, flake-utils, haskellNix, easy-ps }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" ] (system:
-      let
-        overlays = [
-          haskellNix.overlay
-          (final: prev: {
-            # This overlay adds our project to pkgs
-            purescript-bridge =
-              final.haskell-nix.project' {
-                src = ./.;
-                compiler-nix-name = "ghc8107";
-              };
-          })
-        ];
-        pkgs = import nixpkgs { inherit system overlays; inherit (haskellNix) config; };
-        flake = pkgs.purescript-bridge.flake { };
-      in
-      flake // {
-        # Built by `nix build .`
-        defaultPackage = flake.packages."purescript-bridge:test:tests";
-        devShell = pkgs.purescript-bridge.shellFor {
-          withHoogle = true;
-          tools = {
-            cabal = "latest";
-            hlint = "latest";
-            haskell-language-server = "latest";
+  outputs = inputs@{ self, nixpkgs, flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = nixpkgs.lib.systems.flakeExposed;
+      # systems = ["x86_64-linux" "x86_64-darwin"];
+      imports = [ inputs.haskell-flake.flakeModule ];
+
+      perSystem = { self', pkgs, ... }: {
+
+        haskellProjects.default = {
+
+          packages = {
+            purescript-bridge.root = ./.;
+            example.root = ./example;
           };
 
-          exactDeps = true;
+          basePackages = pkgs.haskellPackages;
 
-          buildInputs = with pkgs; with import easy-ps { inherit pkgs; }; [
-            ghcid
-            nixpkgs-fmt
-            purs
-            purescript-language-server
-            spago
-            haskellPackages.ormolu
-          ];
+          # Dependency overrides go here. See https://haskell.flake.page/dependency
+          # source-overrides = { };
+          # overrides = self: super: { };
+
+          devShell = {
+            enable = true;
+
+            mkShellArgs = {
+              shellHook = ''
+                export LD_LIBRARY_PATH=${pkgs.zlib.out}/lib:LD_LIBRARY_PATH
+              '';
+            };
+
+            tools = hp: {
+              inherit (pkgs)
+                purescript
+                spago
+                zlib;
+            };
+
+            hlsCheck.enable = false;
+          };
         };
-      });
+
+        packages.default = self'.packages.example;
+      };
+    };
 }
