@@ -1,7 +1,7 @@
 # purescript-bridge
 
 
-[![Haskell library and example](https://github.com/eskimor/purescript-bridge/actions/workflows/haskell.yml/badge.svg)](https://github.com/eskimor/purescript-bridge/actions/workflows/haskell.yml) [![Purescript example](https://github.com/eskimor/purescript-bridge/actions/workflows/purescript.yml/badge.svg)](https://github.com/eskimor/purescript-bridge/actions/workflows/purescript.yml) [![Build Status](https://travis-ci.org/eskimor/purescript-bridge.svg?branch=master)](https://travis-ci.org/eskimor/purescript-bridge)
+[![Haskell library and example](https://github.com/eskimor/purescript-bridge/actions/workflows/haskell.yml/badge.svg)](https://github.com/eskimor/purescript-bridge/actions/workflows/haskell.yml) [![Purescript example](https://github.com/eskimor/purescript-bridge/actions/workflows/purescript.yml/badge.svg)](https://github.com/eskimor/purescript-bridge/actions/workflows/purescript.yml) [![Nix Flake](https://github.com/eskimor/purescript-bridge/actions/workflows/nix-flake.yml/badge.svg)](https://github.com/eskimor/purescript-bridge/actions/workflows/nix-flake.yml)
 
 
 
