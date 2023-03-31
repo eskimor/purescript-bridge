@@ -4,6 +4,7 @@
 {-# LANGUAGE KindSignatures  #-}
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE TypeOperators   #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Types where
 
@@ -23,9 +24,6 @@ data Baz = Baz
 
 makeLenses ''Baz
 
-bazProxy :: Proxy Baz
-bazProxy = Proxy
-
 data Foo = Foo
   { _fooMessage :: Text
   , _fooNumber  :: Int
@@ -37,14 +35,11 @@ data Foo = Foo
 
 makeLenses ''Foo
 
-fooProxy :: Proxy Foo
-fooProxy = Proxy
-
 myBridge :: BridgePart
 myBridge = defaultBridge
 
 myTypes :: [SumType 'Haskell]
 myTypes =
-  [ mkSumType (Proxy :: Proxy Baz)
-  , mkSumType (Proxy :: Proxy Foo)
+  [ mkSumType @Baz
+  , mkSumType @Foo
   ]
