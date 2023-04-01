@@ -37,5 +37,5 @@ It works for my use case and is used in production. PRs for more `PSType`s defin
 
 This repo uses [`stylish-haskell`](https://github.com/haskell/stylish-haskell). `.stylish-haskell.yaml` is provided.
 ```
-find . -name '*.hs' | xargs stylish-haskell -i
+find ./src ./test ./example -name '*.hs' | xargs stylish-haskell -i
 ```

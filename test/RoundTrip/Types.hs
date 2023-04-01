@@ -194,8 +194,14 @@ instance ToJSON TestNewtypeRecord
 instance Arbitrary TestNewtypeRecord where
     arbitrary = TestNewtypeRecord <$> arbitrary
 
-data TestEnum = Mon | Tue | Wed | Thu | Fri | Sat | Sun
-  deriving (Bounded, Enum, Eq, Generic, Ord, Show)
+data TestEnum = Mon | Tue | Wed | Thu | Fri | Sat | Sun deriving
+    ( Bounded
+    , Enum
+    , Eq
+    , Generic
+    , Ord
+    , Show
+    )
 
 instance FromJSON TestEnum
 
@@ -204,8 +210,7 @@ instance ToJSON TestEnum
 instance Arbitrary TestEnum where
     arbitrary = chooseEnum (minBound, maxBound)
 
-data MyUnit = U
-  deriving (Bounded, Enum, Eq, Generic, Ord, Show)
+data MyUnit = U deriving (Bounded, Enum, Eq, Generic, Ord, Show)
 
 instance FromJSON MyUnit
 

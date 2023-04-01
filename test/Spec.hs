@@ -4,12 +4,13 @@
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RankNTypes            #-}
+{-# LANGUAGE ScopedTypeVariables   #-}
 {-# LANGUAGE TypeApplications      #-}
 {-# LANGUAGE TypeSynonymInstances  #-}
-{-# LANGUAGE ScopedTypeVariables   #-}
 
 module Main where
 
+import qualified Data.List.NonEmpty as NEL
 import qualified Data.Map as Map
 import           Data.Monoid ((<>))
 import           Data.Proxy
@@ -19,12 +20,11 @@ import           Data.Word (Word, Word64)
 import           Language.PureScript.Bridge
 import           Language.PureScript.Bridge.CodeGenSwitches
 import           Language.PureScript.Bridge.TypeParameters
+import           RoundTrip.Spec (roundtripSpec)
 import           Test.Hspec (Spec, describe, hspec, it)
-import RoundTrip.Spec (roundtripSpec)
 import           Test.Hspec.Expectations.Pretty
 import           TestData
 import           Text.PrettyPrint.Leijen.Text (Doc, text)
-import qualified Data.List.NonEmpty as NEL
 
 instance Eq Doc where
   (==) x y = (show x) == (show y)
