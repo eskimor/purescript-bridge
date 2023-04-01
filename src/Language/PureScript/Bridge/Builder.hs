@@ -20,20 +20,20 @@
 -}
 module Language.PureScript.Bridge.Builder
     ( BridgeBuilder
-    , BridgePart
-    , FixUpBuilder
-    , FixUpBridge
     , BridgeData
-    , fullBridge
-    , (^==)
-    , doCheck
-    , (<|>)
-    , psTypeParameters
+    , BridgePart
+    , FixUpBridge
+    , FixUpBuilder
     , FullBridge
     , buildBridge
-    , clearPackageFixUp
-    , errorFixUp
     , buildBridgeWithCustomFixUp
+    , clearPackageFixUp
+    , doCheck
+    , errorFixUp
+    , fullBridge
+    , psTypeParameters
+    , (<|>)
+    , (^==)
     ) where
 
 import           Control.Applicative

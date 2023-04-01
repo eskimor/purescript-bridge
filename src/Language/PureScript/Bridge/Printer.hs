@@ -152,7 +152,7 @@ sumTypeToTypeDecls settings (SumType t cs is) =
     genForeign = \case
         Encode -> check
         Decode -> check
-        _ -> True
+        _      -> True
       where
         check = (isJust . Switches.generateForeign) settings
 
@@ -160,7 +160,7 @@ sumTypeToTypeDecls settings (SumType t cs is) =
     genArgonautCodec = \case
         EncodeJson -> check
         DecodeJson -> check
-        _ -> True
+        _          -> True
       where
         check = Switches.generateArgonautCodecs settings
 

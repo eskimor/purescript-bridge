@@ -2,7 +2,9 @@
 {-# LANGUAGE TypeOperators #-}
 
 
-module MyLib (main) where
+module MyLib
+    ( main
+    ) where
 
 import           Prelude
 

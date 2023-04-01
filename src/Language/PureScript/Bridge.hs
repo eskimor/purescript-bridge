@@ -2,14 +2,14 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 module Language.PureScript.Bridge
-    ( bridgeSumType
+    ( module Bridge
+    , bridgeSumType
     , defaultBridge
-    , module Bridge
+    , defaultSwitch
+    , genLenses
+    , noLenses
     , writePSTypes
     , writePSTypesWith
-    , defaultSwitch
-    , noLenses
-    , genLenses
     ) where
 
 import           Control.Applicative

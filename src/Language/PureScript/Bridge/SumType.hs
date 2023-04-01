@@ -9,22 +9,22 @@
 {-# LANGUAGE TypeSynonymInstances #-}
 
 module Language.PureScript.Bridge.SumType
-    ( SumType (..)
-    , mkSumType
-    , equal
-    , order
-    , DataConstructor (..)
-    , RecordEntry (..)
+    ( DataConstructor (..)
     , Instance (..)
-    , nootype
-    , getUsedTypes
+    , RecordEntry (..)
+    , SumType (..)
     , constructorToTypes
-    , sigConstructor
-    , sigValues
-    , sumTypeInfo
-    , sumTypeConstructors
+    , equal
+    , getUsedTypes
+    , mkSumType
+    , nootype
+    , order
     , recLabel
     , recValue
+    , sigConstructor
+    , sigValues
+    , sumTypeConstructors
+    , sumTypeInfo
     ) where
 
 import           Control.Lens hiding (from, to)
@@ -66,8 +66,10 @@ mkSumType p = SumType (mkTypeInfo p) constructors (Encode : Decode : EncodeJson 
     constructors = gToConstructors (from (undefined :: t))
 
 -- | Purescript typeclass instances that can be generated for your Haskell types.
-data Instance = Encode | EncodeJson | Decode | DecodeJson | Generic | Newtype | Eq | Ord
-  deriving (Eq, Show)
+data Instance = Encode | EncodeJson | Decode | DecodeJson | Generic | Newtype | Eq | Ord deriving
+    ( Eq
+    , Show
+    )
 
 {- | The Purescript typeclass `Newtype` might be derivable if the original
 Haskell type was a simple type wrapper.

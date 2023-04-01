@@ -7,19 +7,19 @@
 {-# LANGUAGE TypeSynonymInstances       #-}
 
 module Language.PureScript.Bridge.TypeInfo
-    ( TypeInfo (..)
-    , PSType
+    ( HasHaskType
     , HaskellType
+    , Language (..)
+    , PSType
+    , TypeInfo (..)
+    , flattenTypeInfo
+    , haskType
     , mkTypeInfo
     , mkTypeInfo'
-    , Language (..)
-    , typePackage
     , typeModule
     , typeName
+    , typePackage
     , typeParameters
-    , HasHaskType
-    , haskType
-    , flattenTypeInfo
     ) where
 
 import           Control.Lens

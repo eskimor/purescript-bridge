@@ -12,8 +12,10 @@ import           Language.PureScript.Bridge.TypeInfo
 tupleBridge :: BridgePart
 tupleBridge = doCheck haskType isTuple >> psTuple
 
-data TupleParserState = Start | OpenFound | ColonFound | Tuple | NoTuple
-  deriving (Eq, Show)
+data TupleParserState = Start | OpenFound | ColonFound | Tuple | NoTuple deriving
+    ( Eq
+    , Show
+    )
 
 step :: TupleParserState -> Char -> TupleParserState
 step Start '('      = OpenFound

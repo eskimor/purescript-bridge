@@ -1,19 +1,19 @@
 -- | General switches for the code generation, such as generating profunctor-lenses or not
 module Language.PureScript.Bridge.CodeGenSwitches
-    ( Settings (..)
-    , ForeignOptions (..)
-    , defaultSettings
+    ( ForeignOptions (..)
+    , Settings (..)
     , Switch
-    , getSettings
+    , defaultSettings
     , defaultSwitch
-    , noLenses
+    , genArgonautCodecs
+    , genForeign
     , genLenses
+    , getSettings
+    , noArgonautCodecs
+    , noForeign
+    , noLenses
     , useGen
     , useGenRep
-    , genForeign
-    , noForeign
-    , noArgonautCodecs
-    , genArgonautCodecs
     ) where
 
 import           Data.Monoid (Endo (..))
