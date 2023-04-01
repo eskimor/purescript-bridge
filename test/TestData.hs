@@ -11,12 +11,10 @@
 module TestData where
 
 import           Data.Functor.Classes (Eq1 (liftEq))
-import           Data.Proxy
 import           Data.Text (Text)
 import           Data.Typeable
 import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge
-import           Language.PureScript.Bridge.CodeGenSwitches (defaultSettings)
 import           Language.PureScript.Bridge.PSTypes
 
 -- Check that examples compile:

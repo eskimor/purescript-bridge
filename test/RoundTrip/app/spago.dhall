@@ -1,6 +1,8 @@
 { name = "my-project"
 , dependencies =
-  [ "argonaut-codecs"
+  [ "argonaut"
+  , "foreign-object"
+  , "argonaut-codecs"
   , "argonaut-core"
   , "console"
   , "control"
@@ -14,7 +16,6 @@
   , "ordered-collections"
   , "prelude"
   , "profunctor-lenses"
-  , "psci-support"
   , "tuples"
   ]
 , packages = ./packages.dhall

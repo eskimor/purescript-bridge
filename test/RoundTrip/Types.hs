@@ -9,13 +9,12 @@ module RoundTrip.Types where
 import           Control.Applicative ((<|>))
 import           Data.Aeson (FromJSON, ToJSON)
 import           Data.Map (Map)
-import           Data.Proxy (Proxy (..))
 import           Data.Set (Set)
 import           Data.Text (Text)
 import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
                                              buildBridge, defaultBridge,
-                                             defaultSwitch, mkSumType,
+                                             mkSumType,
                                              writePSTypes, writePSTypesWith)
 import           Language.PureScript.Bridge.TypeParameters (A)
 import           System.Directory (removeDirectoryRecursive, removeFile,

@@ -20,22 +20,21 @@
 -}
 module Language.PureScript.Bridge.Builder
     ( BridgeBuilder
-    , BridgePart
-    , FixUpBuilder
-    , FixUpBridge
     , BridgeData
-    , fullBridge
-    , (^==)
-    , doCheck
-    , (<|>)
-    , psTypeParameters
+    , BridgePart
+    , FixUpBridge
+    , FixUpBuilder
     , FullBridge
     , buildBridge
-    , clearPackageFixUp
-    , errorFixUp
     , buildBridgeWithCustomFixUp
-    )
-where
+    , clearPackageFixUp
+    , doCheck
+    , errorFixUp
+    , fullBridge
+    , psTypeParameters
+    , (<|>)
+    , (^==)
+    ) where
 
 import           Control.Applicative
 import           Control.Lens
@@ -157,11 +156,9 @@ errorFixUp = do
             "No translation supplied for Haskell type: '"
                 <> inType ^. typeName
                 <> "', from module: '"
-                <> inType
-                    ^. typeModule
+                <> inType ^. typeModule
                 <> "', from package: '"
-                <> inType
-                    ^. typePackage
+                <> inType ^. typePackage
                 <> "'!"
     return $ error $ T.unpack message
 
@@ -215,11 +212,10 @@ fixTypeParameters t =
 -}
 instance Alternative BridgeBuilder where
     empty = BridgeBuilder . ReaderT $ const Nothing
-    BridgeBuilder a <|> BridgeBuilder b =
-        BridgeBuilder . ReaderT $ \bridgeData ->
-            let ia = runReaderT a bridgeData
-                ib = runReaderT b bridgeData
-             in ia <|> ib
+    BridgeBuilder a <|> BridgeBuilder b = BridgeBuilder . ReaderT $ \bridgeData ->
+        let ia = runReaderT a bridgeData
+            ib = runReaderT b bridgeData
+         in ia <|> ib
 
 instance MonadPlus BridgeBuilder where
     mzero = empty

@@ -54,7 +54,6 @@ source-repository head
 library
   -- Modules exported by the library.
   exposed-modules: Language.PureScript.Bridge
-                , Language.PureScript.Bridge.CodeGenSwitches
                 , Language.PureScript.Bridge.Builder
                 , Language.PureScript.Bridge.Primitives
                 , Language.PureScript.Bridge.Printer
@@ -90,13 +89,10 @@ library
   -- Base language which the package is written in.
   default-language:    Haskell2010
 
-
 Test-Suite tests
   type:          exitcode-stdio-1.0
   main-is:       Spec.hs
   other-modules: TestData
-               , RoundTrip.Spec
-               , RoundTrip.Types
   build-depends: aeson
                , bytestring
                , HUnit
@@ -114,3 +110,26 @@ Test-Suite tests
 
   hs-source-dirs:   test
   default-language: Haskell2010
+
+Test-Suite roundTrip
+  type:          exitcode-stdio-1.0
+  main-is:       RoundTrip/Spec.hs
+  other-modules: RoundTrip.Types
+  build-depends: aeson
+               , bytestring
+               , HUnit
+               , base
+               , containers
+               , directory
+               , hspec
+               , hspec-expectations-pretty-diff
+               , process
+               , purescript-bridge
+               , QuickCheck
+               , text
+               , utf8-string
+               , wl-pprint-text
+
+  hs-source-dirs:   test
+  default-language: Haskell2010
+  

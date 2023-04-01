@@ -27,8 +27,7 @@ psBool =
 
 -- | Uses  type parameters from 'haskType' (bridged).
 psEither :: MonadReader BridgeData m => m PSType
-psEither =
-    TypeInfo "purescript-either" "Data.Either" "Either" <$> psTypeParameters
+psEither = TypeInfo "purescript-either" "Data.Either" "Either" <$> psTypeParameters
 
 psObject :: MonadReader BridgeData m => m PSType
 psObject = do
@@ -132,9 +131,7 @@ psWord64 =
         }
 
 psMap :: MonadReader BridgeData m => m PSType
-psMap =
-    TypeInfo "purescript-ordered-collections" "Data.Map" "Map" <$> psTypeParameters
+psMap = TypeInfo "purescript-ordered-collections" "Data.Map" "Map" <$> psTypeParameters
 
 psSet :: MonadReader BridgeData m => m PSType
-psSet =
-    TypeInfo "purescript-ordered-collections" "Data.Set" "Set" <$> psTypeParameters
+psSet = TypeInfo "purescript-ordered-collections" "Data.Set" "Set" <$> psTypeParameters

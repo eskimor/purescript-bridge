@@ -18,12 +18,7 @@ import Effect.Aff (launchAff_)
 import Affjax.Web (get, post_)
 import Affjax.ResponseFormat (json)
 import Affjax.RequestBody as RequestBody
-import Types (Foo, fooMessage, fooNumber, fooList)
-import Data.Argonaut.Decode.Error (JsonDecodeError)
-import Data.Argonaut.Decode.Generic (genericDecodeJson)
-import Data.Argonaut.Encode.Generic (genericEncodeJson)
 import Types (Foo, fooMessage, fooNumber, fooList, fooMap)
-import Data.Map as Map
 
 import Foreign.Object as Object
 

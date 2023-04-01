@@ -11,32 +11,22 @@ on:
 
 jobs:
   linux:
-
-    runs-on: ubuntu-20.04
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        versions:
-          - ghc: '8.6.5'
-            cabal: '3.6'
-          - ghc: '8.8.4'
-            cabal: '3.6'
-          - ghc: '8.10.4'
-            cabal: '3.6'
-          - ghc: '9.0.2'
-            cabal: '3.6'
-          - ghc: '9.2.4'
-            cabal: '3.6'
+        ghc: ['9.4.4', '9.2.7', '9.0.2']
+        cabal: ['3.10.1.0']
+        os: [ubuntu-latest]
+    name: Cabal with GHC ${{ matrix.ghc }}
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
 
-    # need to install older cabal/ghc versions from ppa repository
-
-    - name: Install recent cabal/ghc
-      uses: haskell/actions/setup@v1
+    - name: Setup Haskell
+      uses: haskell/actions/setup@v2
       with:
-        ghc-version: ${{ matrix.versions.ghc }}
-        cabal-version: ${{ matrix.versions.cabal }}
+        ghc-version: ${{ matrix.ghc }}
+        cabal-version: ${{ matrix.cabal }}
 
     # declare/restore cached things
     # caching doesn't work for scheduled runs yet
@@ -65,6 +55,12 @@ jobs:
     - name: Build
       run: |
           cabal build all --enable-tests --disable-optimization 2>&1 | tee build.log
+
+    - uses: actions/setup-node@v3
+      with:
+        node-version: "18.x"
+    - uses: purescript-contrib/setup-purescript@main
+
     - name: Test
       run: |
           cabal test all --disable-optimization

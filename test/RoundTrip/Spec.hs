@@ -4,7 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
 
-module RoundTrip.Spec where
+module Main where
 
 import           Control.Exception (bracket)
 import           Data.Aeson (FromJSON, ToJSON (toJSON), eitherDecode, encode,
@@ -13,11 +13,10 @@ import           Data.ByteString.Lazy (hGetContents, stripSuffix)
 import           Data.ByteString.Lazy.UTF8 (fromString, toString)
 import           Data.List (isInfixOf)
 import           Data.Maybe (fromMaybe)
-import           Data.Proxy (Proxy (..))
 import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
                                              argonaut, buildBridge,
-                                             defaultBridge, defaultSwitch,
+                                             defaultBridge,
                                              equal, functor, genericShow,
                                              mkSumType, order, writePSTypes,
                                              writePSTypesWith)
@@ -33,7 +32,7 @@ import           System.Process (CreateProcess (std_err, std_in, std_out),
                                  getProcessExitCode, proc,
                                  readProcessWithExitCode, terminateProcess,
                                  waitForProcess)
-import           Test.Hspec (Spec, around, aroundAll_, around_, describe, it)
+import           Test.Hspec (Spec, around, aroundAll_, around_, describe, hspec, it)
 import           Test.Hspec.Expectations.Pretty (shouldBe)
 import           Test.Hspec.QuickCheck (prop)
 import           Test.HUnit (assertBool, assertEqual)
@@ -57,6 +56,9 @@ myTypes =
     , equal . genericShow . order . argonaut $ mkSumType @TestEnum
     , equal . genericShow . order . argonaut $ mkSumType @MyUnit
     ]
+
+main :: IO ()
+main = hspec roundtripSpec
 
 roundtripSpec :: Spec
 roundtripSpec = do
@@ -105,7 +107,6 @@ roundtripSpec = do
 
     generate = do
         writePSTypesWith
-            defaultSwitch
             "src"
             (buildBridge myBridge)
             myTypes

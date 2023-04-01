@@ -4,25 +4,21 @@
 {-# LANGUAGE RecordWildCards   #-}
 
 module Language.PureScript.Bridge
-    ( bridgeSumType
+    ( module Bridge
+    , bridgeSumType
     , defaultBridge
-    , module Bridge
     , writePSTypes
     , writePSTypesWith
     , writePSTypesWithNamespace
-    , defaultSwitch
-    , noLenses
-    , genLenses
-    )
-where
+    ) where
 
 import           Control.Applicative
 import           Control.Lens (over, traversed)
 import qualified Data.Map as M
 import qualified Data.Set as Set
+import           Data.Text (Text)
 import qualified Data.Text.IO as T
 import           Language.PureScript.Bridge.Builder as Bridge
-import           Language.PureScript.Bridge.CodeGenSwitches as Switches
 import           Language.PureScript.Bridge.Primitives as Bridge
 import           Language.PureScript.Bridge.Printer as Bridge
 import           Language.PureScript.Bridge.SumType as Bridge
@@ -83,7 +79,7 @@ import           Language.PureScript.Bridge.TypeInfo as Bridge
   This function overwrites files - make backups or use version control!
 -}
 writePSTypes :: FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
-writePSTypes = writePSTypesWith Switches.defaultSwitch
+writePSTypes = writePSTypesWith
 
 {- | Works like `writePSTypes` but you can add additional switches to control the generation of your PureScript code
 
@@ -94,26 +90,24 @@ writePSTypes = writePSTypesWith Switches.defaultSwitch
  == /WARNING/:
   This function overwrites files - make backups or use version control!
 -}
-writePSTypesWith :: Switches.Switch -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
-writePSTypesWith switch = writePSTypesWithNamespace switch Nothing
+writePSTypesWith :: FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
+writePSTypesWith = writePSTypesWithNamespace Nothing
 
 writePSTypesWithNamespace
-    :: Switches.Switch -> Maybe PackageName -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
-writePSTypesWithNamespace switch packageName root bridge sts = do
-    mapM_ (printModule settings root) modules
-    T.putStrLn
-        "The following purescript packages are needed by the generated code:\n"
+    :: Maybe PackageName -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
+writePSTypesWithNamespace packageName root bridge sts = do
+    mapM_ (printModule root) modules
+    T.putStrLn "The following purescript packages are needed by the generated code:\n"
     mapM_ (T.putStrLn . mappend "  - ") packages
     T.putStrLn "\nSuccessfully created your PureScript modules!"
   where
-    settings = Switches.getSettings switch
     bridged = map (bridgeSumType bridge) sts
+    modules :: [PSModule]
     modules = M.elems $ sumTypesToModules packageName bridged
+    packages :: Set.Set Text
     packages =
         sumTypesToNeededPackages bridged
-            <> Set.filter
-                (const $ Switches.generateLenses settings)
-                (Set.singleton "purescript-profunctor-lenses")
+            <> (Set.singleton "purescript-profunctor-lenses")
 
 {- | Translate all 'TypeInfo' values in a 'SumType' to PureScript types.
 
@@ -127,6 +121,7 @@ bridgeSumType :: FullBridge -> SumType 'Haskell -> SumType 'PureScript
 bridgeSumType br (SumType t cs is) =
     SumType (br t) (map (bridgeConstructor br) cs) $ bridgeInstance <$> (is <> extraInstances)
   where
+    bridgeInstance Maybe = Maybe
     bridgeInstance (Custom CustomInstance {..}) =
         Custom $
             CustomInstance
@@ -139,6 +134,8 @@ bridgeSumType br (SumType t cs is) =
     bridgeInstance Bounded = Bounded
     bridgeInstance Enum = Enum
     bridgeInstance Json = Json
+    bridgeInstance ArgonautAesonGeneric = ArgonautAesonGeneric
+    bridgeInstance (ForeignObject x y) = ForeignObject x y
     bridgeInstance GenericShow = GenericShow
     bridgeInstance Functor = Functor
     bridgeInstance Eq = Eq
@@ -146,6 +143,8 @@ bridgeSumType br (SumType t cs is) =
     bridgeInstance Ord = Ord
     bridgeInstance Generic = Generic
     bridgeInstance Newtype = Newtype
+    bridgeInstance Lenses = Lenses
+    bridgeInstance Prisms = Prisms
     bridgeMember = over (memberDependencies . traversed) br
     extraInstances
         | not (null cs) && all isNullary cs = [Enum, Bounded]
@@ -183,8 +182,7 @@ defaultBridge =
         <|> word64Bridge
 
 -- | Translate types in a constructor.
-bridgeConstructor
-    :: FullBridge -> DataConstructor 'Haskell -> DataConstructor 'PureScript
+bridgeConstructor :: FullBridge -> DataConstructor 'Haskell -> DataConstructor 'PureScript
 bridgeConstructor _ (DataConstructor name Nullary) =
     DataConstructor name Nullary
 bridgeConstructor br (DataConstructor name (Normal infos)) =
@@ -193,6 +191,5 @@ bridgeConstructor br (DataConstructor name (Record record)) =
     DataConstructor name . Record $ fmap (bridgeRecordEntry br) record
 
 -- | Translate types in a record entry.
-bridgeRecordEntry
-    :: FullBridge -> RecordEntry 'Haskell -> RecordEntry 'PureScript
+bridgeRecordEntry :: FullBridge -> RecordEntry 'Haskell -> RecordEntry 'PureScript
 bridgeRecordEntry br (RecordEntry label value) = RecordEntry label $ br value

@@ -19,13 +19,13 @@ In this directory:
 - Open the browser's developer console and look for the message received:
 
 ```
-Foo message: Hello	 Foo number: 123    Foo list length: 11
+Foo message: Hello	 Foo number: 123    Foo list length: 11     Foo map size: 3
 ```
 
 - Look at the server's logs for the message sent from the browser:
 
 ```
-Foo message: Hola        Foo number: 124        Foo list length: 22
+Foo message: Hola        Foo number: 124        Foo list length: 22      Foo Map length: 4
 ```
 
 ----------------

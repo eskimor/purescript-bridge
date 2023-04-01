@@ -31,7 +31,6 @@ mapBridge = do
     typeModule ^== "Data.Map" <|> typeModule ^== "Data.Map.Internal"
     psMap
 
-
 -- | Dummy bridge, translates every type with 'clearPackageFixUp'
 dummyBridge :: MonadReader BridgeData m => m PSType
 dummyBridge = clearPackageFixUp
@@ -49,14 +48,12 @@ maybeBridge :: BridgePart
 maybeBridge = typeName ^== "Maybe" >> psMaybe
 
 stringBridge :: BridgePart
-stringBridge =
-    haskType ^== mkTypeInfo @String >> return psString
+stringBridge = haskType ^== mkTypeInfo @String >> return psString
 
 textBridge :: BridgePart
 textBridge = do
     typeName ^== "Text"
-    typeModule ^== "Data.Text.Internal"
-        <|> typeModule ^== "Data.Text.Internal.Lazy"
+    typeModule ^== "Data.Text.Internal" <|> typeModule ^== "Data.Text.Internal.Lazy"
     return psString
 
 unitBridge :: BridgePart
