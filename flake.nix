@@ -1,48 +1,61 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/haskell-updates";
     flake-parts.url = "github:hercules-ci/flake-parts";
     haskell-flake.url = "github:srid/haskell-flake";
+    flake-root.url = "github:srid/flake-root";
+    purescript-overlay.url = "github:thomashoneyman/purescript-overlay";
+    purescript-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = inputs@{ self, nixpkgs, flake-parts, ... }:
+  outputs = inputs@{ self, nixpkgs, haskell-flake, flake-root, flake-parts, purescript-overlay }:
     flake-parts.lib.mkFlake { inherit inputs; } {
       systems = nixpkgs.lib.systems.flakeExposed;
-      # systems = ["x86_64-linux" "x86_64-darwin"];
-      imports = [ inputs.haskell-flake.flakeModule ];
+      imports = [
+        haskell-flake.flakeModule
+        flake-root.flakeModule
+      ];
 
-      perSystem = { self', pkgs, ... }: {
+      perSystem = { self', pkgs, system, config,... }: {
+
+        # https://flake.parts/overlays#consuming-an-overlay
+        _module.args.pkgs = import inputs.nixpkgs {
+          inherit system;
+          overlays = [
+            purescript-overlay.overlays.default
+          ];
+        };
 
         haskellProjects.default = {
-
-          packages = {
-            purescript-bridge.root = ./.;
-            example.root = ./example;
-          };
-
           basePackages = pkgs.haskellPackages;
-
-          # Dependency overrides go here. See https://haskell.flake.page/dependency
-          # source-overrides = { };
-          # overrides = self: super: { };
-
           devShell = {
             enable = true;
-
             mkShellArgs = {
               shellHook = ''
                 export LD_LIBRARY_PATH=${pkgs.zlib.out}/lib:LD_LIBRARY_PATH
               '';
             };
-
-            tools = hp: {
-              inherit (pkgs)
-                purescript
-                spago
+            tools = haskellPackages: {
+              inherit (haskellPackages)
                 zlib;
             };
-
             hlsCheck.enable = false;
           };
+
+          # exclude devShell, fixes duplicate definition
+          autoWire = [ "packages" "apps" "checks" ];
+        };
+
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [
+            config.haskellProjects.default.outputs.devShell
+          ];
+          buildInputs = [
+            pkgs.hello
+            pkgs.purs
+            pkgs.spago
+            pkgs.purs-tidy-bin.purs-tidy-0_10_0
+            pkgs.purs-backend-es
+          ];
         };
 
         packages.default = self'.packages.example;
