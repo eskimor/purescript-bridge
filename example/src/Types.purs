@@ -4,7 +4,7 @@ module Types where
 import Data.Argonaut.Aeson.Decode.Generic (genericDecodeAeson)
 import Data.Argonaut.Aeson.Encode.Generic (genericEncodeAeson)
 import Data.Argonaut.Aeson.Options as Argonaut
-import Data.Argonaut.Decode.Class (class DecodeJson, decodeJson)
+import Data.Argonaut.Decode.Class (class DecodeJson, class DecodeJsonField, decodeJson)
 import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
 import Data.Generic.Rep (class Generic)
 import Data.Lens (Iso', Lens', Prism', lens, prism')
@@ -25,10 +25,8 @@ newtype Baz =
       _bazMessage :: String
     }
 
-instance encodeBaz :: Encode Baz where
-  encode = genericEncode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
-instance decodeBaz :: Decode Baz where
-  decode = genericDecode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
+
+
 instance encodeJsonBaz :: EncodeJson Baz where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
 instance decodeJsonBaz :: DecodeJson Baz where
@@ -53,10 +51,8 @@ newtype Foo =
     , _fooBaz :: Baz
     }
 
-instance encodeFoo :: Encode Foo where
-  encode = genericEncode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
-instance decodeFoo :: Decode Foo where
-  decode = genericDecode $ defaultOptions { unwrapSingleConstructors = false , unwrapSingleArguments = false }
+
+
 instance encodeJsonFoo :: EncodeJson Foo where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
 instance decodeJsonFoo :: DecodeJson Foo where
@@ -83,4 +79,20 @@ fooMap = _Newtype <<< prop (Proxy :: Proxy "_fooMap")
 fooBaz :: Lens' Foo Baz
 fooBaz = _Newtype <<< prop (Proxy :: Proxy "_fooBaz")
 
+--------------------------------------------------------------------------------
+newtype Bar a =
+    Bar a
+
+
+
+instance encodeJsonBar :: (Generic a ra, EncodeJson a) => EncodeJson (Bar a) where
+  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+instance decodeJsonBar :: (Generic a ra, DecodeJson a, DecodeJsonField a) => DecodeJson (Bar a) where
+  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+derive instance genericBar :: Generic a ra => Generic (Bar a) _
+derive instance newtypeBar :: Newtype (Bar a) _
+
+--------------------------------------------------------------------------------
+_Bar :: forall a. Iso' (Bar a) a
+_Bar = _Newtype
 --------------------------------------------------------------------------------

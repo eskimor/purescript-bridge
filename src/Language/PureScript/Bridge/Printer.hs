@@ -181,27 +181,27 @@ instances :: Switches.Settings -> SumType 'PureScript -> [Text]
 instances settings st@(SumType t _ is) = map go is
   where
     go :: Instance -> Text
-    go Encode =
-        "instance encode"
-            <> _typeName t
-            <> " :: "
-            <> extras
-            <> "Encode "
-            <> typeInfoToText False t
-            <> " where\n"
-            <> "  encode = genericEncode $ defaultOptions"
-            <> encodeOpts
-      where
-        encodeOpts =
-            foreignOptionsToPurescript $ Switches.generateForeign settings
-        stpLength = length sumTypeParameters
-        extras
-            | stpLength == 0 = mempty
-            | otherwise = bracketWrap constraintsInner <> " => "
-        sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
-        constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
-        instances params = genericInstance settings params <> ", " <> encodeInstance params
-        bracketWrap x = "(" <> x <> ")"
+    go Encode = mempty
+      --   "instance encode"
+      --       <> _typeName t
+      --       <> " :: "
+      --       <> extras
+      --       <> "Encode "
+      --       <> typeInfoToText False t
+      --       <> " where\n"
+      --       <> "  encode = genericEncode $ defaultOptions"
+      --       <> encodeOpts
+      -- where
+      --   encodeOpts =
+      --       foreignOptionsToPurescript $ Switches.generateForeign settings
+      --   stpLength = length sumTypeParameters
+      --   extras
+      --       | stpLength == 0 = mempty
+      --       | otherwise = bracketWrap constraintsInner <> " => "
+      --   sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
+      --   constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
+      --   instances params = genericInstance settings params <> ", " <> encodeInstance params
+      --   bracketWrap x = "(" <> x <> ")"
     go EncodeJson =
         "instance encodeJson"
             <> _typeName t
@@ -222,27 +222,27 @@ instances settings st@(SumType t _ is) = map go is
         constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
         instances params = genericInstance settings params <> ", " <> encodeJsonInstance params
         bracketWrap x = "(" <> x <> ")"
-    go Decode =
-        "instance decode"
-            <> _typeName t
-            <> " :: "
-            <> extras
-            <> "Decode "
-            <> typeInfoToText False t
-            <> " where\n"
-            <> "  decode = genericDecode $ defaultOptions"
-            <> decodeOpts
-      where
-        decodeOpts =
-            foreignOptionsToPurescript $ Switches.generateForeign settings
-        stpLength = length sumTypeParameters
-        extras
-            | stpLength == 0 = mempty
-            | otherwise = bracketWrap constraintsInner <> " => "
-        sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
-        constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
-        instances params = genericInstance settings params <> ", " <> decodeInstance params
-        bracketWrap x = "(" <> x <> ")"
+    go Decode = mempty
+      --   "instance decode"
+      --       <> _typeName t
+      --       <> " :: "
+      --       <> extras
+      --       <> "Decode "
+      --       <> typeInfoToText False t
+      --       <> " where\n"
+      --       <> "  decode = genericDecode $ defaultOptions"
+      --       <> decodeOpts
+      -- where
+      --   decodeOpts =
+      --       foreignOptionsToPurescript $ Switches.generateForeign settings
+      --   stpLength = length sumTypeParameters
+      --   extras
+      --       | stpLength == 0 = mempty
+      --       | otherwise = bracketWrap constraintsInner <> " => "
+      --   sumTypeParameters = filter (isTypeParam t) . Set.toList $ getUsedTypes st
+      --   constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
+      --   instances params = genericInstance settings params <> ", " <> decodeInstance params
+      --   bracketWrap x = "(" <> x <> ")"
     go DecodeJson =
         "instance decodeJson"
             <> _typeName t
