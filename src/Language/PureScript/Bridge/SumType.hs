@@ -12,7 +12,10 @@ module Language.PureScript.Bridge.SumType
     , mkSumType
     , mkSumTypeWith
     , equal
-    , order , DataConstructor (..)
+    , order 
+    , DataConstructor (..)
+    , DataConstructorOpts (..)
+    , defaultDataConstructorOpts
     , RecordEntry (..)
     , Instance (..)
     , nootype
