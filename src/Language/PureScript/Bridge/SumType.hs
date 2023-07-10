@@ -6,14 +6,15 @@
 {-# LANGUAGE ScopedTypeVariables  #-}
 {-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE TypeOperators        #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE AllowAmbiguousTypes #-}
+{-# LANGUAGE TypeApplications #-}
 
 module Language.PureScript.Bridge.SumType
     ( SumType (..)
     , mkSumType
+    , mkSumTypeWith
     , equal
-    , order
-    , DataConstructor (..)
+    , order , DataConstructor (..)
     , RecordEntry (..)
     , Instance (..)
     , nootype
@@ -65,6 +66,16 @@ mkSumType p = SumType (mkTypeInfo p) constructors (Encode : Decode : EncodeJson 
   where
     constructors = gToConstructors (from (undefined :: t))
 
+mkSumTypeWith
+    :: forall t
+     . (Generic t, Typeable t, GDataConstructor (Rep t))
+    => DataConstructorOpts
+    -> Proxy t
+    -> SumType 'Haskell
+mkSumTypeWith opts p = SumType (mkTypeInfo p) constructors (Encode : Decode : EncodeJson : DecodeJson : Generic : maybeToList (nootype constructors))
+  where
+    constructors = gToConstructorsWithOpts opts (from (undefined :: t))
+
 -- | Purescript typeclass instances that can be generated for your Haskell types.
 data Instance = Encode | EncodeJson | Decode | DecodeJson | Generic | Newtype | Eq | Ord
   deriving (Eq, Show)
@@ -104,22 +115,33 @@ data RecordEntry (lang :: Language) = RecordEntry
   }
   deriving (Eq, Show)
 
+newtype DataConstructorOpts = 
+  DataConstructorOpts 
+    { _recLabelModifier :: String -> String }
+
+defaultDataConstructorOpts :: DataConstructorOpts
+defaultDataConstructorOpts = 
+  DataConstructorOpts 
+    { _recLabelModifier = id }
+
 class GDataConstructor f where
+    gToConstructorsWithOpts :: DataConstructorOpts -> f a -> [DataConstructor 'Haskell]
+
     gToConstructors :: f a -> [DataConstructor 'Haskell]
+    gToConstructors = gToConstructorsWithOpts defaultDataConstructorOpts
 
 class GRecordEntry f where
-    gToRecordEntries :: f a -> [RecordEntry 'Haskell]
+    gToRecordEntriesWithOpts :: DataConstructorOpts -> f a -> [RecordEntry 'Haskell]
 
 instance (Datatype a, GDataConstructor c) => GDataConstructor (D1 a c) where
-    gToConstructors (M1 c) = gToConstructors c
+    gToConstructorsWithOpts opts (M1 c) = gToConstructorsWithOpts opts c
 
 instance (GDataConstructor a, GDataConstructor b) => GDataConstructor (a :+: b) where
-    gToConstructors (_ :: (a :+: b) f) =
-        gToConstructors (undefined :: a f)
-            ++ gToConstructors (undefined :: b f)
+    gToConstructorsWithOpts opts (_ :: (a :+: b) f) =
+        gToConstructorsWithOpts opts (undefined :: a f) ++ gToConstructorsWithOpts opts (undefined :: b g)
 
 instance (Constructor a, GRecordEntry b) => GDataConstructor (C1 a b) where
-    gToConstructors c@(M1 r) =
+    gToConstructorsWithOpts opts c@(M1 r) =
         [ DataConstructor
             { _sigConstructor = constructor
             , _sigValues = values
@@ -129,21 +151,21 @@ instance (Constructor a, GRecordEntry b) => GDataConstructor (C1 a b) where
         constructor = T.pack $ conName c
         values =
             if conIsRecord c
-                then Right $ gToRecordEntries r
-                else Left $ map _recValue $ gToRecordEntries r
+                then Right $ gToRecordEntriesWithOpts opts r
+                else Left $ map _recValue $ gToRecordEntriesWithOpts opts r
 
 instance (GRecordEntry a, GRecordEntry b) => GRecordEntry (a :*: b) where
-    gToRecordEntries (_ :: (a :*: b) f) =
-        gToRecordEntries (undefined :: a f)
-            ++ gToRecordEntries (undefined :: b f)
+    gToRecordEntriesWithOpts opts (_ :: (a :*: b) f) =
+        gToRecordEntriesWithOpts opts (undefined :: a f)
+            ++ gToRecordEntriesWithOpts opts (undefined :: b f)
 
 instance GRecordEntry U1 where
-    gToRecordEntries _ = []
+    gToRecordEntriesWithOpts _ _ = []
 
 instance (Selector a, Typeable t) => GRecordEntry (S1 a (K1 R t)) where
-    gToRecordEntries e =
+    gToRecordEntriesWithOpts opts e =
         [ RecordEntry
-            { _recLabel = T.pack (selName e)
+            { _recLabel = T.pack $ _recLabelModifier opts (selName e)
             , _recValue = mkTypeInfo (Proxy :: Proxy t)
             }
         ]
@@ -165,3 +187,5 @@ constructorToTypes (DataConstructor _ (Right rs)) ts =
 -- Lenses:
 makeLenses ''DataConstructor
 makeLenses ''RecordEntry
+makeLenses ''DataConstructorOpts
+
