@@ -27,6 +27,7 @@ module Language.PureScript.Bridge.SumType
     , sumTypeConstructors
     , recLabel
     , recValue
+    , recLabelModifier
     ) where
 
 import           Control.Lens hiding (from, to)
