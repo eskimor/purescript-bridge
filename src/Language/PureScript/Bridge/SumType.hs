@@ -25,6 +25,7 @@ module Language.PureScript.Bridge.SumType
     , sumTypeConstructors
     , recLabel
     , recValue
+    , showing
     ) where
 
 import           Control.Lens hiding (from, to)
@@ -89,6 +90,9 @@ equal _ (SumType ti dc is) = SumType ti dc . nub $ Eq : is
 -- | Ensure that both `Eq` and `Ord` instances are generated for your type.
 order :: Ord a => Proxy a -> SumType t -> SumType t
 order _ (SumType ti dc is) = SumType ti dc . nub $ Eq : Ord : is
+
+showing :: Show a => Proxy a -> SumType t -> SumType t
+showing _ (SumType ti dc is) = SumType ti dc . nub $ Show : is
 
 data DataConstructor (lang :: Language) = DataConstructor
   { _sigConstructor :: !Text
