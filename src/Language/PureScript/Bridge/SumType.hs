@@ -66,7 +66,7 @@ mkSumType p = SumType (mkTypeInfo p) constructors (Encode : Decode : EncodeJson 
     constructors = gToConstructors (from (undefined :: t))
 
 -- | Purescript typeclass instances that can be generated for your Haskell types.
-data Instance = Encode | EncodeJson | Decode | DecodeJson | Generic | Newtype | Eq | Ord
+data Instance = Encode | EncodeJson | Decode | DecodeJson | Generic | Newtype | Eq | Ord | Show
   deriving (Eq, Show)
 
 {- | The Purescript typeclass `Newtype` might be derivable if the original
