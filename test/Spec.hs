@@ -39,7 +39,7 @@ allTests = do
              in bst `shouldBe` ti
         it "tests with custom type Foo" $
             let prox = Proxy :: Proxy Foo
-                bst = bridgeSumType (buildBridge defaultBridge) (order prox $ mkSumType prox)
+                bst = bridgeSumType (buildBridge defaultBridge) (showing prox . order prox $ mkSumType prox)
                 st =
                     SumType
                         TypeInfo {_typePackage = "", _typeModule = "TestData", _typeName = "Foo", _typeParameters = []}
@@ -57,11 +57,11 @@ allTests = do
                                     ]
                             }
                         ]
-                        [Eq, Ord, Encode, Decode, EncodeJson, DecodeJson, Generic]
+                        [Show, Eq, Ord, Encode, Decode, EncodeJson, DecodeJson, Generic]
              in bst `shouldBe` st
         it "tests generation of for custom type Foo" $
             let prox = Proxy :: Proxy Foo
-                recType = bridgeSumType (buildBridge defaultBridge) (order prox $ mkSumType prox)
+                recType = bridgeSumType (buildBridge defaultBridge) (showing prox . order prox $ mkSumType prox)
                 recTypeText = sumTypeToText defaultSettings recType
                 txt =
                     T.stripEnd $
@@ -70,6 +70,9 @@ allTests = do
                             , "    Foo"
                             , "  | Bar Int"
                             , "  | FooBar Int String"
+                            , ""
+                            , "instance showFoo ∷ Show Foo where"
+                            , "  show value = genericShow value"
                             , ""
                             , "derive instance eqFoo :: Eq Foo"
                             , "derive instance ordFoo :: Ord Foo"
