@@ -55,10 +55,11 @@
             pkgs.spago
             pkgs.purs-tidy-bin.purs-tidy-0_10_0
             pkgs.purs-backend-es
+            pkgs.purescript-language-server
           ];
         };
 
-        packages.default = self'.packages.example;
+        packages.default = self'.packages.purescript-bridge;
       };
     };
 }
