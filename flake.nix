@@ -1,50 +1,64 @@
 {
-  description = "Generate PureScript data types from Haskell data types";
-  inputs.haskellNix.url = "github:input-output-hk/haskell.nix";
-  inputs.nixpkgs.follows = "haskellNix/nixpkgs-unstable";
-  inputs.flake-utils.url = "github:numtide/flake-utils";
-  inputs.easy-ps = {
-    url = "github:justinwoo/easy-purescript-nix";
-    flake = false;
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/haskell-updates";
+    flake-parts.url = "github:hercules-ci/flake-parts";
+    haskell-flake.url = "github:srid/haskell-flake";
+    flake-root.url = "github:srid/flake-root";
+    purescript-overlay.url = "github:thomashoneyman/purescript-overlay";
+    purescript-overlay.inputs.nixpkgs.follows = "nixpkgs";
   };
-  outputs = { self, nixpkgs, flake-utils, haskellNix, easy-ps }:
-    flake-utils.lib.eachSystem [ "x86_64-linux" "x86_64-darwin" ] (system:
-      let
-        overlays = [
-          haskellNix.overlay
-          (final: prev: {
-            # This overlay adds our project to pkgs
-            purescript-bridge =
-              final.haskell-nix.project' {
-                src = ./.;
-                compiler-nix-name = "ghc8107";
-              };
-          })
-        ];
-        pkgs = import nixpkgs { inherit system overlays; inherit (haskellNix) config; };
-        flake = pkgs.purescript-bridge.flake { };
-      in
-      flake // {
-        # Built by `nix build .`
-        defaultPackage = flake.packages."purescript-bridge:test:purescript-bridge";
-        devShell = pkgs.purescript-bridge.shellFor {
-          withHoogle = true;
-          tools = {
-            cabal = "latest";
-            hlint = "latest";
-            haskell-language-server = "latest";
-          };
+  outputs = inputs@{ self, nixpkgs, haskell-flake, flake-root, flake-parts, purescript-overlay }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = nixpkgs.lib.systems.flakeExposed;
+      imports = [
+        haskell-flake.flakeModule
+        flake-root.flakeModule
+      ];
 
-          exactDeps = true;
+      perSystem = { self', pkgs, system, config,... }: {
 
-          buildInputs = with pkgs; with import easy-ps { inherit pkgs; }; [
-            ghcid
-            nixpkgs-fmt
-            purs
-            purescript-language-server
-            spago
-            haskellPackages.ormolu
+        # https://flake.parts/overlays#consuming-an-overlay
+        _module.args.pkgs = import inputs.nixpkgs {
+          inherit system;
+          overlays = [
+            purescript-overlay.overlays.default
           ];
         };
-      });
+
+        haskellProjects.default = {
+          basePackages = pkgs.haskellPackages;
+          devShell = {
+            enable = true;
+            mkShellArgs = {
+              shellHook = ''
+                export LD_LIBRARY_PATH=${pkgs.zlib.out}/lib:LD_LIBRARY_PATH
+              '';
+            };
+            tools = haskellPackages: {
+              inherit (haskellPackages)
+                zlib;
+            };
+            hlsCheck.enable = false;
+          };
+
+          # exclude devShell, fixes duplicate definition
+          autoWire = [ "packages" "apps" "checks" ];
+        };
+
+        devShells.default = pkgs.mkShell {
+          inputsFrom = [
+            config.haskellProjects.default.outputs.devShell
+          ];
+          buildInputs = [
+            pkgs.hello
+            pkgs.purs
+            pkgs.spago
+            pkgs.purs-tidy-bin.purs-tidy-0_10_0
+            pkgs.purs-backend-es
+          ];
+        };
+
+        packages.default = self'.packages.example;
+      };
+    };
 }
