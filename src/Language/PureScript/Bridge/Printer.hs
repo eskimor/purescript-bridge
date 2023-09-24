@@ -77,6 +77,9 @@ moduleToText settings m =
                 <> _genericsImports settings
                 <> _argonautCodecsImports settings
                 <> _foreignImports settings
+                <> if any (\ (SumType _ _ requestedInstances) -> Show `elem` requestedInstances) (psTypes m)
+                   then [ImportLine "Data.Show.Generic" Nothing (Set.fromList ["genericShow"])]
+                   else [ ]
     allImports = Map.elems $ mergeImportLines otherImports (psImportLines m)
 
 _genericsImports :: Switches.Settings -> [ImportLine]
@@ -261,6 +264,10 @@ instances settings st@(SumType t _ is) = map go is
         constraintsInner = T.intercalate ", " $ map instances sumTypeParameters
         instances params = genericInstance settings params <> ", " <> decodeJsonInstance params <> ", " <> decodeJsonFieldInstance params
         bracketWrap x = "(" <> x <> ")"
+    go Show = T.unlines
+      [ T.unwords ["instance", "show" <> _typeName t, "∷", "Show", typeInfoToText False t, "where"]
+      , "  " <> T.unwords ["show", "value", "=", "genericShow", "value"]
+      ]
     go i = "derive instance " <> T.toLower c <> _typeName t <> " :: " <> extras i <> c <> " " <> typeInfoToText False t <> postfix i
       where
         c = T.pack $ show i
