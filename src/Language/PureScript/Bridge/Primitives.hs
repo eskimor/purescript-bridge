@@ -1,14 +1,14 @@
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE FlexibleContexts #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeApplications  #-}
 
 module Language.PureScript.Bridge.Primitives where
 
-import Control.Monad.Reader.Class
-import Language.PureScript.Bridge.Builder
-import Language.PureScript.Bridge.PSTypes
-import Language.PureScript.Bridge.TypeInfo
+import           Control.Monad.Reader.Class
+import           Language.PureScript.Bridge.Builder
+import           Language.PureScript.Bridge.PSTypes
+import           Language.PureScript.Bridge.TypeInfo
 
 boolBridge :: BridgePart
 boolBridge = typeName ^== "Bool" >> return psBool
@@ -18,18 +18,18 @@ eitherBridge = typeName ^== "Either" >> psEither
 
 setBridge :: BridgePart
 setBridge = do
-  typeName ^== "Set"
-  typeModule ^== "Data.Set" <|> typeModule ^== "Data.Set.Internal"
-  psSet
+    typeName ^== "Set"
+    typeModule ^== "Data.Set" <|> typeModule ^== "Data.Set.Internal"
+    psSet
 
 mapBridge :: BridgePart
 mapBridge = do
-  typeName ^== "Map"
-  typeModule ^== "Data.Map" <|> typeModule ^== "Data.Map.Internal"
-  psMap
+    typeName ^== "Map"
+    typeModule ^== "Data.Map" <|> typeModule ^== "Data.Map.Internal"
+    psMap
 
 -- | Dummy bridge, translates every type with 'clearPackageFixUp'
-dummyBridge :: MonadReader BridgeData m => m PSType
+dummyBridge :: (MonadReader BridgeData m) => m PSType
 dummyBridge = clearPackageFixUp
 
 intBridge :: BridgePart
@@ -46,14 +46,14 @@ maybeBridge = typeName ^== "Maybe" >> psMaybe
 
 stringBridge :: BridgePart
 stringBridge =
-  haskType ^== mkTypeInfo @String >> return psString
+    haskType ^== mkTypeInfo @String >> return psString
 
 textBridge :: BridgePart
 textBridge = do
-  typeName ^== "Text"
-  typeModule ^== "Data.Text.Internal"
-    <|> typeModule ^== "Data.Text.Internal.Lazy"
-  return psString
+    typeName ^== "Text"
+    typeModule ^== "Data.Text.Internal"
+        <|> typeModule ^== "Data.Text.Internal.Lazy"
+    return psString
 
 unitBridge :: BridgePart
 unitBridge = typeName ^== "()" >> return psUnit
