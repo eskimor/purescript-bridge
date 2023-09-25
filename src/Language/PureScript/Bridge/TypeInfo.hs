@@ -1,9 +1,12 @@
+{-# LANGUAGE AllowAmbiguousTypes        #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE KindSignatures             #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TemplateHaskell            #-}
+{-# LANGUAGE TypeApplications           #-}
 {-# LANGUAGE TypeSynonymInstances       #-}
 
 module Language.PureScript.Bridge.TypeInfo
@@ -57,20 +60,18 @@ class HasHaskType t where
 instance HasHaskType HaskellType where
     haskType inj = inj
 
-mkTypeInfo :: Typeable t => Proxy t -> HaskellType
-mkTypeInfo = mkTypeInfo' . typeRep
+mkTypeInfo :: forall t. (Typeable t) => HaskellType
+mkTypeInfo = mkTypeInfo' . typeRep $ Proxy @t
 
 mkTypeInfo' :: TypeRep -> HaskellType
 mkTypeInfo' rep =
-    let
-        con = typeRepTyCon rep
-     in
-        TypeInfo
-            { _typePackage = T.pack $ tyConPackage con
-            , _typeModule = T.pack $ tyConModule con
-            , _typeName = T.pack $ tyConName con
-            , _typeParameters = map mkTypeInfo' (typeRepArgs rep)
-            }
+    let con = typeRepTyCon rep
+    in TypeInfo
+        { _typePackage = T.pack $ tyConPackage con
+        , _typeModule = T.pack $ tyConModule con
+        , _typeName = T.pack $ tyConName con
+        , _typeParameters = map mkTypeInfo' (typeRepArgs rep)
+        }
 
 -- | Put the TypeInfo in a list together with all its '_typeParameters' (recursively)
 flattenTypeInfo :: TypeInfo lang -> [TypeInfo lang]

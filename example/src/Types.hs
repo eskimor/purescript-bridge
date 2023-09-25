@@ -1,9 +1,10 @@
-{-# LANGUAGE DataKinds       #-}
-{-# LANGUAGE DeriveAnyClass  #-}
-{-# LANGUAGE DeriveGeneric   #-}
-{-# LANGUAGE KindSignatures  #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators   #-}
+{-# LANGUAGE DataKinds        #-}
+{-# LANGUAGE DeriveAnyClass   #-}
+{-# LANGUAGE DeriveGeneric    #-}
+{-# LANGUAGE KindSignatures   #-}
+{-# LANGUAGE TemplateHaskell  #-}
+{-# LANGUAGE TypeApplications #-}
+{-# LANGUAGE TypeOperators    #-}
 
 module Types where
 
@@ -16,6 +17,7 @@ import           Data.Typeable
 import           GHC.Generics
 import           Language.PureScript.Bridge
 import           Language.PureScript.Bridge.PSTypes
+import qualified Language.PureScript.Bridge.SumType as SumType
 import           Language.PureScript.Bridge.TypeParameters (A)
 
 data Baz = Baz
@@ -44,7 +46,7 @@ fooProxy = Proxy
 
 -- TODO newtype
 data Bar a = Bar a
-  deriving (Generic, Show, Typeable, FromJSON, ToJSON)
+  deriving (FromJSON, Generic, Show, ToJSON, Typeable)
 
 makeLenses ''Bar
 
@@ -54,9 +56,11 @@ barProxy = Proxy
 myBridge :: BridgePart
 myBridge = defaultBridge
 
+additionalInstances = SumType.lenses . SumType.genericShow . SumType.argonautJson
+
 myTypes :: [SumType 'Haskell]
 myTypes =
-  [ mkSumType (Proxy :: Proxy Baz)
-  , mkSumType (Proxy :: Proxy Foo)
-  , mkSumType (Proxy :: Proxy (Bar A))
+  [ additionalInstances $ mkSumType @Baz
+  , additionalInstances $ mkSumType @Foo
+  , additionalInstances $ mkSumType @(Bar A)
   ]

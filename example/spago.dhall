@@ -7,6 +7,7 @@
   , "aff"
   , "affjax"
   , "affjax-web"
+  , "argonaut"
   , "argonaut-aeson-generic"
   , "ordered-collections"
   , "argonaut-codecs"

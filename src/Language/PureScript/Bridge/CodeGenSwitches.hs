@@ -8,10 +8,6 @@ module Language.PureScript.Bridge.CodeGenSwitches
     , defaultSwitch
     , noLenses
     , genLenses
-    , useGen
-    , useGenRep
-    , genForeign
-    , noForeign
     , noArgonautCodecs
     , genArgonautCodecs
     ) where
@@ -22,12 +18,8 @@ import           Data.Monoid (Endo (..))
 data Settings = Settings
   { generateLenses         :: Bool
     -- ^ use purescript-profunctor-lens for generated PS-types?
-  , genericsGenRep         :: Bool
-    -- ^ generate generics using purescript-generics-rep instead of purescript-generics
   , generateArgonautCodecs :: Bool
     -- ^ generate Data.Argonaut.Decode.Class EncodeJson and DecodeJson instances
-  , generateForeign        :: Maybe ForeignOptions
-    -- ^ generate Foreign.Generic Encode and Decode instances
   }
   deriving (Eq, Show)
 
@@ -39,7 +31,7 @@ data ForeignOptions = ForeignOptions
 
 -- | Settings to generate Lenses
 defaultSettings :: Settings
-defaultSettings = Settings True True True Nothing
+defaultSettings = Settings True True
 
 -- | you can `mappend` switches to control the code generation
 type Switch = Endo Settings
@@ -52,33 +44,20 @@ getSettings switch = appEndo switch defaultSettings
 defaultSwitch :: Switch
 defaultSwitch = mempty
 
--- | Switch off the generatation of profunctor-lenses
+-- | Switch off the generation of profunctor-lenses
 noLenses :: Switch
 noLenses = Endo $ \settings -> settings {generateLenses = False}
 
--- | Switch off the generatation of argonaut-codecs
+-- | Switch off the generation of argonaut-codecs
 noArgonautCodecs :: Switch
 noArgonautCodecs = Endo $ \settings ->
     settings {generateArgonautCodecs = False}
 
--- | Switch on the generatation of profunctor-lenses
+-- | Switch on the generation of profunctor-lenses
 genLenses :: Switch
 genLenses = Endo $ \settings -> settings {generateLenses = True}
-
--- | Generate generics using purescript-generics-rep
-useGenRep :: Switch
-useGenRep = Endo $ \settings -> settings {genericsGenRep = True}
-
--- | Generate generics using purescript-generics
-useGen :: Switch
-useGen = Endo $ \settings -> settings {genericsGenRep = False}
-
-genForeign :: ForeignOptions -> Switch
-genForeign opts = Endo $ \settings -> settings {generateForeign = Just opts}
 
 genArgonautCodecs :: Switch
 genArgonautCodecs = Endo $ \settings ->
     settings {generateArgonautCodecs = True}
 
-noForeign :: Switch
-noForeign = Endo $ \settings -> settings {generateForeign = Nothing}

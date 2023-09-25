@@ -1,21 +1,18 @@
-{-# LANGUAGE DataKinds            #-}
-{-# LANGUAGE FlexibleContexts     #-}
-{-# LANGUAGE FlexibleInstances    #-}
-{-# LANGUAGE OverloadedStrings    #-}
-{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE FlexibleContexts  #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 -- | PureScript types to be used for bridges, e.g. in "Language.PureScript.Bridge.Primitives".
 module Language.PureScript.Bridge.PSTypes where
 
-import           Control.Lens (views)
+import           Control.Lens (view)
 import           Control.Monad.Reader.Class
-import qualified Data.Text as T
-
 import           Language.PureScript.Bridge.Builder
 import           Language.PureScript.Bridge.TypeInfo
 
 -- | Uses  type parameters from 'haskType' (bridged).
-psArray :: MonadReader BridgeData m => m PSType
+psArray :: (MonadReader BridgeData m) => m PSType
 psArray = TypeInfo "" "Prim" "Array" <$> psTypeParameters
 
 psBool :: PSType
@@ -28,8 +25,9 @@ psBool =
         }
 
 -- | Uses  type parameters from 'haskType' (bridged).
-psEither :: MonadReader BridgeData m => m PSType
-psEither = TypeInfo "purescript-either" "Data.Either" "Either" <$> psTypeParameters
+psEither :: (MonadReader BridgeData m) => m PSType
+psEither =
+    TypeInfo "purescript-either" "Data.Either" "Either" <$> psTypeParameters
 
 psObject :: MonadReader BridgeData m => m PSType
 psObject = do
@@ -55,7 +53,7 @@ psNumber =
         }
 
 -- | Uses  type parameters from 'haskType' (bridged).
-psMaybe :: MonadReader BridgeData m => m PSType
+psMaybe :: (MonadReader BridgeData m) => m PSType
 psMaybe = TypeInfo "purescript-maybe" "Data.Maybe" "Maybe" <$> psTypeParameters
 
 psString :: PSType
@@ -68,13 +66,15 @@ psString =
         }
 
 -- | Uses  type parameters from 'haskType' (bridged).
-psTuple :: MonadReader BridgeData m => m PSType
+psTuple :: (MonadReader BridgeData m) => m PSType
 psTuple = do
-    size <- views (haskType . typeParameters) length
-    let
-        tupleModule = if size == 2 then "Data.Tuple" else "Data.Tuple.Nested"
-        tupleName = "Tuple" <> if size == 2 then "" else T.pack (show size)
-    TypeInfo "purescript-tuples" tupleModule tupleName <$> psTypeParameters
+    params <- view (haskType . typeParameters)
+    bridge <- view fullBridge
+    let computeTuple [] = psUnit
+        computeTuple [a] = bridge a
+        computeTuple [a, b] = TypeInfo "purescript-tuples" "Data.Tuple" "Tuple" [bridge a, bridge b]
+        computeTuple (h : t) = TypeInfo "purescript-tuples" "Data.Tuple" "Tuple" [bridge h, computeTuple t]
+    pure $ computeTuple params
 
 psUnit :: PSType
 psUnit =
@@ -129,3 +129,11 @@ psWord64 =
         , _typeName = "Word64"
         , _typeParameters = []
         }
+
+psMap :: (MonadReader BridgeData m) => m PSType
+psMap =
+    TypeInfo "purescript-ordered-collections" "Data.Map" "Map" <$> psTypeParameters
+
+psSet :: (MonadReader BridgeData m) => m PSType
+psSet =
+    TypeInfo "purescript-ordered-collections" "Data.Set" "Set" <$> psTypeParameters

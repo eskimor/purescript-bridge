@@ -42,7 +42,6 @@ import           Control.Monad (MonadPlus, guard, mplus, mzero)
 import           Control.Monad.Reader.Class
 import           Control.Monad.Trans.Reader (Reader, ReaderT (..), runReader)
 import           Data.Maybe (fromMaybe)
-import           Data.Monoid ((<>))
 import qualified Data.Text as T
 import           Language.PureScript.Bridge.TypeInfo
 
@@ -64,22 +63,20 @@ type BridgePart = BridgeBuilder PSType
 >
 > import           Control.Monad.Reader.Class
 > import           Language.PureScript.Bridge.TypeInfo
--}
+>
+> psEither :: MonadReader BridgeData m => m PSType
+> psEither = ....
 
--- >
--- > psEither :: MonadReader BridgeData m => m PSType
--- > psEither = ....
---
---   instead of:
---
--- > psEither :: BridgePart
--- > psEither = ....
---
---   or
---
--- > psEither :: FixUpBridge
--- > psEither = ....
---
+  instead of:
+
+> psEither :: BridgePart
+> psEither = ....
+
+  or
+
+> psEither :: FixUpBridge
+> psEither = ....
+-}
 newtype FixUpBuilder a
   = FixUpBuilder (Reader BridgeData a)
   deriving (Applicative, Functor, Monad, MonadReader BridgeData)
@@ -105,7 +102,7 @@ data BridgeData = BridgeData
 > stringBridge :: BridgePart
 > stringBridge = do
 >   -- Note: we are using the HaskellType instance here:
->   haskType ^== mkTypeInfo (Proxy :: Proxy String)
+>   haskType ^== mkTypeInfo @String
 >   return psString
 -}
 instance HasHaskType BridgeData where
@@ -135,7 +132,7 @@ fullBridge inj (BridgeData iT fB) = BridgeData iT <$> inj fB
   Of course you can also write your own 'FixUpBridge'. It works the same
   as for 'BridgePart', but you can not have choice ('<|>') or failure ('empty').
 -}
-clearPackageFixUp :: MonadReader BridgeData m => m PSType
+clearPackageFixUp :: (MonadReader BridgeData m) => m PSType
 clearPackageFixUp = do
     input <- view haskType
     psArgs <- psTypeParameters
@@ -152,7 +149,7 @@ clearPackageFixUp = do
 
 > buildBridgeWithCustomFixUp errorFixUp yourBridge
 -}
-errorFixUp :: MonadReader BridgeData m => m PSType
+errorFixUp :: (MonadReader BridgeData m) => m PSType
 errorFixUp = do
     inType <- view haskType
     let message =
@@ -181,13 +178,12 @@ buildBridge = buildBridgeWithCustomFixUp clearPackageFixUp
 -}
 buildBridgeWithCustomFixUp :: FixUpBridge -> BridgePart -> FullBridge
 buildBridgeWithCustomFixUp (FixUpBuilder fixUp) (BridgeBuilder bridgePart) =
-    let
-        mayBridge :: HaskellType -> Maybe PSType
+    let mayBridge :: HaskellType -> Maybe PSType
         mayBridge inType = runReaderT bridgePart $ BridgeData inType bridge
         fixBridge inType = runReader fixUp $ BridgeData inType bridge
-        bridge inType = fixTypeParameters $ fromMaybe (fixBridge inType) (mayBridge inType)
-     in
-        bridge
+        bridge inType =
+            fixTypeParameters $ fromMaybe (fixBridge inType) (mayBridge inType)
+     in bridge
 
 {- | Translate types that come from any module named "Something.TypeParameters" to lower case:
 
@@ -216,12 +212,11 @@ fixTypeParameters t =
 -}
 instance Alternative BridgeBuilder where
     empty = BridgeBuilder . ReaderT $ const Nothing
-    BridgeBuilder a <|> BridgeBuilder b = BridgeBuilder . ReaderT $ \bridgeData ->
-        let
-            ia = runReaderT a bridgeData
-            ib = runReaderT b bridgeData
-         in
-            ia <|> ib
+    BridgeBuilder a <|> BridgeBuilder b =
+        BridgeBuilder . ReaderT $ \bridgeData ->
+            let ia = runReaderT a bridgeData
+                ib = runReaderT b bridgeData
+             in ia <|> ib
 
 instance MonadPlus BridgeBuilder where
     mzero = empty
@@ -239,7 +234,7 @@ doCheck l check = guard =<< views (haskType . l) check
 >   typeModule ^== "Data.Text.Internal" <|> typeModule ^== "Data.Text.Internal.Lazy"
 >   return psString
 -}
-(^==) :: Eq a => Getter HaskellType a -> a -> BridgeBuilder ()
+(^==) :: (Eq a) => Getter HaskellType a -> a -> BridgeBuilder ()
 l ^== a = doCheck l (== a)
 
 infix 4 ^==
@@ -248,5 +243,5 @@ infix 4 ^==
 
   To be used for bridging type constructors.
 -}
-psTypeParameters :: MonadReader BridgeData m => m [PSType]
+psTypeParameters :: (MonadReader BridgeData m) => m [PSType]
 psTypeParameters = map <$> view fullBridge <*> view (haskType . typeParameters)
