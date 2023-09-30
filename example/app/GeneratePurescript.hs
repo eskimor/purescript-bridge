@@ -3,7 +3,6 @@ module Main where
 import           Control.Lens
 import           Data.Text (pack)
 import           Language.PureScript.Bridge
-import           Language.PureScript.Bridge.CodeGenSwitches (ForeignOptions (ForeignOptions))
 
 import qualified MyLib
 import           Types

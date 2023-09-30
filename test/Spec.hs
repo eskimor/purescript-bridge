@@ -15,7 +15,6 @@ import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Word (Word, Word64)
 import           Language.PureScript.Bridge
-import           Language.PureScript.Bridge.CodeGenSwitches
 import           Language.PureScript.Bridge.TypeParameters
 import           RoundTrip.Spec (roundtripSpec)
 import           Test.Hspec (Spec, describe, hspec, it)

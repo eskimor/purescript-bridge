@@ -15,8 +15,8 @@ import           Data.Text (Text)
 import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
                                              buildBridge, defaultBridge,
-                                             defaultSwitch, mkSumType,
-                                             writePSTypes, writePSTypesWith)
+                                             mkSumType, writePSTypes,
+                                             writePSTypesWith)
 import           Language.PureScript.Bridge.TypeParameters (A)
 import           System.Directory (removeDirectoryRecursive, removeFile,
                                    withCurrentDirectory)

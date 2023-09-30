@@ -10,9 +10,6 @@ module Language.PureScript.Bridge
     , writePSTypes
     , writePSTypesWith
     , writePSTypesWithNamespace
-    , defaultSwitch
-    , noLenses
-    , genLenses
     ) where
 
 import           Control.Applicative
@@ -21,7 +18,6 @@ import qualified Data.Map as M
 import qualified Data.Set as Set
 import qualified Data.Text.IO as T
 import           Language.PureScript.Bridge.Builder as Bridge
-import           Language.PureScript.Bridge.CodeGenSwitches as Switches
 import           Language.PureScript.Bridge.Primitives as Bridge
 import           Language.PureScript.Bridge.Printer as Bridge
 import           Language.PureScript.Bridge.SumType as Bridge

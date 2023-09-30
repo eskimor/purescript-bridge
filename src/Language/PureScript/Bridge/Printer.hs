@@ -25,7 +25,6 @@ import qualified Data.Set as Set
 import           Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as T
-import qualified Language.PureScript.Bridge.CodeGenSwitches as Switches
 import           Language.PureScript.Bridge.PSTypes (psUnit)
 import           Language.PureScript.Bridge.SumType (CustomInstance (..),
                                                      DataConstructor (..),
@@ -192,22 +191,6 @@ moduleToText m =
     allImports = Map.elems $ psImportLines m
     dashes = textStrict (T.replicate 80 "-")
 
-genericsImports :: Switches.Settings -> [ImportLine]
-genericsImports _ =
-    [ImportLine "Data.Generic.Rep" Nothing $ Set.singleton "class Generic"]
-
-lensImports :: Switches.Settings -> [ImportLine]
-lensImports settings
-    | Switches.generateLenses settings =
-        [ ImportLine "Data.Maybe" Nothing $ Set.fromList ["Maybe(..)"]
-        , ImportLine "Data.Lens" Nothing $
-            Set.fromList ["Iso'", "Prism'", "Lens'", "iso", "prism'", "lens"]
-        , ImportLine "Data.Lens.Record" Nothing $ Set.fromList ["prop"]
-        , ImportLine "Data.Lens.Iso.Newtype" Nothing $ Set.fromList ["_Newtype"]
-        , ImportLine "Type.Proxy" Nothing $ Set.fromList ["Proxy(Proxy)"]
-        ]
-    | otherwise =
-        [ImportLine "Data.Maybe" Nothing $ Set.fromList ["Maybe(..)"]]
 
 -- importLineToText :: ImportLine -> Text
 -- importLineToText = \case
@@ -252,16 +235,6 @@ lensImports settings
 
 qualifiedImportToText :: Text -> Text -> Doc
 qualifiedImportToText m q = hsep ["import", textStrict m, "as", textStrict q]
-
-foreignOptionsToPurescript :: Maybe Switches.ForeignOptions -> Text
-foreignOptionsToPurescript = \case
-    Nothing -> mempty
-    Just (Switches.ForeignOptions {..}) ->
-        " { unwrapSingleConstructors = "
-            <> (T.toLower . T.pack . show $ unwrapSingleConstructors)
-            <> " , unwrapSingleArguments = "
-            <> (T.toLower . T.pack . show $ unwrapSingleArguments)
-            <> " }"
 
 importLineToText :: ImportLine -> Doc
 importLineToText l =
@@ -362,6 +335,14 @@ instances st@(SumType t _ is) = go <$> is
             [ "succ = genericSucc"
             , "pred = genericPred"
             ]
+
+    -- TODO
+    -- render ForeignObject instances with these configuration
+    -- " { unwrapSingleConstructors = "
+    --     <> (T.toLower . T.pack . show $ unwrapSingleConstructors)
+    --     <> " , unwrapSingleArguments = "
+    --     <> (T.toLower . T.pack . show $ unwrapSingleArguments)
+    --     <> " }"
     go (ForeignObject _ _) = go Generic
     -- This relies on `purescript-argonaut-aeson-generic`:
     -- https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic

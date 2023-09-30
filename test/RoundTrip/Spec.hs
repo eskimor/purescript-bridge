@@ -17,10 +17,9 @@ import           Data.Proxy (Proxy (..))
 import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
                                              argonautJson, buildBridge,
-                                             defaultBridge, defaultSwitch,
-                                             equal, functor, genericShow,
-                                             mkSumType, order, writePSTypes,
-                                             writePSTypesWith)
+                                             defaultBridge, equal, functor,
+                                             genericShow, mkSumType, order,
+                                             writePSTypes, writePSTypesWith)
 import           Language.PureScript.Bridge.TypeParameters (A)
 import           RoundTrip.Types
 import           System.Directory (removeDirectoryRecursive, removeFile,
