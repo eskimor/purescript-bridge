@@ -43,19 +43,25 @@ import           Test.QuickCheck.Property (Testable (property))
 myBridge :: BridgePart
 myBridge = defaultBridge
 
+instancesToGenerate = equal
+  . order
+  . genericShow
+  . order
+  . argonautJson
+
 myTypes :: [SumType 'Haskell]
 myTypes =
-    [ equal . genericShow . order . argonautJson $ mkSumType @TestData
-    , equal . genericShow . order . argonautJson $ mkSumType @TestSum
-    , equal . genericShow . order . argonautJson $ mkSumType @TestRecursiveA
-    , equal . genericShow . order . argonautJson $ mkSumType @TestRecursiveB
-    , functor . equal . genericShow . order . argonautJson $ mkSumType @(TestRecord A)
-    , equal . genericShow . order . argonautJson $ mkSumType @TestNewtype
-    , equal . genericShow . order . argonautJson $ mkSumType @TestNewtypeRecord
-    , equal . genericShow . order . argonautJson $ mkSumType @TestMultiInlineRecords
-    , equal . genericShow . order . argonautJson $ mkSumType @TestTwoFields
-    , equal . genericShow . order . argonautJson $ mkSumType @TestEnum
-    , equal . genericShow . order . argonautJson $ mkSumType @MyUnit
+    [ instancesToGenerate $ mkSumType @TestData
+    , instancesToGenerate $ mkSumType @TestSum
+    , instancesToGenerate $ mkSumType @TestRecursiveA
+    , instancesToGenerate $ mkSumType @TestRecursiveB
+    , functor . instancesToGenerate $ mkSumType @(TestRecord A)
+    , instancesToGenerate $ mkSumType @TestNewtype
+    , instancesToGenerate $ mkSumType @TestNewtypeRecord
+    , instancesToGenerate $ mkSumType @TestMultiInlineRecords
+    , instancesToGenerate $ mkSumType @TestTwoFields
+    , instancesToGenerate $ mkSumType @TestEnum
+    , instancesToGenerate $ mkSumType @MyUnit
     ]
 
 roundtripSpec :: Spec

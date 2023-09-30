@@ -31,10 +31,10 @@ data TestData
 
 derive instance Eq TestData
 
+derive instance Ord TestData
+
 instance Show TestData where
   show a = genericShow a
-
-derive instance Ord TestData
 
 instance EncodeJson TestData where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
@@ -76,10 +76,10 @@ data TestSum
 
 derive instance Eq TestSum
 
+derive instance Ord TestSum
+
 instance Show TestSum where
   show a = genericShow a
-
-derive instance Ord TestSum
 
 instance EncodeJson TestSum where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
@@ -97,10 +97,10 @@ data TestRecursiveA
 
 derive instance Eq TestRecursiveA
 
+derive instance Ord TestRecursiveA
+
 instance Show TestRecursiveA where
   show a = genericShow a
-
-derive instance Ord TestRecursiveA
 
 instance EncodeJson TestRecursiveA where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
@@ -116,10 +116,10 @@ newtype TestRecursiveB = RecurseB TestRecursiveB
 
 derive instance Eq TestRecursiveB
 
+derive instance Ord TestRecursiveB
+
 instance Show TestRecursiveB where
   show a = genericShow a
-
-derive instance Ord TestRecursiveB
 
 instance EncodeJson TestRecursiveB where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
@@ -142,15 +142,15 @@ derive instance Functor TestRecord
 
 derive instance (Eq a) => Eq (TestRecord a)
 
+derive instance (Ord a) => Ord (TestRecord a)
+
 instance (Show a) => Show (TestRecord a) where
   show a = genericShow a
-
-derive instance (Ord a) => Ord (TestRecord a)
 
 instance (EncodeJson a) => EncodeJson (TestRecord a) where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
 
-instance (DecodeJson a) => DecodeJson (TestRecord a) where
+instance (DecodeJson a, DecodeJsonField a) => DecodeJson (TestRecord a) where
   decodeJson = genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic (TestRecord a) _
@@ -163,10 +163,10 @@ newtype TestNewtype = TestNewtype (TestRecord Boolean)
 
 derive instance Eq TestNewtype
 
+derive instance Ord TestNewtype
+
 instance Show TestNewtype where
   show a = genericShow a
-
-derive instance Ord TestNewtype
 
 instance EncodeJson TestNewtype where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
@@ -184,10 +184,10 @@ newtype TestNewtypeRecord = TestNewtypeRecord { unTestNewtypeRecord :: TestNewty
 
 derive instance Eq TestNewtypeRecord
 
+derive instance Ord TestNewtypeRecord
+
 instance Show TestNewtypeRecord where
   show a = genericShow a
-
-derive instance Ord TestNewtypeRecord
 
 instance EncodeJson TestNewtypeRecord where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
@@ -213,10 +213,10 @@ data TestMultiInlineRecords
 
 derive instance Eq TestMultiInlineRecords
 
+derive instance Ord TestMultiInlineRecords
+
 instance Show TestMultiInlineRecords where
   show a = genericShow a
-
-derive instance Ord TestMultiInlineRecords
 
 instance EncodeJson TestMultiInlineRecords where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
@@ -232,10 +232,10 @@ data TestTwoFields = TestTwoFields Boolean Int
 
 derive instance Eq TestTwoFields
 
+derive instance Ord TestTwoFields
+
 instance Show TestTwoFields where
   show a = genericShow a
-
-derive instance Ord TestTwoFields
 
 instance EncodeJson TestTwoFields where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
@@ -258,10 +258,10 @@ data TestEnum
 
 derive instance Eq TestEnum
 
+derive instance Ord TestEnum
+
 instance Show TestEnum where
   show a = genericShow a
-
-derive instance Ord TestEnum
 
 instance EncodeJson TestEnum where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions
@@ -285,10 +285,10 @@ data MyUnit = U
 
 derive instance Eq MyUnit
 
+derive instance Ord MyUnit
+
 instance Show MyUnit where
   show a = genericShow a
-
-derive instance Ord MyUnit
 
 instance EncodeJson MyUnit where
   encodeJson = genericEncodeAeson Argonaut.defaultOptions

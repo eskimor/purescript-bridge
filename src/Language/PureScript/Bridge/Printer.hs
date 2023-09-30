@@ -432,7 +432,8 @@ showConstraints :: PSType -> [PSType]
 showConstraints = constrainWith "Show"
 
 decodeJsonConstraints :: PSType -> [PSType]
-decodeJsonConstraints = constrainWith "DecodeJson"
+decodeJsonConstraints psType =
+  (constrainWith "DecodeJson" psType) <> (constrainWith "DecodeJsonField" psType)
 
 encodeJsonConstraints :: PSType -> [PSType]
 encodeJsonConstraints = constrainWith "EncodeJson"
@@ -498,21 +499,6 @@ sumTypeToEncode (SumType _ cs _)
 
 isTypeParam :: PSType -> PSType -> Bool
 isTypeParam t typ = _typeName typ `elem` map _typeName (_typeParameters t)
-
--- encodeInstance :: PSType -> Text
--- encodeInstance params = "Encode " <> typeInfoToText False params
-
--- encodeJsonInstance :: PSType -> Text
--- encodeJsonInstance params = "EncodeJson " <> typeInfoToText False params
-
--- decodeInstance :: PSType -> Text
--- decodeInstance params = "Decode " <> typeInfoToText False params
-
--- decodeJsonInstance :: PSType -> Text
--- decodeJsonInstance params = "DecodeJson " <> typeInfoToText False params
-
--- decodeJsonFieldInstance :: PSType -> Text
--- decodeJsonFieldInstance params = "DecodeJsonField " <> typeInfoToText False params
 
 -- genericInstance :: Switches.Settings -> PSType -> Text
 -- genericInstance settings params =
