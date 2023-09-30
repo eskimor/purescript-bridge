@@ -195,9 +195,6 @@ moduleToText m =
                 ]
                     <> punctuate (line <> line <> dashes <> line) (sumTypeToDocs =<< psTypes m)
   where
-    -- otherImports =
-    --     importsFromList $ lensImports <> genericsImports
-
     -- mergeImportLines :: ImportLines -> ImportLines -> ImportLines
     -- mergeImportLines = Map.unionWith mergeLines
     --   where

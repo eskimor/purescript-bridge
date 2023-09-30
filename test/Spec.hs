@@ -311,3 +311,7 @@ allTests = do
 
 shouldRender :: Doc -> Text -> Expectation
 shouldRender actual expected = renderText actual `shouldBe` T.stripEnd expected
+
+                        -- , "instance Show Foo where"
+                        -- , "  show a = genericShow a"
+                        -- , ""
