@@ -20,6 +20,7 @@ module Language.PureScript.Bridge.SumType
     , equal1
     , order
     , argonautJson
+    , jsonHelper
     , genericShow
     , functor
     , DataConstructor (..)
@@ -131,6 +132,14 @@ data Instance (lang :: Language)
   -- using argonaut-codecs:
   -- <https://pursuit.purescript.org/packages/purescript-argonaut-codecs>
   | DecodeJson
+  -- | Generate using unpublished Purescript library
+  -- `purescript-bridge-json-helpers`
+  -- <https://github.com/input-output-hk/purescript-bridge-json-helpers>
+  | EncodeJsonHelper
+  -- | Generate using unpublished Purescript library
+  -- `purescript-bridge-json-helpers`
+  -- <https://github.com/input-output-hk/purescript-bridge-json-helpers>
+  | DecodeJsonHelper
   -- | Generate `Foreign.Generic` and `Foreign.Object`
   -- using purescript-foreign-generic:
   -- <https://pursuit.purescript.org/packages/purescript-foreign-generic>
@@ -189,6 +198,12 @@ nootype _                                = Nothing
 -- | Ensure that aeson-compatible `EncodeJson` and `DecodeJson` instances are generated for your type.
 argonautJson :: SumType t -> SumType t
 argonautJson (SumType ti dc is) = SumType ti dc . nub $ EncodeJson : DecodeJson : is
+
+-- | Ensure that aeson-compatible `EncodeJson` and `DecodeJson` instances are generated for your type.
+-- Uses unpublished library `purescript-bridge-json-helpers`
+-- <https://github.com/input-output-hk/purescript-bridge-json-helpers>
+jsonHelper :: SumType t -> SumType t
+jsonHelper (SumType ti dc is) = SumType ti dc . nub $ EncodeJsonHelper : DecodeJsonHelper : is
 
 -- | Ensure that a generic `Show` instance is generated for your type.
 genericShow :: SumType t -> SumType t
@@ -303,6 +318,16 @@ instanceToTypes EncodeJson =
     pure . constraintToType $ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Encode" "EncodeJson" []
 instanceToTypes DecodeJson =
     pure . constraintToType $ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Decode" "DecodeJson" []
+{-|
+  For unpublished Purescript library `purescript-bridge-json-helpers`:
+  https://github.com/input-output-hk/purescript-bridge-json-helpers
+  and `purescript-argonaut-codecs`
+  https://pursuit.purescript.org/packages/purescript-argonaut-codecs
+-}
+instanceToTypes EncodeJsonHelper =
+    pure . constraintToType $ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Encode" "EncodeJson" []
+instanceToTypes DecodeJsonHelper =
+    pure . constraintToType $ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Decode" "DecodeJson" []
 instanceToTypes (ForeignObject _ _) = fmap constraintToType
     [ TypeInfo "purescript-foreign" "Foreign" "Foreign" []
     , TypeInfo "purescript-foreign-object" "Foreign.Object" "Object" []
@@ -357,26 +382,37 @@ instanceToImportLines DecodeJson =
         , ImportLine "Data.Argonaut.Decode.Class" Nothing
           $ Set.fromList ["class DecodeJson", "class DecodeJsonField", "decodeJson"]
         ]
--- for IOHK library
--- This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
--- https://github.com/input-output-hk/purescript-bridge-json-helpers
--- and `purescript-argonaut-codecs`
--- https://pursuit.purescript.org/packages/purescript-argonaut-codecs
--- instanceToImportLines EncodeJson =
---     importsFromList
---         [ ImportLine "Control.Lazy" Nothing $ Set.singleton "defer"
---         , ImportLine "Data.Argonaut" Nothing $ Set.fromList ["encodeJson", "jsonNull"]
---         , ImportLine "Data.Argonaut.Encode.Aeson" Nothing $ Set.fromList ["(>$<)", "(>/\\<)"]
---         , ImportLine "Data.Newtype" Nothing $ Set.singleton "unwrap"
---         , ImportLine "Data.Tuple.Nested" Nothing $ Set.singleton "(/\\)"
---         ]
--- instanceToImportLines DecodeJson =
---     importsFromList
---         [ ImportLine "Control.Lazy" Nothing $ Set.singleton "defer"
---         , ImportLine "Data.Argonaut.Decode.Aeson" Nothing $ Set.fromList ["(</$\\>)", "(</*\\>)", "(</\\>)"]
---         , ImportLine "Data.Newtype" Nothing $ Set.singleton "unwrap"
---         , ImportLine "Data.Tuple.Nested" Nothing $ Set.singleton "(/\\)"
---         ]
+{-|
+  This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
+  https://github.com/input-output-hk/purescript-bridge-json-helpers
+  and `purescript-argonaut-codecs`
+  https://pursuit.purescript.org/packages/purescript-argonaut-codecs
+-}
+instanceToImportLines EncodeJsonHelper =
+    importsFromList
+        [ ImportLine "Control.Lazy" Nothing $ Set.singleton "defer"
+        , ImportLine "Data.Argonaut" Nothing $ Set.fromList ["encodeJson", "jsonNull"]
+        , ImportLine "Data.Argonaut.Encode.Aeson" Nothing $ Set.fromList ["(>$<)", "(>/\\<)"]
+        , ImportLine "Data.Newtype" Nothing $ Set.singleton "unwrap"
+        , ImportLine "Data.Tuple.Nested" Nothing $ Set.singleton "(/\\)"
+        , ImportLine "Data.Argonaut.Encode.Aeson" (Just "E") mempty
+        , ImportLine "Data.Map" (Just "Map") mempty
+        ]
+{-|
+  This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
+  https://github.com/input-output-hk/purescript-bridge-json-helpers
+  and `purescript-argonaut-codecs`
+  https://pursuit.purescript.org/packages/purescript-argonaut-codecs
+-}
+instanceToImportLines DecodeJsonHelper =
+    importsFromList
+        [ ImportLine "Control.Lazy" Nothing $ Set.singleton "defer"
+        , ImportLine "Data.Argonaut.Decode.Aeson" Nothing $ Set.fromList ["(</$\\>)", "(</*\\>)", "(</\\>)"]
+        , ImportLine "Data.Newtype" Nothing $ Set.singleton "unwrap"
+        , ImportLine "Data.Tuple.Nested" Nothing $ Set.singleton "(/\\)"
+        , ImportLine "Data.Argonaut.Decode.Aeson" (Just "D") mempty
+        , ImportLine "Data.Map" (Just "Map") mempty
+        ]
 instanceToImportLines (ForeignObject _ _) =
     importsFromList
         [ ImportLine "Foreign.Class" Nothing

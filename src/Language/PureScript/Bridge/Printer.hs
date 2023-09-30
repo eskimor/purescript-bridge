@@ -150,17 +150,6 @@ instancesToImportLines =
     foldr unionImportLines Map.empty . fmap instanceToImportLines
 
 instanceToQualifiedImports :: PSInstance -> Map Text Text
--- for IOHK library
--- instanceToQualifiedImports EncodeJson =
---     Map.fromList
---         [ ("Data.Argonaut.Encode.Aeson", "E")
---         , ("Data.Map", "Map")
---         ]
--- instanceToQualifiedImports DecodeJson =
---     Map.fromList
---         [ ("Data.Argonaut.Decode.Aeson", "D")
---         , ("Data.Map", "Map")
---         ]
 instanceToQualifiedImports _ = Map.empty
 
 printModule :: FilePath -> PSModule -> IO ()
@@ -388,29 +377,30 @@ instances st@(SumType t _ is) = go <$> is
             (mkType "DecodeJson" [t])
             decodeJsonConstraints
             ["decodeJson = genericDecodeAeson Argonaut.defaultOptions"]
-    -- IOHK library
-    -- This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
-    -- https://github.com/input-output-hk/purescript-bridge-json-helpers
-    -- and `purescript-argonaut-codecs`
-    -- https://pursuit.purescript.org/packages/purescript-argonaut-codecs
-    -- go EncodeJson =
-    --     vsep $
-    --         punctuate
-    --             line
-    --             [ mkInstance
-    --                 (mkType "EncodeJson" [t])
-    --                 encodeJsonConstraints
-    --                 ["encodeJson = defer \\_ ->" <+> sumTypeToEncode st]
-    --             ]
-    -- go DecodeJson =
-    --     vsep $
-    --         punctuate
-    --             line
-    --             [ mkInstance
-    --                 (mkType "DecodeJson" [t])
-    --                 decodeJsonConstraints
-    --                 [hang 2 $ "decodeJson = defer \\_ -> D.decode" <+> sumTypeToDecode st]
-    --             ]
+    {-|
+      This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
+      https://github.com/input-output-hk/purescript-bridge-json-helpers
+      and `purescript-argonaut-codecs`
+      https://pursuit.purescript.org/packages/purescript-argonaut-codecs
+    -}
+    go EncodeJsonHelper =
+        vsep $
+            punctuate
+                line
+                [ mkInstance
+                    (mkType "EncodeJson" [t])
+                    encodeJsonConstraints
+                    ["encodeJson = defer \\_ ->" <+> sumTypeToEncode st]
+                ]
+    go DecodeJsonHelper =
+        vsep $
+            punctuate
+                line
+                [ mkInstance
+                    (mkType "DecodeJson" [t])
+                    decodeJsonConstraints
+                    [hang 2 $ "decodeJson = defer \\_ -> D.decode" <+> sumTypeToDecode st]
+                ]
     go GenericShow = mkInstance (mkType "Show" [t]) showConstraints ["show a = genericShow a"]
     go Functor = mkDerivedInstance (mkType "Functor" [toKind1 t]) (const [])
     go Eq = mkDerivedInstance (mkType "Eq" [t]) eqConstraints
