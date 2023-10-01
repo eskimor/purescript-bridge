@@ -371,6 +371,7 @@ instanceToImportLines EncodeJson =
         , ImportLine "Data.Argonaut.Encode.Class" (Just "Argonaut") mempty
         , ImportLine "Data.Argonaut.Encode.Class" Nothing
           $ Set.fromList ["class EncodeJson", "encodeJson"]
+        , ImportLine "Control.Lazy" Nothing $ Set.fromList ["defer"]
         ]
 instanceToImportLines DecodeJson =
     importsFromList
@@ -381,6 +382,7 @@ instanceToImportLines DecodeJson =
         , ImportLine "Data.Argonaut.Decode.Class" (Just "Argonaut") mempty
         , ImportLine "Data.Argonaut.Decode.Class" Nothing
           $ Set.fromList ["class DecodeJson", "class DecodeJsonField", "decodeJson"]
+        , ImportLine "Control.Lazy" Nothing $ Set.fromList ["defer"]
         ]
 {-|
   This relies on unpublished Purescript library `purescript-bridge-json-helpers`:

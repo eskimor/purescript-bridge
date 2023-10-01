@@ -3,6 +3,7 @@ module RoundTrip.Types where
 
 import Prelude
 
+import Control.Lazy (defer)
 import Data.Argonaut.Aeson.Decode.Generic (genericDecodeAeson)
 import Data.Argonaut.Aeson.Encode.Generic (genericEncodeAeson)
 import Data.Argonaut.Aeson.Options (defaultOptions) as Argonaut
@@ -37,10 +38,10 @@ instance Show TestData where
   show a = genericShow a
 
 instance EncodeJson TestData where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson TestData where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic TestData _
 
@@ -82,10 +83,10 @@ instance Show TestSum where
   show a = genericShow a
 
 instance EncodeJson TestSum where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson TestSum where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic TestSum _
 
@@ -103,10 +104,10 @@ instance Show TestRecursiveA where
   show a = genericShow a
 
 instance EncodeJson TestRecursiveA where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson TestRecursiveA where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic TestRecursiveA _
 
@@ -122,10 +123,10 @@ instance Show TestRecursiveB where
   show a = genericShow a
 
 instance EncodeJson TestRecursiveB where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson TestRecursiveB where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic TestRecursiveB _
 
@@ -148,10 +149,10 @@ instance (Show a) => Show (TestRecord a) where
   show a = genericShow a
 
 instance (EncodeJson a) => EncodeJson (TestRecord a) where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance (DecodeJson a, DecodeJsonField a) => DecodeJson (TestRecord a) where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic (TestRecord a) _
 
@@ -169,10 +170,10 @@ instance Show TestNewtype where
   show a = genericShow a
 
 instance EncodeJson TestNewtype where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson TestNewtype where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic TestNewtype _
 
@@ -190,10 +191,10 @@ instance Show TestNewtypeRecord where
   show a = genericShow a
 
 instance EncodeJson TestNewtypeRecord where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson TestNewtypeRecord where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic TestNewtypeRecord _
 
@@ -219,10 +220,10 @@ instance Show TestMultiInlineRecords where
   show a = genericShow a
 
 instance EncodeJson TestMultiInlineRecords where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson TestMultiInlineRecords where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic TestMultiInlineRecords _
 
@@ -238,10 +239,10 @@ instance Show TestTwoFields where
   show a = genericShow a
 
 instance EncodeJson TestTwoFields where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson TestTwoFields where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic TestTwoFields _
 
@@ -264,10 +265,10 @@ instance Show TestEnum where
   show a = genericShow a
 
 instance EncodeJson TestEnum where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson TestEnum where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic TestEnum _
 
@@ -291,10 +292,10 @@ instance Show MyUnit where
   show a = genericShow a
 
 instance EncodeJson MyUnit where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson MyUnit where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic MyUnit _
 

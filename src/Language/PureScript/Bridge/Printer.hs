@@ -350,14 +350,14 @@ instances st@(SumType t _ is) = go <$> is
         mkInstance
             (mkType "EncodeJson" [t])
             encodeJsonConstraints
-            ["encodeJson = genericEncodeAeson Argonaut.defaultOptions"]
+            ["encodeJson = defer \\_ -> genericEncodeAeson Argonaut.defaultOptions"]
     -- This relies on `purescript-argonaut-aeson-generic`:
     -- https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic
     go DecodeJson =
         mkInstance
             (mkType "DecodeJson" [t])
             decodeJsonConstraints
-            ["decodeJson = genericDecodeAeson Argonaut.defaultOptions"]
+            ["decodeJson = defer \\_ -> genericDecodeAeson Argonaut.defaultOptions"]
     {-|
       This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
       https://github.com/input-output-hk/purescript-bridge-json-helpers

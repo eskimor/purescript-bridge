@@ -1,7 +1,6 @@
 { name = "my-project"
 , dependencies =
-  [ "argonaut"
-  , "foreign-object"
+  [ "foreign-object"
   , "argonaut-aeson-generic"
   , "argonaut-codecs"
   , "argonaut-core"
@@ -10,7 +9,6 @@
   , "effect"
   , "either"
   , "enums"
-  , "json-helpers"
   , "maybe"
   , "newtype"
   , "node-readline"

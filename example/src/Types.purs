@@ -3,6 +3,7 @@ module Types where
 
 import Prelude
 
+import Control.Lazy (defer)
 import Data.Argonaut.Aeson.Decode.Generic (genericDecodeAeson)
 import Data.Argonaut.Aeson.Encode.Generic (genericEncodeAeson)
 import Data.Argonaut.Aeson.Options (defaultOptions) as Argonaut
@@ -27,10 +28,10 @@ instance Show Baz where
   show a = genericShow a
 
 instance EncodeJson Baz where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson Baz where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic Baz _
 
@@ -60,10 +61,10 @@ instance Show Foo where
   show a = genericShow a
 
 instance EncodeJson Foo where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
 instance DecodeJson Foo where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic Foo _
 
@@ -99,10 +100,10 @@ instance (Show a) => Show (Bar a) where
   show a = genericShow a
 
 instance (EncodeJson a) => EncodeJson (Bar a) where
-  encodeJson = genericEncodeAeson Argonaut.defaultOptions
+  encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
 
-instance (DecodeJson a) => DecodeJson (Bar a) where
-  decodeJson = genericDecodeAeson Argonaut.defaultOptions
+instance (DecodeJson a, DecodeJsonField a) => DecodeJson (Bar a) where
+  decodeJson = defer \_ -> genericDecodeAeson Argonaut.defaultOptions
 
 derive instance Generic (Bar a) _
 
