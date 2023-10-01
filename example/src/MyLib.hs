@@ -20,7 +20,8 @@ import           Servant
 import           System.Environment (lookupEnv)
 
 import           Types (Baz (Baz), Foo (Foo), fooList, fooMap, fooMessage,
-                        fooNumber)
+                        fooNumber, TestData(..), TestSum(..))
+import qualified Types
 
 type FooServer
   = "foo" :> (Get '[JSON] Foo
@@ -34,6 +35,8 @@ foo = Foo
   [10..20]
   (Map.fromList [(pack "foo", 2), (pack "bar", 3), (pack "baz", 3)])
   (Baz $ pack "hello")
+  -- (Types.Maybe (Just (Int 5)))
+  (Types.Number 1.23)
 
 fooServer :: Server FooServer
 fooServer = getFoo :<|> postFoo

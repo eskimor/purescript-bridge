@@ -36,7 +36,7 @@ import           Test.Hspec (Spec, around, aroundAll_, around_, describe, it)
 import           Test.Hspec.Expectations.Pretty (shouldBe)
 import           Test.Hspec.QuickCheck (prop)
 import           Test.HUnit (assertBool, assertEqual)
-import           Test.QuickCheck (noShrinking, once, verbose, withMaxSuccess)
+import           Test.QuickCheck (verbose)
 import           Test.QuickCheck.Property (Testable (property))
 
 myBridge :: BridgePart
@@ -75,15 +75,21 @@ roundtripSpec = do
                 assertBool stderr $ not $ "[warn]" `isInfixOf` stderr
             around withApp $
                 it "should produce aeson-compatible argonaut instances" $
-                    \(hin, hout, herr, hproc) ->
-                        property $
-                            \testData -> do
-                                let input = toString $ encode @TestData testData
-                                hPutStrLn hin input
-                                err <- hGetLine herr
-                                output <- hGetLine hout
-                                assertEqual input "" err
-                                assertEqual output (Right testData) $ eitherDecode @TestData $ fromString output
+                    \(hin, hout, herr, hproc) -> verbose . property $ \testData -> do
+                        let input = toString $ encode @TestData testData
+                        hPutStrLn hin input
+                        err <- hGetLine herr
+                        output <- hGetLine hout
+
+                        -- empty string signifies no error from Purescript process
+                        assertEqual ("Error from Purescript, parsing: " <> input) "" err
+
+                        -- compare the value parsed by Purescipt to the
+                        -- source value in Haskell
+                        assertEqual ("Mismatch between value sent to Purescript and value returned: " <> output) (Right testData)
+                          . eitherDecode @TestData
+                          $ fromString output
+
   where
     withApp = bracket runApp killApp
     runApp = do

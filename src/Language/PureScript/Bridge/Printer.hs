@@ -39,6 +39,7 @@ import           Language.PureScript.Bridge.SumType (CustomInstance (..),
                                                      _recLabel, getUsedTypes,
                                                      importsFromList,
                                                      instanceToImportLines,
+                                                     baselineImports,
                                                      nootype, recLabel,
                                                      recValue, sigConstructor)
 import           Language.PureScript.Bridge.TypeInfo (Language (PureScript),
@@ -107,7 +108,7 @@ sumTypeToModule packageName st@(SumType t _ is) =
                             dropSelf $
                                 unionImportLines
                                     (typesToImportLines (getUsedTypes st))
-                                    (instancesToImportLines is)
+                                    (instancesToImportLines is <> baselineImports)
             , psQualifiedImports = instancesToQualifiedImports is
             , psTypes = [st]
             }

@@ -24,9 +24,8 @@ main = do
         parsed = decodeJson =<< parseJson input
       case parsed of
         Left err -> do
-          error $ "got " <> input
-          error $ printJsonDecodeError err
-          log ""
+          error $ input <> " " <> show err
+          log $ printJsonDecodeError err
         Right testData -> do
           error ""
           log $ stringify $ encodeJson testData

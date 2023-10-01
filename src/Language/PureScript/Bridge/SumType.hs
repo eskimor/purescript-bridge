@@ -44,6 +44,7 @@ module Language.PureScript.Bridge.SumType
     , PSInstance
     , importsFromList
     , instanceToImportLines
+    , baselineImports
     , nootype
     , lenses
     , prisms
@@ -358,6 +359,13 @@ constraintToType = over typeName ("class " <>)
 implementationToTypes :: InstanceImplementation lang -> [TypeInfo lang]
 implementationToTypes (Explicit members) = concatMap _memberDependencies members
 implementationToTypes _                  = []
+
+baselineImports :: ImportLines
+baselineImports = importsFromList
+    [ ImportLine "Data.Maybe" Nothing $ Set.singleton "Maybe(..)"
+    , ImportLine "Data.Newtype" Nothing $ Set.singleton "class Newtype"
+    ]
+
 
 instanceToImportLines :: PSInstance -> ImportLines
 instanceToImportLines GenericShow =

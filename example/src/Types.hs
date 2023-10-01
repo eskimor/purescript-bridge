@@ -27,8 +27,18 @@ data Baz = Baz
 
 makeLenses ''Baz
 
-bazProxy :: Proxy Baz
-bazProxy = Proxy
+data TestSum
+  = Nullary
+  | Bool Bool
+  | Int Int
+  | Number Double
+  deriving (Eq, Generic, Ord, Show, FromJSON, ToJSON)
+
+data TestData
+  = Maybe (Maybe TestSum)
+  | Either (Either (Maybe Int) (Maybe Bool))
+  deriving (Eq, Generic, Ord, Show, FromJSON, ToJSON)
+
 
 data Foo = Foo
   { _fooMessage :: Text
@@ -36,22 +46,18 @@ data Foo = Foo
   , _fooList    :: [Int]
   , _fooMap     :: Map.Map Text Int
   , _fooBaz     :: Baz
+  -- , _fooTestData :: TestData
+  , _fooTestSum  :: TestSum
   }
   deriving (FromJSON, Generic, ToJSON)
 
 makeLenses ''Foo
-
-fooProxy :: Proxy Foo
-fooProxy = Proxy
 
 -- TODO newtype
 data Bar a = Bar a
   deriving (FromJSON, Generic, Show, ToJSON, Typeable)
 
 makeLenses ''Bar
-
-barProxy :: Proxy Bar
-barProxy = Proxy
 
 myBridge :: BridgePart
 myBridge = defaultBridge
@@ -63,4 +69,6 @@ myTypes =
   [ additionalInstances $ mkSumType @Baz
   , additionalInstances $ mkSumType @Foo
   , additionalInstances $ mkSumType @(Bar A)
+  , additionalInstances $ mkSumType @TestSum
+  , additionalInstances $ mkSumType @TestData
   ]

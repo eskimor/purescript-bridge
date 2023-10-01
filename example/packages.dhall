@@ -14,8 +14,8 @@ let additions =
           , "test-unit"
           ]
         , repo =
-            "https://github.com/coot/purescript-argonaut-aeson-generic.git"
-        , version = "v0.4.1"
+            "https://github.com/peterbecich/purescript-argonaut-aeson-generic.git"
+        , version = "e22b1b9046aef15d6441ea90870dfbfa455a70fb"
         }
       , foreign-generic =
         { dependencies =
