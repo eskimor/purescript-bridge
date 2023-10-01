@@ -3,14 +3,17 @@ module RoundTrip.Types where
 
 import Prelude
 
+import (a)
 import Control.Lazy (defer)
 import Data.Argonaut.Aeson.Decode.Generic (genericDecodeAeson)
 import Data.Argonaut.Aeson.Encode.Generic (genericEncodeAeson)
 import Data.Argonaut.Aeson.Options (defaultOptions) as Argonaut
 import Data.Argonaut.Decode (class DecodeJson)
 import Data.Argonaut.Decode.Class (class DecodeJson, class DecodeJsonField, decodeJson)
+import Data.Argonaut.Decode.Class as Argonaut
 import Data.Argonaut.Encode (class EncodeJson)
 import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
+import Data.Argonaut.Encode.Class as Argonaut
 import Data.Bounded.Generic (genericBottom, genericTop)
 import Data.Either (Either)
 import Data.Enum (class Enum)
@@ -24,6 +27,9 @@ import Data.Set (Set)
 import Data.Show.Generic (genericShow)
 import Data.Tuple (Tuple)
 import Foreign.Object (Object)
+import Prelude (Unit, class Bounded, class Eq, class Functor, class Ord, class Show)
+import Prim (Array, Boolean, Int, Number, String)
+import RoundTrip.Types (MyUnit, TestEnum, TestMultiInlineRecords, TestNewtype, TestNewtypeRecord, TestRecord, TestRecursiveA, TestRecursiveB, TestSum, TestTwoFields)
 import Type.Proxy (Proxy(Proxy))
 
 data TestData

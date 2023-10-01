@@ -9,8 +9,10 @@ import Data.Argonaut.Aeson.Encode.Generic (genericEncodeAeson)
 import Data.Argonaut.Aeson.Options (defaultOptions) as Argonaut
 import Data.Argonaut.Decode (class DecodeJson)
 import Data.Argonaut.Decode.Class (class DecodeJson, class DecodeJsonField, decodeJson)
+import Data.Argonaut.Decode.Class as Argonaut
 import Data.Argonaut.Encode (class EncodeJson)
 import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
+import Data.Argonaut.Encode.Class as Argonaut
 import Data.Either (Either)
 import Data.Generic.Rep (class Generic)
 import Data.Lens (Iso', Lens', Prism', iso, lens, prism')
@@ -55,6 +57,7 @@ newtype Foo = Foo
   , _fooList :: Array Int
   , _fooMap :: Object Int
   , _fooBaz :: Baz
+  , _fooTestData :: TestData
   , _fooTestSum :: TestSum
   }
 
@@ -75,7 +78,7 @@ derive instance Newtype Foo _
 
 --------------------------------------------------------------------------------
 
-_Foo :: Iso' Foo {_fooMessage :: String, _fooNumber :: Int, _fooList :: Array Int, _fooMap :: Object Int, _fooBaz :: Baz, _fooTestSum :: TestSum}
+_Foo :: Iso' Foo {_fooMessage :: String, _fooNumber :: Int, _fooList :: Array Int, _fooMap :: Object Int, _fooBaz :: Baz, _fooTestData :: TestData, _fooTestSum :: TestSum}
 _Foo = _Newtype
 
 fooMessage :: Lens' Foo String
@@ -92,6 +95,9 @@ fooMap = _Newtype <<< prop (Proxy :: _"_fooMap")
 
 fooBaz :: Lens' Foo Baz
 fooBaz = _Newtype <<< prop (Proxy :: _"_fooBaz")
+
+fooTestData :: Lens' Foo TestData
+fooTestData = _Newtype <<< prop (Proxy :: _"_fooTestData")
 
 fooTestSum :: Lens' Foo TestSum
 fooTestSum = _Newtype <<< prop (Proxy :: _"_fooTestSum")

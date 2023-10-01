@@ -16,6 +16,7 @@
   , "prelude"
   , "profunctor-lenses"
   , "tuples"
+  , "json-helpers"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]

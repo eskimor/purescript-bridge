@@ -17,7 +17,7 @@ import           Data.Typeable
 import           GHC.Generics
 import           Language.PureScript.Bridge
 import           Language.PureScript.Bridge.PSTypes
-import qualified Language.PureScript.Bridge.SumType as SumType
+import           Language.PureScript.Bridge.SumType
 import           Language.PureScript.Bridge.TypeParameters (A)
 
 data Baz = Baz
@@ -46,7 +46,7 @@ data Foo = Foo
   , _fooList    :: [Int]
   , _fooMap     :: Map.Map Text Int
   , _fooBaz     :: Baz
-  -- , _fooTestData :: TestData
+  , _fooTestData :: TestData
   , _fooTestSum  :: TestSum
   }
   deriving (FromJSON, Generic, ToJSON)
@@ -62,7 +62,10 @@ makeLenses ''Bar
 myBridge :: BridgePart
 myBridge = defaultBridge
 
-additionalInstances = SumType.lenses . SumType.genericShow . SumType.argonautJson
+additionalInstances = lenses
+  . genericShow
+  -- . jsonHelper
+  . argonautJson
 
 myTypes :: [SumType 'Haskell]
 myTypes =

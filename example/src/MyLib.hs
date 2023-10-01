@@ -35,7 +35,7 @@ foo = Foo
   [10..20]
   (Map.fromList [(pack "foo", 2), (pack "bar", 3), (pack "baz", 3)])
   (Baz $ pack "hello")
-  -- (Types.Maybe (Just (Int 5)))
+  (Types.Maybe (Just (Int 5)))
   (Types.Number 1.23)
 
 fooServer :: Server FooServer

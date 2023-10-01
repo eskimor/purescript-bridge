@@ -18,7 +18,7 @@ import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
                                              argonautJson, buildBridge,
                                              defaultBridge, equal, functor,
-                                             genericShow, mkSumType, order,
+                                             genericShow, mkSumType, order, jsonHelper,
                                              writePSTypes, writePSTypesWith)
 import           Language.PureScript.Bridge.TypeParameters (A)
 import           RoundTrip.Types

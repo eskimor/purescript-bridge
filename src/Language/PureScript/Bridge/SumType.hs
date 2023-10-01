@@ -64,7 +64,7 @@ import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import           Data.Map (Map)
 import qualified Data.Map as Map
-import           Data.Maybe (maybeToList)
+import           Data.Maybe (maybeToList, fromMaybe)
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import           Data.Text (Text)
@@ -406,8 +406,9 @@ instanceToImportLines EncodeJsonHelper =
         , ImportLine "Data.Newtype" Nothing $ Set.singleton "unwrap"
         , ImportLine "Data.Tuple.Nested" Nothing $ Set.singleton "(/\\)"
         , ImportLine "Data.Argonaut.Encode.Aeson" (Just "E") mempty
-        , ImportLine "Data.Map" (Just "Map") mempty
+        , ImportLine "Data.Map" Nothing mempty
         ]
+        <> instanceToImportLines EncodeJson
 {-|
   This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
   https://github.com/input-output-hk/purescript-bridge-json-helpers
@@ -423,6 +424,7 @@ instanceToImportLines DecodeJsonHelper =
         , ImportLine "Data.Argonaut.Decode.Aeson" (Just "D") mempty
         , ImportLine "Data.Map" (Just "Map") mempty
         ]
+        <> instanceToImportLines DecodeJson
 instanceToImportLines (ForeignObject _ _) =
     importsFromList
         [ ImportLine "Foreign.Class" Nothing
@@ -442,14 +444,8 @@ instanceToImportLines (Custom CustomInstance {_customImplementation = Explicit m
     importsFromList $ concatMap (Map.elems . _memberImportLines) members
 instanceToImportLines Lenses =
     importsFromList
-        [ ImportLine "Data.Lens" Nothing $ Set.fromList
-            [ "Iso'"
-            , "Lens'"
-            , "Prism'"
-            , "iso"
-            , "lens"
-            , "prism'"
-            ]
+        [ ImportLine "Data.Lens" Nothing
+          $ Set.fromList [ "Iso'", "Lens'", "Prism'", "iso", "lens", "prism'" ]
         ]
 instanceToImportLines Prisms = instanceToImportLines Prisms
 instanceToImportLines (Custom _) = mempty
@@ -466,12 +462,29 @@ instanceToImportLines Eq = mempty
 instanceToImportLines Eq1 = mempty
 instanceToImportLines Ord = mempty
 
+{-|
+This function merges import lines which import the same module.
+
+The exception are aliased imports. For example, these two import lines
+will not be merged:
+import Data.Argonaut.Decode.Aeson ((</$\>), (</*\>), (</\>))
+import Data.Argonaut.Decode.Aeson as D
+-}
 importsFromList :: [ImportLine] -> Map Text ImportLine
-importsFromList ls =
-    let pairs = zip (importModule <$> ls) ls
-        merge a b =
-            ImportLine (importModule a) Nothing (importTypes a `Set.union` importTypes b)
-     in Map.fromListWith merge pairs
+importsFromList unmergedLines = let
+    filteredLines :: [ImportLine]
+    filteredLines = filter (not . T.null . importModule) unmergedLines
+
+    makeKey :: ImportLine -> Text
+    makeKey (ImportLine md mAlias _) = case mAlias of
+      Just alias -> md <> " " <> alias
+      Nothing    -> md
+    pairs :: [(Text, ImportLine)]
+    pairs = zip (fmap makeKey filteredLines) filteredLines
+    merge :: ImportLine -> ImportLine -> ImportLine
+    merge a b =
+        ImportLine (importModule a) (importAlias a) (importTypes a `Set.union` importTypes b)
+    in Map.fromListWith merge pairs
 
 -- Lenses:
 makeLenses ''DataConstructor

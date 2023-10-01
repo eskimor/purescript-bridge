@@ -96,27 +96,26 @@ unionModules m1 m2 =
         }
 
 sumTypeToModule :: Maybe PackageName -> SumType 'PureScript -> Modules
-sumTypeToModule packageName st@(SumType t _ is) =
+sumTypeToModule packageName sumType@(SumType typeInfo _ stInstances) =
     Map.singleton
         typedModuleName
         $ PSModule
             { psModuleName = psModuleName
-            , psImportLines =
-                dropEmpty $
-                    dropPrelude $
-                        dropPrim $
-                            dropSelf $
-                                unionImportLines
-                                    (typesToImportLines (getUsedTypes st))
-                                    (instancesToImportLines is <> baselineImports)
-            , psQualifiedImports = instancesToQualifiedImports is
-            , psTypes = [st]
+            , psImportLines = dropEmpty
+              . dropPrelude
+              . dropPrim
+              . dropSelf
+              $ unionImportLines
+                  (typesToImportLines (getUsedTypes sumType))
+                  (instancesToImportLines stInstances <> baselineImports)
+            , psQualifiedImports = instancesToQualifiedImports stInstances
+            , psTypes = [sumType]
             }
   where
     dropEmpty = Map.delete ""
     dropPrelude = Map.delete "Prelude"
     dropPrim = Map.delete "Prim"
-    typedModuleName = _typeModule t
+    typedModuleName = _typeModule typeInfo
     dropSelf = Map.delete typedModuleName
     psModuleName = fromMaybe typedModuleName do
         PackageName pn <- packageName
