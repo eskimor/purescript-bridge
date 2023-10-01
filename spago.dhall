@@ -19,5 +19,9 @@
   , "prelude"
   ]
 , packages = ./example/packages.dhall
-, sources = [ "example/src/**/*.purs", "example/test/**/*.purs" ]
+, sources =
+  [ "example/src/**/*.purs"
+  , "example/test/**/*.purs"
+  , "test/RoundTrip/app/src/RoundTrip/*.purs"
+  ]
 }
