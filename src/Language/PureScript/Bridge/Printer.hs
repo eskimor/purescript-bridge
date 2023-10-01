@@ -239,11 +239,15 @@ qualifiedImportToText m q = hsep ["import", textStrict m, "as", textStrict q]
 
 importLineToText :: ImportLine -> Doc
 importLineToText l =
-  case importAlias l of
+  let
+    typeListDoc = if null typeList
+      then mempty
+      else encloseHsep lparen rparen comma typeList
+  in case importAlias l of
     Just alias ->
-      hsep ["import", textStrict $ importModule l, encloseHsep lparen rparen comma typeList, "as", textStrict alias]
+      hsep ["import", textStrict $ importModule l, typeListDoc, "as", textStrict alias]
     Nothing ->
-      hsep ["import", textStrict $ importModule l, encloseHsep lparen rparen comma typeList]
+      hsep ["import", textStrict $ importModule l, typeListDoc]
   where
     typeList =
         map (textStrict . last)
