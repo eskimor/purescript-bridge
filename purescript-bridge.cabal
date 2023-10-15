@@ -51,7 +51,7 @@ Test-Suite tests
                , base
                , containers
                , directory
-               , hspec >= 2.11
+               , hspec >= 2.10
                , hspec-expectations-pretty-diff
                , process
                , purescript-bridge

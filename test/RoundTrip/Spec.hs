@@ -46,7 +46,8 @@ instancesToGenerate = equal
   . order
   . genericShow
   . order
-  . argonautJson
+  . jsonHelper
+  -- . argonautJson
 
 myTypes :: [SumType 'Haskell]
 myTypes =

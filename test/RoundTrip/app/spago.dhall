@@ -1,6 +1,7 @@
 { name = "my-project"
 , dependencies =
-  [ "argonaut-aeson-generic"
+  [ "argonaut"
+  , "argonaut-aeson-generic"
   , "argonaut-codecs"
   , "argonaut-core"
   , "console"
@@ -9,6 +10,7 @@
   , "either"
   , "enums"
   , "foreign-object"
+  , "json-helpers"
   , "maybe"
   , "newtype"
   , "node-readline"
@@ -16,7 +18,6 @@
   , "prelude"
   , "profunctor-lenses"
   , "tuples"
-  , "json-helpers"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
