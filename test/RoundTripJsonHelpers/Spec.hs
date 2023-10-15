@@ -4,7 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
 
-module RoundTrip.Spec where
+module RoundTripJsonHelpers.Spec where
 
 import           Control.Exception (bracket)
 import           Data.Aeson (FromJSON, ToJSON (toJSON), eitherDecode, encode,
@@ -16,12 +16,12 @@ import           Data.Maybe (fromMaybe)
 import           Data.Proxy (Proxy (..))
 import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
-                                             argonautJson, buildBridge,
+                                             argonautAesonGeneric, buildBridge,
                                              defaultBridge, equal, functor,
                                              genericShow, mkSumType, order, jsonHelper,
                                              writePSTypes, writePSTypesWith)
 import           Language.PureScript.Bridge.TypeParameters (A)
-import           RoundTrip.Types
+import           RoundTripJsonHelpers.Types
 import           System.Directory (removeDirectoryRecursive, removeFile,
                                    withCurrentDirectory)
 import           System.Exit (ExitCode (ExitSuccess))
@@ -42,12 +42,12 @@ import           Test.QuickCheck.Property (Testable (property))
 myBridge :: BridgePart
 myBridge = defaultBridge
 
+-- test `json-helpers`
 instancesToGenerate = equal
   . order
   . genericShow
   . order
   . jsonHelper
-  -- . argonautJson
 
 myTypes :: [SumType 'Haskell]
 myTypes =
@@ -66,8 +66,9 @@ myTypes =
 
 roundtripSpec :: Spec
 roundtripSpec = do
+    -- test `json-helpers`
     aroundAll_ withProject $
-        describe "writePSTypesWith" do
+        describe "writePSTypesWith json-helpers" do
             it "should be buildable" do
                 (exitCode, stdout, stderr) <- readProcessWithExitCode "spago" ["build"] ""
                 assertEqual (stdout <> stderr) exitCode ExitSuccess
@@ -75,8 +76,8 @@ roundtripSpec = do
                 (exitCode, stdout, stderr) <- readProcessWithExitCode "spago" ["build"] ""
                 assertBool stderr $ not $ "[warn]" `isInfixOf` stderr
             around withApp $
-                it "should produce aeson-compatible argonaut instances" $
-                    \(hin, hout, herr, hproc) -> verbose . property $ \testData -> do
+                it "should produce aeson-compatible argonaut instances with json-helpers library" $
+                    \(hin, hout, herr, hproc) -> property $ \testData -> do
                         let input = toString $ encode @TestData testData
                         hPutStrLn hin input
                         err <- hGetLine herr
@@ -90,7 +91,6 @@ roundtripSpec = do
                         assertEqual ("Mismatch between value sent to Purescript and value returned: " <> output) (Right testData)
                           . eitherDecode @TestData
                           $ fromString output
-
   where
     withApp = bracket runApp killApp
     runApp = do
@@ -112,9 +112,11 @@ roundtripSpec = do
 
     killApp (_, _, _, hproc) = terminateProcess hproc
 
+    withProject :: IO () -> IO ()
     withProject runSpec =
-        withCurrentDirectory "test/RoundTrip/app" $ generate *> runSpec
+        withCurrentDirectory "test/RoundTripJsonHelpers/app" $ generate *> runSpec
 
+    generate :: IO ()
     generate = do
         writePSTypesWith
             "src"

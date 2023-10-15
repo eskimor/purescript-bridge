@@ -19,7 +19,7 @@ module Language.PureScript.Bridge.SumType
     , equal
     , equal1
     , order
-    , argonautJson
+    , argonautAesonGeneric
     , jsonHelper
     , genericShow
     , functor
@@ -197,8 +197,10 @@ nootype [DataConstructor _ (Normal [_])] = Just Newtype
 nootype _                                = Nothing
 
 -- | Ensure that aeson-compatible `EncodeJson` and `DecodeJson` instances are generated for your type.
-argonautJson :: SumType t -> SumType t
-argonautJson (SumType ti dc is) = SumType ti dc . nub $ EncodeJson : DecodeJson : is
+-- Uses `argonaut-aeson-generic`
+-- <https://github.com/coot/purescript-argonaut-aeson-generic>
+argonautAesonGeneric :: SumType t -> SumType t
+argonautAesonGeneric (SumType ti dc is) = SumType ti dc . nub $ EncodeJson : DecodeJson : is
 
 -- | Ensure that aeson-compatible `EncodeJson` and `DecodeJson` instances are generated for your type.
 -- Uses unpublished library `purescript-bridge-json-helpers`

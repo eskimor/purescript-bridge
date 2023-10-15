@@ -9,7 +9,7 @@ import Data.Either (Either(..))
 import Effect (Effect)
 import Effect.Class.Console (error, log)
 import Node.ReadLine (createConsoleInterface, noCompletion, question)
-import RoundTrip.Types (TestData)
+import RoundTripArgonautAesonGeneric.Types (TestData)
 
 main :: Effect Unit
 main = do

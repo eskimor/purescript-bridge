@@ -4,7 +4,7 @@
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE TypeApplications           #-}
 
-module RoundTrip.Types where
+module RoundTripJsonHelpers.Types where
 
 import           Control.Applicative ((<|>))
 import           Data.Aeson (FromJSON, ToJSON)

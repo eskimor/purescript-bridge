@@ -1,6 +1,6 @@
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.15.4-20220901/packages.dhall
-        sha256:f1531b29c21ac437ffe5666c1b6cc76f0a9c29d3c9d107ff047aa2567744994f
+      https://github.com/purescript/package-sets/releases/download/psc-0.15.7-20230331/packages.dhall
+        sha256:97a54e4c5c1a76f51cef8fb8c91a8ff602dca7828dc464e07e48ee563b6bd058
 
 let additions =
       { argonaut-aeson-generic =
@@ -64,4 +64,37 @@ let additions =
           }
       }
 
-in  upstream // additions
+
+in  upstream // additions // {
+  json-helpers =
+    { dependencies =
+      [ "aff"
+      , "argonaut-codecs"
+      , "argonaut-core"
+      , "arrays"
+      , "bifunctors"
+      , "contravariant"
+      , "control"
+      , "effect"
+      , "either"
+      , "enums"
+      , "foldable-traversable"
+      , "foreign-object"
+      , "maybe"
+      , "newtype"
+      , "ordered-collections"
+      , "prelude"
+      , "profunctor"
+      , "psci-support"
+      , "quickcheck"
+      , "record"
+      , "spec"
+      , "spec-quickcheck"
+      , "transformers"
+      , "tuples"
+      , "typelevel-prelude"
+      ]
+    , repo = "https://github.com/input-output-hk/purescript-bridge-json-helpers.git"
+    , version = "60615c36abaee16d8dbe09cdd0e772e6d523d024"
+    }
+}

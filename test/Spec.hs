@@ -16,15 +16,26 @@ import qualified Data.Text as T
 import           Data.Word (Word, Word64)
 import           Language.PureScript.Bridge
 import           Language.PureScript.Bridge.TypeParameters
-import           RoundTrip.Spec (roundtripSpec)
+import qualified RoundTripArgonautAesonGeneric.Spec (roundtripSpec)
+import qualified RoundTripJsonHelpers.Spec (roundtripSpec)
 import           Test.Hspec (Spec, describe, hspec, it)
 import           Test.Hspec.Expectations.Pretty
 import           TestData
 import           Text.PrettyPrint.Leijen.Text (Doc, cat, linebreak, punctuate,
                                                vsep)
 
+-- | There are RoundTrip tests for both the `json-helpers` library and the
+-- `argonaut-aeson-generic` library.
+-- These have been separated into two directories, and the test specs are duplicated.
+-- This is necessary because the generated PureScript takes its module name from the
+-- Haskell module which generates it.
+-- If both generated PureScript modules have the same module name, the root
+-- Spago project will fail to build because of module name duplication.
 main :: IO ()
-main = hspec $ allTests *> roundtripSpec
+main =
+  hspec $ allTests
+  *> RoundTripArgonautAesonGeneric.Spec.roundtripSpec
+  *> RoundTripJsonHelpers.Spec.roundtripSpec
 
 custom :: SumType 'Haskell -> SumType 'Haskell
 custom (SumType t cs is) = SumType t cs $ customInstance : is
