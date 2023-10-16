@@ -378,7 +378,6 @@ baselineImports = importsFromList
     , ImportLine "Data.Newtype" Nothing $ Set.singleton "class Newtype"
     ]
 
-
 instanceToImportLines :: PSInstance -> ImportLines
 instanceToImportLines GenericShow =
     importsFromList [ImportLine "Data.Show.Generic" Nothing $ Set.singleton "genericShow"]

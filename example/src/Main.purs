@@ -35,6 +35,8 @@ main = log "Hello, Purescript!" *> launchAff_ do
   -- request a Foo
   fooResponse <- get json "/foo"
   for_ fooResponse \fooPayload -> do
+    -- Note this example is only for argonaut-aeson-generics.
+    -- This can be replaced with json-helpers here.
     let
       efoo :: Either JsonDecodeError Foo
       efoo = genericDecodeAeson defaultOptions fooPayload.body

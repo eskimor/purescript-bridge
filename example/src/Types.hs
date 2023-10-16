@@ -64,8 +64,11 @@ myBridge = defaultBridge
 
 additionalInstances = lenses
   . genericShow
-  -- . jsonHelper
   . argonautAesonGeneric
+
+  -- . jsonHelper
+  -- To use json-helpers with the example, a modification is necessary
+  -- in Main.purs
 
 myTypes :: [SumType 'Haskell]
 myTypes =
