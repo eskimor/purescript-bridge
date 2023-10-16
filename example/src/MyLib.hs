@@ -1,5 +1,6 @@
 {-# LANGUAGE DataKinds     #-}
 {-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 
 module MyLib (main) where
@@ -18,6 +19,8 @@ import           GHC.TypeLits
 import           Network.Wai.Handler.Warp
 import           Servant
 import           System.Environment (lookupEnv)
+import           Test.QuickCheck (Arbitrary (..), chooseEnum, oneof, resize,
+                                  sized, generate)
 
 import           Types (Baz (Baz), Foo (Foo), fooList, fooMap, fooMessage,
                         fooNumber, TestData(..), TestSum(..))
@@ -28,26 +31,35 @@ type FooServer
               :<|> ReqBody '[JSON] Foo :> Post '[JSON] NoContent
              )
 
-foo :: Foo
-foo = Foo
-  (pack "Hello")
-  123
-  [10..20]
-  (Map.fromList [(pack "foo", 2), (pack "bar", 3), (pack "baz", 3)])
-  (Baz $ pack "hello")
-  (Types.Maybe (Just (Int 5)))
-  (Types.Number 1.23)
+foo :: IO Foo
+foo = do
+  testData :: TestData <- generate arbitrary
+  testSum :: TestSum <- generate arbitrary
+  return $ Foo
+    (pack "Hello")
+    123
+    [10..20]
+    (Map.fromList [(pack "foo", 2), (pack "bar", 3), (pack "baz", 3)])
+    (Baz $ pack "hello")
+    testSum
+    testData
 
 fooServer :: Server FooServer
 fooServer = getFoo :<|> postFoo
   where
-    getFoo = return foo
+    getFoo = do
+      fooValue <- liftIO foo
+      liftIO $ putStrLn "Serving:"
+      liftIO $ Char8.putStrLn $ AP.encodePretty fooValue
+      return fooValue
+
     postFoo foo = do
       let
         logMsg = "Foo message: " <> (unpack $ view fooMessage foo)
           <> "\t Foo number: " <> (show (view fooNumber foo))
           <> "\t Foo list length: " <> (show . length $ view fooList foo)
           <> "\t Foo Map length: " <> (show . length $ view fooMap foo)
+      liftIO . putStrLn $ "Received from client:"
       liftIO . putStrLn $ logMsg
       return NoContent
 
@@ -61,7 +73,4 @@ api = Proxy
 
 main :: IO ()
 main = do
-  putStrLn "Serving Foo:"
-  Char8.putStrLn $ AP.encodePretty foo
-
   run 8080 . serve api $ fooServer :<|> staticServer

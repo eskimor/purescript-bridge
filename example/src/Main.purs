@@ -22,7 +22,7 @@ import Types (Foo, fooMessage, fooNumber, fooList)
 import Data.Argonaut.Decode.Error (JsonDecodeError)
 import Data.Argonaut.Decode.Generic (genericDecodeJson)
 import Data.Argonaut.Encode.Generic (genericEncodeJson)
-import Types (Foo, fooMessage, fooNumber, fooList, fooMap, fooTestSum)
+import Types (Foo, fooMessage, fooNumber, fooList, fooMap, fooTestSum, fooTestData)
 import Data.Map as Map
 
 import Foreign.Object as Object
@@ -50,6 +50,7 @@ main = log "Hello, Purescript!" *> launchAff_ do
         log $ "Foo list length: " <> (show (length $ view fooList foo :: Int))
         log $ "Foo map size: " <> (show (Object.size $ view fooMap foo :: Int))
         log $ "Foo test sum: " <> show (view fooTestSum foo)
+        log $ "Foo test data: " <> show (view fooTestData foo)
       let
         -- modify the Foo received and send it back
         foo' = set fooMessage "Hola"

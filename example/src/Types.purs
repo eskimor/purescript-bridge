@@ -57,8 +57,8 @@ newtype Foo = Foo
   , _fooList :: Array Int
   , _fooMap :: Object Int
   , _fooBaz :: Baz
-  , _fooTestData :: TestData
   , _fooTestSum :: TestSum
+  , _fooTestData :: TestData
   }
 
 
@@ -78,7 +78,7 @@ derive instance Newtype Foo _
 
 --------------------------------------------------------------------------------
 
-_Foo :: Iso' Foo {_fooMessage :: String, _fooNumber :: Int, _fooList :: Array Int, _fooMap :: Object Int, _fooBaz :: Baz, _fooTestData :: TestData, _fooTestSum :: TestSum}
+_Foo :: Iso' Foo {_fooMessage :: String, _fooNumber :: Int, _fooList :: Array Int, _fooMap :: Object Int, _fooBaz :: Baz, _fooTestSum :: TestSum, _fooTestData :: TestData}
 _Foo = _Newtype
 
 fooMessage :: Lens' Foo String
@@ -96,11 +96,11 @@ fooMap = _Newtype <<< prop (Proxy :: _"_fooMap")
 fooBaz :: Lens' Foo Baz
 fooBaz = _Newtype <<< prop (Proxy :: _"_fooBaz")
 
-fooTestData :: Lens' Foo TestData
-fooTestData = _Newtype <<< prop (Proxy :: _"_fooTestData")
-
 fooTestSum :: Lens' Foo TestSum
 fooTestSum = _Newtype <<< prop (Proxy :: _"_fooTestSum")
+
+fooTestData :: Lens' Foo TestData
+fooTestData = _Newtype <<< prop (Proxy :: _"_fooTestData")
 
 --------------------------------------------------------------------------------
 

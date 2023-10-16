@@ -9,16 +9,18 @@
 module Types where
 
 import           Control.Lens.TH (makeLenses)
-import           Data.Aeson
+import           Data.Aeson (FromJSON, ToJSON)
 import qualified Data.Map.Lazy as Map
 import           Data.Proxy
 import           Data.Text
 import           Data.Typeable
 import           GHC.Generics
-import           Language.PureScript.Bridge
+import           Language.PureScript.Bridge (BridgePart, Language(Haskell), mkSumType, argonautAesonGeneric, lenses, genericShow, defaultBridge)
 import           Language.PureScript.Bridge.PSTypes
-import           Language.PureScript.Bridge.SumType
+import           Language.PureScript.Bridge.SumType (SumType)
 import           Language.PureScript.Bridge.TypeParameters (A)
+import           Test.QuickCheck (Arbitrary (..), chooseEnum, oneof, resize,
+                                  sized)
 
 data Baz = Baz
   { _bazMessage :: Text
@@ -34,11 +36,26 @@ data TestSum
   | Number Double
   deriving (Eq, Generic, Ord, Show, FromJSON, ToJSON)
 
+instance Arbitrary TestSum where
+    arbitrary =
+        oneof
+            [ pure Nullary
+            , Bool <$> arbitrary
+            , Int <$> arbitrary
+            , Number <$> arbitrary
+            ]
+
 data TestData
   = Maybe (Maybe TestSum)
   | Either (Either (Maybe Int) (Maybe Bool))
   deriving (Eq, Generic, Ord, Show, FromJSON, ToJSON)
 
+instance Arbitrary TestData where
+    arbitrary =
+        oneof
+            [ Maybe <$> arbitrary
+            , Either <$> arbitrary
+            ]
 
 data Foo = Foo
   { _fooMessage :: Text
@@ -46,8 +63,8 @@ data Foo = Foo
   , _fooList    :: [Int]
   , _fooMap     :: Map.Map Text Int
   , _fooBaz     :: Baz
-  , _fooTestData :: TestData
   , _fooTestSum  :: TestSum
+  , _fooTestData :: TestData
   }
   deriving (FromJSON, Generic, ToJSON)
 
