@@ -8,12 +8,10 @@ import Data.Argonaut (encodeJson, jsonNull)
 import Data.Argonaut.Aeson.Decode.Generic (genericDecodeAeson)
 import Data.Argonaut.Aeson.Encode.Generic (genericEncodeAeson)
 import Data.Argonaut.Aeson.Options (defaultOptions) as Argonaut
-import Data.Argonaut.Decode (class DecodeJson)
 import Data.Argonaut.Decode.Aeson ((</$\>), (</*\>), (</\>))
 import Data.Argonaut.Decode.Aeson as D
 import Data.Argonaut.Decode.Class (class DecodeJson, class DecodeJsonField, decodeJson)
 import Data.Argonaut.Decode.Class as Argonaut
-import Data.Argonaut.Encode (class EncodeJson)
 import Data.Argonaut.Encode.Aeson ((>$<), (>/\<))
 import Data.Argonaut.Encode.Aeson as E
 import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)

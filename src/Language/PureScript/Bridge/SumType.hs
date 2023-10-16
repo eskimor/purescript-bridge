@@ -317,20 +317,30 @@ constructorToTypes (DataConstructor _ (Record rs)) = _recValue <$> NE.toList rs
 instanceToTypes :: Instance lang -> [TypeInfo lang]
 instanceToTypes Generic = pure . constraintToType $ TypeInfo "purescript-prelude" "Data.Generic.Rep" "Generic" []
 instanceToTypes GenericShow = pure . constraintToType $ TypeInfo "purescript-prelude" "Prelude" "Show" []
-instanceToTypes EncodeJson =
-    pure . constraintToType $ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Encode" "EncodeJson" []
-instanceToTypes DecodeJson =
-    pure . constraintToType $ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Decode" "DecodeJson" []
+instanceToTypes EncodeJson = fmap constraintToType
+    [ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Encode" "EncodeJson" []
+    -- , TypeInfo "purescript-argonaut-aeson-generic" "Data.Argonaut.Aeson.Encode.Generic" "genericEncodeAeson" []
+    ]
+instanceToTypes DecodeJson = fmap constraintToType
+    [ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Decode" "DecodeJson" []
+    -- , TypeInfo "purescript-argonaut-aeson-generic" "Data.Argonaut.Aeson.Decode.Generic" "genericDecodeAeson" []
+    ]
 {-|
   For unpublished Purescript library `purescript-bridge-json-helpers`:
   https://github.com/input-output-hk/purescript-bridge-json-helpers
   and `purescript-argonaut-codecs`
   https://pursuit.purescript.org/packages/purescript-argonaut-codecs
 -}
-instanceToTypes EncodeJsonHelper =
-    pure . constraintToType $ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Encode" "EncodeJson" []
-instanceToTypes DecodeJsonHelper =
-    pure . constraintToType $ TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Decode" "DecodeJson" []
+instanceToTypes EncodeJsonHelper = fmap constraintToType
+    [ -- TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Encode" "EncodeJson" []
+    -- ,
+      TypeInfo "json-helpers" "Data.Argonaut.Encode.Class" "EncodeJson" []
+    ]
+instanceToTypes DecodeJsonHelper = fmap constraintToType
+    [--  TypeInfo "purescript-argonaut-codecs" "Data.Argonaut.Decode" "DecodeJson" []
+    -- ,
+      TypeInfo "json-helpers" "Data.Argonaut.Decode.Class" "DecodeJson" []
+    ]
 instanceToTypes (ForeignObject _ _) = fmap constraintToType
     [ TypeInfo "purescript-foreign" "Foreign" "Foreign" []
     , TypeInfo "purescript-foreign-object" "Foreign.Object" "Object" []
@@ -372,6 +382,8 @@ baselineImports = importsFromList
 instanceToImportLines :: PSInstance -> ImportLines
 instanceToImportLines GenericShow =
     importsFromList [ImportLine "Data.Show.Generic" Nothing $ Set.singleton "genericShow"]
+-- | This relies on `argonaut-aeson-generic`
+-- <https://github.com/coot/purescript-argonaut-aeson-generic>
 instanceToImportLines EncodeJson =
     importsFromList
         [ ImportLine "Data.Argonaut.Aeson.Encode.Generic" Nothing
@@ -383,6 +395,8 @@ instanceToImportLines EncodeJson =
           $ Set.fromList ["class EncodeJson", "encodeJson"]
         , ImportLine "Control.Lazy" Nothing $ Set.fromList ["defer"]
         ]
+-- | This relies on `argonaut-aeson-generic`
+-- <https://github.com/coot/purescript-argonaut-aeson-generic>
 instanceToImportLines DecodeJson =
     importsFromList
         [ ImportLine "Data.Argonaut.Aeson.Decode.Generic" Nothing
@@ -396,9 +410,9 @@ instanceToImportLines DecodeJson =
         ]
 {-|
   This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
-  https://github.com/input-output-hk/purescript-bridge-json-helpers
+  <https://github.com/input-output-hk/purescript-bridge-json-helpers>
   and `purescript-argonaut-codecs`
-  https://pursuit.purescript.org/packages/purescript-argonaut-codecs
+  <https://pursuit.purescript.org/packages/purescript-argonaut-codecs>
 -}
 instanceToImportLines EncodeJsonHelper =
     importsFromList
@@ -413,9 +427,9 @@ instanceToImportLines EncodeJsonHelper =
         <> instanceToImportLines EncodeJson
 {-|
   This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
-  https://github.com/input-output-hk/purescript-bridge-json-helpers
+  <https://github.com/input-output-hk/purescript-bridge-json-helpers>
   and `purescript-argonaut-codecs`
-  https://pursuit.purescript.org/packages/purescript-argonaut-codecs
+  <https://pursuit.purescript.org/packages/purescript-argonaut-codecs>
 -}
 instanceToImportLines DecodeJsonHelper =
     importsFromList
