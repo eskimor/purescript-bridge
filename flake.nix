@@ -27,6 +27,9 @@
 
         haskellProjects.default = {
           basePackages = pkgs.haskellPackages;
+          settings = {
+            purescript-bridge.check = false; # temporary
+          };
           devShell = {
             enable = true;
             mkShellArgs = {
