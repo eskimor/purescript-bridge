@@ -30,13 +30,12 @@
           devShell = {
             enable = true;
             mkShellArgs = {
-              shellHook = ''
-                export LD_LIBRARY_PATH=${pkgs.zlib.out}/lib:LD_LIBRARY_PATH
-              '';
+              # shellHook = ''
+              #   export LD_LIBRARY_PATH=${pkgs.zlib.out}/lib:LD_LIBRARY_PATH
+              # '';
             };
             tools = haskellPackages: {
-              inherit (haskellPackages)
-                zlib;
+              inherit (haskellPackages) zlib;
             };
             hlsCheck.enable = false;
           };
