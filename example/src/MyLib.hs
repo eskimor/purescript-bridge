@@ -38,7 +38,7 @@ foo = do
   return $ Foo
     (pack "Hello")
     123
-    [10..20]
+    [10..13]
     (Map.fromList [(pack "foo", 2), (pack "bar", 3), (pack "baz", 3)])
     (Baz $ pack "hello")
     testSum
@@ -49,7 +49,10 @@ fooServer = getFoo :<|> postFoo
   where
     getFoo = do
       fooValue <- liftIO foo
-      liftIO $ putStrLn "Serving:"
+      liftIO $ putStrLn "-----------------"
+      liftIO $ putStrLn "Foo:"
+      liftIO $ putStrLn $ show fooValue
+      liftIO $ putStrLn "Serving JSON:"
       liftIO $ Char8.putStrLn $ AP.encodePretty fooValue
       return fooValue
 

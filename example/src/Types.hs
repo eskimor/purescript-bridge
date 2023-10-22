@@ -25,7 +25,7 @@ import           Test.QuickCheck (Arbitrary (..), chooseEnum, oneof, resize,
 data Baz = Baz
   { _bazMessage :: Text
   }
-  deriving (FromJSON, Generic, ToJSON)
+  deriving (FromJSON, Generic, ToJSON, Show)
 
 makeLenses ''Baz
 
@@ -66,7 +66,7 @@ data Foo = Foo
   , _fooTestSum  :: TestSum
   , _fooTestData :: TestData
   }
-  deriving (FromJSON, Generic, ToJSON)
+  deriving (FromJSON, Generic, ToJSON, Show)
 
 makeLenses ''Foo
 
