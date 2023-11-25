@@ -14,6 +14,7 @@ import qualified Data.Aeson.Encode.Pretty as AP
 import qualified Data.ByteString.Lazy.Char8 as Char8
 import qualified Data.Map.Lazy as Map
 import           Data.Text (pack, unpack)
+import qualified Data.Text as T
 import           GHC.Generics
 import           GHC.TypeLits
 import           Network.Wai.Handler.Warp
@@ -33,10 +34,12 @@ type FooServer
 
 foo :: IO Foo
 foo = do
+  testEither :: Either T.Text Int <- generate arbitrary
   testData :: TestData <- generate arbitrary
   testSum :: TestSum <- generate arbitrary
   return $ Foo
     (pack "Hello")
+    testEither
     123
     [10..13]
     (Map.fromList [(pack "foo", 2), (pack "bar", 3), (pack "baz", 3)])

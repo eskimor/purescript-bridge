@@ -90,11 +90,11 @@
         "slimlock": "slimlock"
       },
       "locked": {
-        "lastModified": 1695218028,
-        "narHash": "sha256-oAu9RmKS16rwBBAFxcnMcmoO4t6XQ31x95Ud1TR5fr4=",
+        "lastModified": 1700870110,
+        "narHash": "sha256-lchusFBptwaiPYX5h2w4JH3Qvh1TKKrzqfLlRv8ZW9c=",
         "owner": "thomashoneyman",
         "repo": "purescript-overlay",
-        "rev": "401552c582779260472f2111bc98f146790b19be",
+        "rev": "b7d8946ece8790d31e667c8a6327c3126ccf745e",
         "type": "github"
       },
       "original": {
@@ -120,11 +120,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1688610262,
-        "narHash": "sha256-Wg0ViDotFWGWqKIQzyYCgayeH8s4U1OZcTiWTQYdAp4=",
+        "lastModified": 1688756706,
+        "narHash": "sha256-xzkkMv3neJJJ89zo3o2ojp7nFeaZc2G0fYwNXNJRFlo=",
         "owner": "thomashoneyman",
         "repo": "slimlock",
-        "rev": "b5c6cdcaf636ebbebd0a1f32520929394493f1a6",
+        "rev": "cf72723f59e2340d24881fd7bf61cb113b4c407c",
         "type": "github"
       },
       "original": {

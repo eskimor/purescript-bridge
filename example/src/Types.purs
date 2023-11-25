@@ -53,6 +53,7 @@ bazMessage = _Newtype <<< prop (Proxy :: _"_bazMessage")
 
 newtype Foo = Foo
   { _fooMessage :: String
+  , _fooE :: Either String Int
   , _fooNumber :: Int
   , _fooList :: Array Int
   , _fooMap :: Object Int
@@ -78,11 +79,14 @@ derive instance Newtype Foo _
 
 --------------------------------------------------------------------------------
 
-_Foo :: Iso' Foo {_fooMessage :: String, _fooNumber :: Int, _fooList :: Array Int, _fooMap :: Object Int, _fooBaz :: Baz, _fooTestSum :: TestSum, _fooTestData :: TestData}
+_Foo :: Iso' Foo {_fooMessage :: String, _fooE :: Either String Int, _fooNumber :: Int, _fooList :: Array Int, _fooMap :: Object Int, _fooBaz :: Baz, _fooTestSum :: TestSum, _fooTestData :: TestData}
 _Foo = _Newtype
 
 fooMessage :: Lens' Foo String
 fooMessage = _Newtype <<< prop (Proxy :: _"_fooMessage")
+
+fooE :: Lens' Foo (Either String Int)
+fooE = _Newtype <<< prop (Proxy :: _"_fooE")
 
 fooNumber :: Lens' Foo Int
 fooNumber = _Newtype <<< prop (Proxy :: _"_fooNumber")
@@ -172,8 +176,8 @@ _Number = prism' Number case _ of
 --------------------------------------------------------------------------------
 
 data TestData
-  = Maybe (Maybe TestSum)
-  | Either (Either (Maybe Int) (Maybe Boolean))
+  = TMaybe (Maybe TestSum)
+  | TEither String
 
 
 
@@ -190,12 +194,12 @@ derive instance Generic TestData _
 
 --------------------------------------------------------------------------------
 
-_Maybe :: Prism' TestData (Maybe TestSum)
-_Maybe = prism' Maybe case _ of
-  (Maybe a) -> Just a
+_TMaybe :: Prism' TestData (Maybe TestSum)
+_TMaybe = prism' TMaybe case _ of
+  (TMaybe a) -> Just a
   _ -> Nothing
 
-_Either :: Prism' TestData (Either (Maybe Int) (Maybe Boolean))
-_Either = prism' Either case _ of
-  (Either a) -> Just a
+_TEither :: Prism' TestData String
+_TEither = prism' TEither case _ of
+  (TEither a) -> Just a
   _ -> Nothing

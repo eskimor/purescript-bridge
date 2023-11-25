@@ -5,11 +5,12 @@
 {-# LANGUAGE TemplateHaskell  #-}
 {-# LANGUAGE TypeApplications #-}
 {-# LANGUAGE TypeOperators    #-}
+{-# LANGUAGE FlexibleInstances #-}
 
 module Types where
 
 import           Control.Lens.TH (makeLenses)
-import           Data.Aeson (FromJSON, ToJSON)
+import           Data.Aeson (FromJSON, ToJSON(toEncoding), defaultOptions, tagSingleConstructors, genericToEncoding, unwrapUnaryRecords)
 import qualified Data.Map.Lazy as Map
 import           Data.Proxy
 import           Data.Text
@@ -36,6 +37,9 @@ data TestSum
   | Number Double
   deriving (Eq, Generic, Ord, Show, FromJSON, ToJSON)
 
+instance Arbitrary Text where
+    arbitrary = pure $ pack "foooo"
+
 instance Arbitrary TestSum where
     arbitrary =
         oneof
@@ -46,19 +50,21 @@ instance Arbitrary TestSum where
             ]
 
 data TestData
-  = Maybe (Maybe TestSum)
-  | Either (Either (Maybe Int) (Maybe Bool))
+  = TMaybe (Maybe TestSum)
+  | TEither Text -- (Either Int Text) -- (Either (Maybe Int) (Maybe Bool))
   deriving (Eq, Generic, Ord, Show, FromJSON, ToJSON)
 
 instance Arbitrary TestData where
     arbitrary =
         oneof
-            [ Maybe <$> arbitrary
-            , Either <$> arbitrary
+            [ -- Maybe <$> arbitrary
+            -- ,
+              TEither <$> arbitrary
             ]
 
 data Foo = Foo
   { _fooMessage :: Text
+  , _fooE       :: Either Text Int
   , _fooNumber  :: Int
   , _fooList    :: [Int]
   , _fooMap     :: Map.Map Text Int
@@ -66,7 +72,14 @@ data Foo = Foo
   , _fooTestSum  :: TestSum
   , _fooTestData :: TestData
   }
-  deriving (FromJSON, Generic, ToJSON, Show)
+  deriving (FromJSON, Generic, Show, ToJSON)
+
+
+instance {-# OVERLAPPING #-} ToJSON (Either Text Int) where
+  toEncoding = genericToEncoding (defaultOptions { tagSingleConstructors = True, unwrapUnaryRecords = True })
+
+-- instance ToJSON Foo where
+--   toEncoding = genericToEncoding (defaultOptions { tagSingleConstructors = True, unwrapUnaryRecords = True })
 
 makeLenses ''Foo
 
