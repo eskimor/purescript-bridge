@@ -58,20 +58,26 @@ module Language.PureScript.Bridge.SumType
     , recValue
     ) where
 
-import           Control.Lens hiding (from, to)
+import           Control.Lens (makeLenses, over)
 import           Data.List (nub)
 import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import           Data.Map (Map)
 import qualified Data.Map as Map
-import           Data.Maybe (maybeToList, fromMaybe)
+import           Data.Maybe (fromMaybe, maybeToList)
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import           Data.Text (Text)
 import qualified Data.Text as T
-import           Data.Typeable
-import           Generics.Deriving
-import           Language.PureScript.Bridge.TypeInfo
+import           Data.Typeable (Typeable)
+import           Generics.Deriving (C1, Constructor (conName), D1, Datatype,
+                                    Generic (Rep, from), K1, M1 (M1), R, S1,
+                                    Selector (selName), U1, type (:*:),
+                                    type (:+:))
+import           Language.PureScript.Bridge.TypeInfo (Language (..),
+                                                      TypeInfo (TypeInfo),
+                                                      flattenTypeInfo,
+                                                      mkTypeInfo, typeName)
 
 data ImportLine = ImportLine
   { importModule :: !Text

@@ -7,9 +7,13 @@
 module Language.PureScript.Bridge.PSTypes where
 
 import           Control.Lens (view)
-import           Control.Monad.Reader.Class
-import           Language.PureScript.Bridge.Builder
-import           Language.PureScript.Bridge.TypeInfo
+import           Control.Monad.Reader.Class (MonadReader)
+import           Language.PureScript.Bridge.Builder (BridgeData, fullBridge,
+                                                     psTypeParameters)
+import           Language.PureScript.Bridge.TypeInfo (HasHaskType (haskType),
+                                                      PSType,
+                                                      TypeInfo (TypeInfo, _typeModule, _typeName, _typePackage, _typeParameters),
+                                                      typeParameters)
 
 -- | Uses  type parameters from 'haskType' (bridged).
 psArray :: (MonadReader BridgeData m) => m PSType

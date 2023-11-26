@@ -1,23 +1,29 @@
-{-# LANGUAGE DataKinds        #-}
-{-# LANGUAGE DeriveAnyClass   #-}
-{-# LANGUAGE DeriveGeneric    #-}
-{-# LANGUAGE KindSignatures   #-}
-{-# LANGUAGE TemplateHaskell  #-}
-{-# LANGUAGE TypeApplications #-}
-{-# LANGUAGE TypeOperators    #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE KindSignatures    #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE TypeOperators     #-}
 
 module Types where
 
 import           Control.Lens.TH (makeLenses)
-import           Data.Aeson (FromJSON, ToJSON(toEncoding), SumEncoding(..), defaultOptions, tagSingleConstructors, genericToEncoding, unwrapUnaryRecords, sumEncoding, defaultTaggedObject)
+import           Data.Aeson (FromJSON, SumEncoding (..), ToJSON (toEncoding),
+                             defaultOptions, defaultTaggedObject,
+                             genericToEncoding, sumEncoding,
+                             tagSingleConstructors, unwrapUnaryRecords)
 import qualified Data.Map.Lazy as Map
-import           Data.Proxy
-import           Data.Text
-import           Data.Typeable
-import           GHC.Generics
-import           Language.PureScript.Bridge (BridgePart, Language(Haskell), mkSumType, argonautAesonGeneric, lenses, genericShow, defaultBridge)
-import           Language.PureScript.Bridge.PSTypes
+import           Data.Proxy ()
+import           Data.Text (Text, pack)
+import           Data.Typeable (Typeable)
+import           GHC.Generics (Generic)
+import           Language.PureScript.Bridge (BridgePart, Language (Haskell),
+                                             argonautAesonGeneric,
+                                             defaultBridge, genericShow, lenses,
+                                             mkSumType)
+import           Language.PureScript.Bridge.PSTypes ()
 import           Language.PureScript.Bridge.SumType (SumType)
 import           Language.PureScript.Bridge.TypeParameters (A)
 import           Test.QuickCheck (Arbitrary (..), chooseEnum, oneof, resize,
@@ -45,7 +51,7 @@ data TestSum
   | Bool Bool
   | Int Int
   | Number Double
-  deriving (Eq, Generic, Ord, Show, FromJSON, ToJSON)
+  deriving (Eq, FromJSON, Generic, Ord, Show, ToJSON)
 
 instance Arbitrary Text where
     arbitrary = pure $ pack "foooo"
@@ -62,7 +68,7 @@ instance Arbitrary TestSum where
 data TestData
   = TMaybe (Maybe TestSum)
   | TEither Text -- (Either Int Text) -- (Either (Maybe Int) (Maybe Bool))
-  deriving (Eq, Generic, Ord, Show, FromJSON, ToJSON)
+  deriving (Eq, FromJSON, Generic, Ord, Show, ToJSON)
 
 instance Arbitrary TestData where
     arbitrary =
@@ -74,12 +80,12 @@ instance Arbitrary TestData where
 
 
 data Foo = Foo
-  { _fooMessage :: Text
-  , _fooE       :: Either Text Int
-  , _fooNumber  :: Int
-  , _fooList    :: [Int]
-  , _fooMap     :: Map.Map Text Int
-  , _fooBaz     :: Baz
+  { _fooMessage  :: Text
+  , _fooE        :: Either Text Int
+  , _fooNumber   :: Int
+  , _fooList     :: [Int]
+  , _fooMap      :: Map.Map Text Int
+  , _fooBaz      :: Baz
   , _fooTestSum  :: TestSum
   , _fooTestData :: TestData
   }
@@ -103,7 +109,7 @@ makeLenses ''Foo
 
 -- TODO newtype
 data Bar a = Bar a
-  deriving (FromJSON, Generic, Show, Typeable, ToJSON)
+  deriving (FromJSON, Generic, Show, ToJSON, Typeable)
 
 makeLenses ''Bar
 

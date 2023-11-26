@@ -5,10 +5,19 @@
 
 module Language.PureScript.Bridge.Primitives where
 
-import           Control.Monad.Reader.Class
-import           Language.PureScript.Bridge.Builder
-import           Language.PureScript.Bridge.PSTypes
-import           Language.PureScript.Bridge.TypeInfo
+import           Control.Monad.Reader.Class (MonadReader)
+import           Language.PureScript.Bridge.Builder (BridgeData, BridgePart,
+                                                     clearPackageFixUp, (<|>),
+                                                     (^==))
+import           Language.PureScript.Bridge.PSTypes (psArray, psBool, psEither,
+                                                     psInt, psMap, psMaybe,
+                                                     psNumber, psObject, psSet,
+                                                     psString, psUnit, psWord,
+                                                     psWord16, psWord32,
+                                                     psWord64, psWord8)
+import           Language.PureScript.Bridge.TypeInfo (HasHaskType (haskType),
+                                                      PSType, mkTypeInfo,
+                                                      typeModule, typeName)
 
 boolBridge :: BridgePart
 boolBridge = typeName ^== "Bool" >> return psBool

@@ -1,13 +1,16 @@
 {-# LANGUAGE BlockArguments             #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveGeneric              #-}
+{-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE TypeApplications           #-}
 
 module RoundTripArgonautAesonGeneric.Types where
 
 import           Control.Applicative ((<|>))
-import           Data.Aeson (FromJSON, ToJSON)
+import           Data.Aeson (FromJSON, SumEncoding (..), ToJSON (toEncoding),
+                             defaultOptions, defaultTaggedObject,
+                             genericToEncoding, sumEncoding,
+                             tagSingleConstructors, unwrapUnaryRecords)
 import           Data.Map (Map)
 import           Data.Proxy (Proxy (..))
 import           Data.Set (Set)
@@ -75,7 +78,14 @@ data TestSum
 
 instance FromJSON TestSum
 
-instance ToJSON TestSum
+instance ToJSON TestSum where
+  toEncoding = genericToEncoding
+    (
+      defaultOptions
+      { tagSingleConstructors = True
+      , unwrapUnaryRecords = True
+      }
+    )
 
 instance Arbitrary TestSum where
     arbitrary =
@@ -110,7 +120,14 @@ data TestRecursiveA
 
 instance FromJSON TestRecursiveA
 
-instance ToJSON TestRecursiveA
+instance ToJSON TestRecursiveA where
+  toEncoding = genericToEncoding
+    (
+      defaultOptions
+      { tagSingleConstructors = True
+      , unwrapUnaryRecords = True
+      }
+    )
 
 instance Arbitrary TestRecursiveA where
     arbitrary = sized go

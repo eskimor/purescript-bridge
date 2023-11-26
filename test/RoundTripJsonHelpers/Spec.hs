@@ -1,6 +1,5 @@
 {-# LANGUAGE BlockArguments    #-}
 {-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
 
@@ -18,10 +17,16 @@ import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
                                              argonautAesonGeneric, buildBridge,
                                              defaultBridge, equal, functor,
-                                             genericShow, mkSumType, order, jsonHelper,
-                                             writePSTypes, writePSTypesWith)
+                                             genericShow, jsonHelper, mkSumType,
+                                             order, writePSTypes,
+                                             writePSTypesWith)
 import           Language.PureScript.Bridge.TypeParameters (A)
-import           RoundTripJsonHelpers.Types
+import           RoundTripJsonHelpers.Types (MyUnit, TestData, TestEnum,
+                                             TestMultiInlineRecords,
+                                             TestNewtype, TestNewtypeRecord,
+                                             TestRecord, TestRecursiveA,
+                                             TestRecursiveB, TestSum,
+                                             TestTwoFields)
 import           System.Directory (removeDirectoryRecursive, removeFile,
                                    withCurrentDirectory)
 import           System.Exit (ExitCode (ExitSuccess))
@@ -70,10 +75,10 @@ roundtripSpec = do
     aroundAll_ withProject $
         describe "writePSTypesWith json-helpers" do
             it "should be buildable" do
-                (exitCode, stdout, stderr) <- readProcessWithExitCode "spago" ["build"] ""
+                (exitCode, stdout, stderr) <- System.Process.readProcessWithExitCode "spago" ["build"] ""
                 assertEqual (stdout <> stderr) exitCode ExitSuccess
             it "should not warn of unused packages buildable" do
-                (exitCode, stdout, stderr) <- readProcessWithExitCode "spago" ["build"] ""
+                (exitCode, stdout, stderr) <- System.Process.readProcessWithExitCode "spago" ["build"] ""
                 assertBool stderr $ not $ "[warn]" `isInfixOf` stderr
             around withApp $
                 it "should produce aeson-compatible argonaut instances with json-helpers library" $
@@ -95,11 +100,11 @@ roundtripSpec = do
     withApp = bracket runApp killApp
     runApp = do
         (Just hin, Just hout, Just herr, hproc) <-
-            createProcess
-                (proc "spago" ["run"])
-                    { std_in = CreatePipe
-                    , std_out = CreatePipe
-                    , std_err = CreatePipe
+            System.Process.createProcess
+                (System.Process.proc "spago" ["run"])
+                    { std_in = System.Process.CreatePipe
+                    , std_out = System.Process.CreatePipe
+                    , std_err = System.Process.CreatePipe
                     }
         hSetBuffering hin LineBuffering
         hSetBuffering hout LineBuffering
@@ -110,7 +115,7 @@ roundtripSpec = do
         _ <- hGetLine hout
         pure (hin, hout, herr, hproc)
 
-    killApp (_, _, _, hproc) = terminateProcess hproc
+    killApp (_, _, _, hproc) = System.Process.terminateProcess hproc
 
     withProject :: IO () -> IO ()
     withProject runSpec =

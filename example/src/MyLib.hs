@@ -1,6 +1,6 @@
-{-# LANGUAGE DataKinds     #-}
-{-# LANGUAGE TypeOperators #-}
+{-# LANGUAGE DataKinds           #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TypeOperators       #-}
 
 
 module MyLib (main) where
@@ -9,23 +9,25 @@ import           Prelude
 
 import           Control.Lens (view)
 import           Control.Monad.IO.Class (liftIO)
-import           Data.Aeson
+import           Data.Aeson ()
 import qualified Data.Aeson.Encode.Pretty as AP
 import qualified Data.ByteString.Lazy.Char8 as Char8
 import qualified Data.Map.Lazy as Map
 import           Data.Text (pack, unpack)
 import qualified Data.Text as T
-import           GHC.Generics
-import           GHC.TypeLits
-import           Network.Wai.Handler.Warp
-import           Servant
+import           GHC.Generics ()
+import           GHC.TypeLits ()
+import           Network.Wai.Handler.Warp (run)
+import           Servant (Get, JSON, NoContent (..), Post, Proxy (..), Raw,
+                          ReqBody, Server, serve, serveDirectoryWebApp,
+                          type (:<|>) (..), type (:>))
 import           System.Environment (lookupEnv)
-import           Test.QuickCheck (Arbitrary (..), chooseEnum, oneof, resize,
-                                  sized, generate)
+import           Test.QuickCheck (Arbitrary (..), chooseEnum, generate, oneof,
+                                  resize, sized)
 
-import           Types (Baz (Baz), Foo (Foo), fooList, fooMap, fooMessage,
-                        fooNumber, TestData(..), TestSum(..))
 import qualified Types
+import           Types (Baz (Baz), Foo (Foo), TestData (..), TestSum (..),
+                        fooList, fooMap, fooMessage, fooNumber)
 
 type FooServer
   = "foo" :> (Get '[JSON] Foo

@@ -9,7 +9,7 @@
 module Language.PureScript.Bridge.Printer where
 
 import           Control.Arrow ((&&&))
-import           Control.Lens (to, traversed, (%~), (<>~), (^.), (^..))
+import           Control.Lens (to, (%~), (<>~), (^.))
 import           Control.Monad (unless)
 import           Data.Char (isLower)
 import qualified Data.Char as C
@@ -36,10 +36,10 @@ import           Language.PureScript.Bridge.SumType (CustomInstance (..),
                                                      PSInstance,
                                                      RecordEntry (..),
                                                      SumType (SumType),
-                                                     _recLabel, getUsedTypes,
+                                                     _recLabel, baselineImports,
+                                                     getUsedTypes,
                                                      importsFromList,
                                                      instanceToImportLines,
-                                                     baselineImports,
                                                      nootype, recLabel,
                                                      recValue, sigConstructor)
 import           Language.PureScript.Bridge.TypeInfo (Language (PureScript),

@@ -2,7 +2,6 @@
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE DeriveGeneric              #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
-{-# LANGUAGE TypeApplications           #-}
 
 module RoundTripJsonHelpers.Types where
 

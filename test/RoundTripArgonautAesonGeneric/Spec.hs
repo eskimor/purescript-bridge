@@ -1,6 +1,5 @@
 {-# LANGUAGE BlockArguments    #-}
 {-# LANGUAGE DataKinds         #-}
-{-# LANGUAGE DeriveGeneric     #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
 
@@ -18,10 +17,19 @@ import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
                                              argonautAesonGeneric, buildBridge,
                                              defaultBridge, equal, functor,
-                                             genericShow, mkSumType, order, jsonHelper,
-                                             writePSTypes, writePSTypesWith)
+                                             genericShow, jsonHelper, mkSumType,
+                                             order, writePSTypes,
+                                             writePSTypesWith)
 import           Language.PureScript.Bridge.TypeParameters (A)
-import           RoundTripArgonautAesonGeneric.Types
+import           RoundTripArgonautAesonGeneric.Types (MyUnit, TestData,
+                                                      TestEnum,
+                                                      TestMultiInlineRecords,
+                                                      TestNewtype,
+                                                      TestNewtypeRecord,
+                                                      TestRecord,
+                                                      TestRecursiveA,
+                                                      TestRecursiveB, TestSum,
+                                                      TestTwoFields)
 import           System.Directory (removeDirectoryRecursive, removeFile,
                                    withCurrentDirectory)
 import           System.Exit (ExitCode (ExitSuccess))

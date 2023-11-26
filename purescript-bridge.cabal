@@ -47,7 +47,7 @@ Test-Suite tests
                , RoundTripArgonautAesonGeneric.Types
                , RoundTripJsonHelpers.Spec
                , RoundTripJsonHelpers.Types
-  build-depends: aeson
+  build-depends: aeson == 2.2.*
                , bytestring
                , HUnit
                , base

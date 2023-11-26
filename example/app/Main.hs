@@ -1,10 +1,10 @@
 module Main where
 
-import qualified MyLib (main)
-import           Types
 import           Control.Lens
 import           Data.Text (pack)
 import           Language.PureScript.Bridge
+import qualified MyLib (main)
+import           Types
 
 main :: IO ()
 main = do

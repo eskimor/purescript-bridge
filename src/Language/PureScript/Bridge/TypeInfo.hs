@@ -25,11 +25,13 @@ module Language.PureScript.Bridge.TypeInfo
     , flattenTypeInfo
     ) where
 
-import           Control.Lens
-import           Data.Proxy
+import           Control.Lens (Lens', makeLenses)
+import           Data.Proxy (Proxy (Proxy))
 import           Data.Text (Text)
 import qualified Data.Text as T
-import           Data.Typeable
+import           Data.Typeable (TypeRep, Typeable, tyConModule, tyConName,
+                                tyConPackage, typeRep, typeRepArgs,
+                                typeRepTyCon)
 
 data Language = Haskell | PureScript
 

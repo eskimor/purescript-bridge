@@ -36,14 +36,18 @@ module Language.PureScript.Bridge.Builder
     , buildBridgeWithCustomFixUp
     ) where
 
-import           Control.Applicative
-import           Control.Lens
+import           Control.Applicative (Alternative (empty, (<|>)))
+import           Control.Lens (Getter, Lens', to, view, views, (^.))
 import           Control.Monad (MonadPlus, guard, mplus, mzero)
-import           Control.Monad.Reader.Class
+import           Control.Monad.Reader.Class (MonadReader)
 import           Control.Monad.Trans.Reader (Reader, ReaderT (..), runReader)
 import           Data.Maybe (fromMaybe)
 import qualified Data.Text as T
-import           Language.PureScript.Bridge.TypeInfo
+import           Language.PureScript.Bridge.TypeInfo (HasHaskType (..),
+                                                      HaskellType, PSType,
+                                                      TypeInfo (..), typeModule,
+                                                      typeName, typePackage,
+                                                      typeParameters)
 
 newtype BridgeBuilder a
   = BridgeBuilder (ReaderT BridgeData Maybe a)
