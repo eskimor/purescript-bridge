@@ -17,6 +17,11 @@ let additions =
             "https://github.com/coot/purescript-argonaut-aeson-generic.git"
         , version = "v0.4.1"
         }
+      , argonaut-codecs =
+        { dependencies = [ "console" ]
+        , repo = "https://github.com/peterbecich/purescript-argonaut-codecs.git"
+        , version = "04abb3eb24a4deafe125be0eb23e2786c642e66b"
+        }
       , foreign-generic =
         { dependencies =
           [ "effect"

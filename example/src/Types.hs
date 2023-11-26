@@ -10,7 +10,7 @@
 module Types where
 
 import           Control.Lens.TH (makeLenses)
-import           Data.Aeson (FromJSON, ToJSON(toEncoding), defaultOptions, tagSingleConstructors, genericToEncoding, unwrapUnaryRecords)
+import           Data.Aeson (FromJSON, ToJSON(toEncoding), SumEncoding(..), defaultOptions, tagSingleConstructors, genericToEncoding, unwrapUnaryRecords, sumEncoding, defaultTaggedObject)
 import qualified Data.Map.Lazy as Map
 import           Data.Proxy
 import           Data.Text
@@ -26,7 +26,17 @@ import           Test.QuickCheck (Arbitrary (..), chooseEnum, oneof, resize,
 data Baz = Baz
   { _bazMessage :: Text
   }
-  deriving (FromJSON, Generic, ToJSON, Show)
+  deriving (FromJSON, Generic, Show)
+
+instance ToJSON Baz where
+  toEncoding = genericToEncoding
+    (
+      defaultOptions
+      { tagSingleConstructors = True
+      , unwrapUnaryRecords = True
+      }
+    )
+
 
 makeLenses ''Baz
 
@@ -62,6 +72,7 @@ instance Arbitrary TestData where
               TEither <$> arbitrary
             ]
 
+
 data Foo = Foo
   { _fooMessage :: Text
   , _fooE       :: Either Text Int
@@ -75,17 +86,24 @@ data Foo = Foo
   deriving (FromJSON, Generic, Show, ToJSON)
 
 
-instance {-# OVERLAPPING #-} ToJSON (Either Text Int) where
-  toEncoding = genericToEncoding (defaultOptions { tagSingleConstructors = True, unwrapUnaryRecords = True })
 
--- instance ToJSON Foo where
---   toEncoding = genericToEncoding (defaultOptions { tagSingleConstructors = True, unwrapUnaryRecords = True })
+instance {-# OVERLAPPING #-} ToJSON (Either Text Int) where
+  toEncoding = genericToEncoding
+    (
+      defaultOptions
+      { tagSingleConstructors = True
+      , unwrapUnaryRecords = True
+      -- , sumEncoding = TaggedObject "foo" "bar" -- defaultTaggedObject { contentsFieldName = "value" }
+      }
+    )
+
+instance {-# OVERLAPPING #-} FromJSON (Either Text Int)
 
 makeLenses ''Foo
 
 -- TODO newtype
 data Bar a = Bar a
-  deriving (FromJSON, Generic, Show, ToJSON, Typeable)
+  deriving (FromJSON, Generic, Show, Typeable, ToJSON)
 
 makeLenses ''Bar
 

@@ -18,15 +18,26 @@ import Effect.Aff (launchAff_)
 import Affjax.Web (get, post_)
 import Affjax.ResponseFormat (json)
 import Affjax.RequestBody as RequestBody
-import Types (Foo, fooMessage, fooNumber, fooList)
+import Foreign.Object (empty)
+import Types (Foo, FEither(..), fooMessage, fooNumber, fooList)
 import Data.Argonaut.Decode.Error (JsonDecodeError)
 import Data.Argonaut.Decode.Generic (genericDecodeJson)
 import Data.Argonaut.Encode.Generic (genericEncodeJson)
-import Types (Foo, fooMessage, fooNumber, fooList, fooMap)
--- import Types (Foo, fooMessage, fooNumber, fooList, fooMap, fooTestSum, fooTestData)
+import Types (Baz(Baz), Foo(Foo), TestData(..), TestSum(..), fooMessage, fooNumber, fooList, fooMap, fooTestSum, fooTestData)
 import Data.Map as Map
 
 import Foreign.Object as Object
+
+testFoo = Foo
+  { _fooMessage: "foo"
+  , _fooE: FEither (Left "foo")
+  , _fooNumber: 1
+  , _fooList: [1,2,3]
+  , _fooMap: empty
+  , _fooBaz: Baz { _bazMessage: "baz" }
+  , _fooTestSum: Nullary
+  , _fooTestData: TEither "foo"
+  }
 
 main :: Effect Unit
 main = log "Hello, Purescript!" *> launchAff_ do
