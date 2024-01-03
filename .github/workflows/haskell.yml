@@ -54,13 +54,48 @@ jobs:
           dist-newstyle
         key: ${{ runner.os }}-${{ matrix.versions.ghc }}-${{ matrix.versions.cabal }}-cabal-local
 
+    - name: Set up a PureScript toolchain
+      uses: purescript-contrib/setup-purescript@main
+      with: # https://github.com/purescript-contrib/setup-purescript#specify-versions
+        purescript: "0.15.13"
+    - name: Cache PureScript dependencies
+      uses: actions/cache@v2
+      with:
+        key: ${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
+        path: |
+          .spago
+          output
+          test/RoundTripArgonautAesonGeneric/app/output
+          test/RoundTripJsonHelpers/app/output
+
     - name: Install dependencies
       run: |
-          cabal update
-          cabal build all --dependencies-only --enable-tests --disable-optimization
-    - name: Build
+        cabal update
+        cabal build all --dependencies-only --enable-tests --disable-optimization
+    - name: Build Haskell
       run: |
-          cabal build all --enable-tests --disable-optimization 2>&1 | tee build.log
+        cabal build all --enable-tests --disable-optimization 2>&1 | tee build.log
+    - name: Build PureScript
+      run: |
+        spago build
+    - name: Build PureScript Argonaut test project
+      run: |
+        cd test/RoundTripArgonautAesonGeneric/app
+        spago build
+    - name: Build PureScript JsonHelpers test project
+      run: |
+        cd test/RoundTripJsonHelpers/app
+        spago build
     - name: Test
       run: |
-          cabal test all --disable-optimization
+        # There are two PureScript projects which the Haskell tests build and run.
+        # The first build produces warnings which cause the Haskell tests to fail;
+        # pre-building these two projects clears these warnings.
+        spago build
+        cd test/RoundTripArgonautAesonGeneric/app
+        spago build
+        cd ../../../
+        cd test/RoundTripJsonHelpers/app
+        spago build
+        cd ../../../
+        cabal test all --disable-optimization

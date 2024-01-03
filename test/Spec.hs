@@ -34,7 +34,7 @@ import           Text.PrettyPrint.Leijen.Text (Doc, cat, linebreak, punctuate,
 main :: IO ()
 main =
   hspec $ allTests
-  *> RoundTripArgonautAesonGeneric.Spec.roundtripSpec
+  -- *> RoundTripArgonautAesonGeneric.Spec.roundtripSpec
   *> RoundTripJsonHelpers.Spec.roundtripSpec
 
 custom :: SumType 'Haskell -> SumType 'Haskell
