@@ -34,7 +34,7 @@ For compatible JSON representations:
       * forked from [`purescript-contrib/purescript-argonaut-codecs`](https://github.com/purescript-contrib/purescript-argonaut-codecs)
         * [discussion](https://github.com/purescript-contrib/purescript-argonaut-codecs/issues/115)
   * *or* [`input-output-hk/purescript-bridge-json-helpers`](https://github.com/input-output-hk/purescript-bridge-json-helpers.git)
-    * commit `60615c36abaee16d8dbe09cdd0e772e6d523d024`
+    * commit `486db9ee62882baa42cca24f556848c5f6bec565`
     * see `./test/RoundTripJsonHelpers` for example
     * sample Dhall config:
     ```
@@ -68,7 +68,7 @@ For compatible JSON representations:
             ]
           , repo =
               "https://github.com/input-output-hk/purescript-bridge-json-helpers.git"
-          , version = "60615c36abaee16d8dbe09cdd0e772e6d523d024"
+          , version = "486db9ee62882baa42cca24f556848c5f6bec565"
           }
     ```
 
