@@ -16,12 +16,61 @@ The latest version of this project requires **Purescript 0.15**.
 
 For compatible JSON representations:
 
-* On Haskell side:
+* On Haskell side, use:
   * Use [`aeson`](http://hackage.haskell.org/package/aeson)'s generic encoding/decoding with default options
-* On Purescript side:
-  * Use [`purescript-argonaut-aeson-generic >=0.4.1`](https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic/0.4.1) ([GitHub](https://github.com/coot/purescript-argonaut-aeson-generic))
-  * Or use [`purescript-foreign-generic`](https://pursuit.purescript.org/packages/purescript-foreign-generic).
-    * [This branch](https://github.com/paf31/purescript-foreign-generic/pull/76) is updated for Purescript 0.15.
+* On Purescript side, use:
+  * [`purescript-argonaut-aeson-generic >=0.4.1`](https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic/0.4.1) ([GitHub](https://github.com/coot/purescript-argonaut-aeson-generic))
+    * additional requirement [`peterbecich/purescript-argonaut-codecs`](https://github.com/peterbecich/purescript-argonaut-codecs.git)
+      * commit `04abb3eb24a4deafe125be0eb23e2786c642e66b`
+      * see `./test/RoundTripArgonautAesonGeneric` for example
+      * sample Dhall config:
+      ```
+            , argonaut-codecs =
+              { dependencies = [ "console" ]
+              , repo = "https://github.com/peterbecich/purescript-argonaut-codecs.git"
+              , version = "04abb3eb24a4deafe125be0eb23e2786c642e66b"
+              }
+      ```
+      * forked from [`purescript-contrib/purescript-argonaut-codecs`](https://github.com/purescript-contrib/purescript-argonaut-codecs)
+        * [discussion](https://github.com/purescript-contrib/purescript-argonaut-codecs/issues/115)
+  * *or* [`input-output-hk/purescript-bridge-json-helpers`](https://github.com/input-output-hk/purescript-bridge-json-helpers.git)
+    * commit `60615c36abaee16d8dbe09cdd0e772e6d523d024`
+    * see `./test/RoundTripJsonHelpers` for example
+    * sample Dhall config:
+    ```
+        , json-helpers =
+          { dependencies =
+            [ "aff"
+            , "argonaut-codecs"
+            , "argonaut-core"
+            , "arrays"
+            , "bifunctors"
+            , "contravariant"
+            , "control"
+            , "effect"
+            , "either"
+            , "enums"
+            , "foldable-traversable"
+            , "foreign-object"
+            , "maybe"
+            , "newtype"
+            , "ordered-collections"
+            , "prelude"
+            , "profunctor"
+            , "psci-support"
+            , "quickcheck"
+            , "record"
+            , "spec"
+            , "spec-quickcheck"
+            , "transformers"
+            , "tuples"
+            , "typelevel-prelude"
+            ]
+          , repo =
+              "https://github.com/input-output-hk/purescript-bridge-json-helpers.git"
+          , version = "60615c36abaee16d8dbe09cdd0e772e6d523d024"
+          }
+    ```
 
 ## Documentation
 
