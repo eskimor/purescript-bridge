@@ -34,7 +34,7 @@ testFoo = Foo
   }
 
 main :: Effect Unit
-main = log "Hello, Purescript!" *> launchAff_ do
+main = log "Hello, PureScript!" *> launchAff_ do
   -- request a Foo
   fooResponse <- get json "/foo"
   for_ fooResponse \fooPayload -> do

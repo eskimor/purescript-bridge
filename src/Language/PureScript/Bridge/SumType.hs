@@ -11,7 +11,6 @@
 {-# LANGUAGE TemplateHaskell      #-}
 {-# LANGUAGE TypeApplications     #-}
 {-# LANGUAGE TypeOperators        #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 
 module Language.PureScript.Bridge.SumType
     ( SumType (..)
@@ -20,7 +19,7 @@ module Language.PureScript.Bridge.SumType
     , equal1
     , order
     , argonautAesonGeneric
-    , jsonHelper
+    , jsonHelpers
     , genericShow
     , functor
     , DataConstructor (..)
@@ -64,7 +63,7 @@ import           Data.List.NonEmpty (NonEmpty)
 import qualified Data.List.NonEmpty as NE
 import           Data.Map (Map)
 import qualified Data.Map as Map
-import           Data.Maybe (fromMaybe, maybeToList)
+import           Data.Maybe (maybeToList)
 import           Data.Set (Set)
 import qualified Data.Set as Set
 import           Data.Text (Text)
@@ -125,7 +124,7 @@ mkSumType =
   where
     constructors = gToConstructors (from (undefined :: t))
 
--- | Purescript typeclass instances that can be generated for your Haskell types.
+-- | PureScript typeclass instances that can be generated for your Haskell types.
 data Instance (lang :: Language)
   = Generic
   | GenericShow
@@ -139,11 +138,11 @@ data Instance (lang :: Language)
   -- using argonaut-codecs:
   -- <https://pursuit.purescript.org/packages/purescript-argonaut-codecs>
   | DecodeJson
-  -- | Generate using unpublished Purescript library
+  -- | Generate using unpublished PureScript library
   -- `purescript-bridge-json-helpers`
   -- <https://github.com/input-output-hk/purescript-bridge-json-helpers>
   | EncodeJsonHelper
-  -- | Generate using unpublished Purescript library
+  -- | Generate using unpublished PureScript library
   -- `purescript-bridge-json-helpers`
   -- <https://github.com/input-output-hk/purescript-bridge-json-helpers>
   | DecodeJsonHelper
@@ -194,7 +193,7 @@ data CustomInstance (lang :: Language) = CustomInstance
   }
   deriving (Eq, Ord, Show)
 
-{- | The Purescript typeclass `Newtype` might be derivable if the original
+{- | The PureScript typeclass `Newtype` might be derivable if the original
 Haskell type was a simple type wrapper.
 -}
 nootype :: [DataConstructor lang] -> Maybe (Instance lang)
@@ -211,8 +210,8 @@ argonautAesonGeneric (SumType ti dc is) = SumType ti dc . nub $ EncodeJson : Dec
 -- | Ensure that aeson-compatible `EncodeJson` and `DecodeJson` instances are generated for your type.
 -- Uses unpublished library `purescript-bridge-json-helpers`
 -- <https://github.com/input-output-hk/purescript-bridge-json-helpers>
-jsonHelper :: SumType t -> SumType t
-jsonHelper (SumType ti dc is) = SumType ti dc . nub $ EncodeJsonHelper : DecodeJsonHelper : is
+jsonHelpers :: SumType t -> SumType t
+jsonHelpers (SumType ti dc is) = SumType ti dc . nub $ EncodeJsonHelper : DecodeJsonHelper : is
 
 -- | Ensure that a generic `Show` instance is generated for your type.
 genericShow :: SumType t -> SumType t
@@ -332,7 +331,7 @@ instanceToTypes DecodeJson = fmap constraintToType
     -- , TypeInfo "purescript-argonaut-aeson-generic" "Data.Argonaut.Aeson.Decode.Generic" "genericDecodeAeson" []
     ]
 {-|
-  For unpublished Purescript library `purescript-bridge-json-helpers`:
+  For unpublished PureScript library `purescript-bridge-json-helpers`:
   https://github.com/input-output-hk/purescript-bridge-json-helpers
   and `purescript-argonaut-codecs`
   https://pursuit.purescript.org/packages/purescript-argonaut-codecs
@@ -414,7 +413,7 @@ instanceToImportLines DecodeJson =
         , ImportLine "Control.Lazy" Nothing $ Set.fromList ["defer"]
         ]
 {-|
-  This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
+  This relies on unpublished PureScript library `purescript-bridge-json-helpers`:
   <https://github.com/input-output-hk/purescript-bridge-json-helpers>
   and `purescript-argonaut-codecs`
   <https://pursuit.purescript.org/packages/purescript-argonaut-codecs>
@@ -431,7 +430,7 @@ instanceToImportLines EncodeJsonHelper =
         ]
         <> instanceToImportLines EncodeJson
 {-|
-  This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
+  This relies on unpublished PureScript library `purescript-bridge-json-helpers`:
   <https://github.com/input-output-hk/purescript-bridge-json-helpers>
   and `purescript-argonaut-codecs`
   <https://pursuit.purescript.org/packages/purescript-argonaut-codecs>

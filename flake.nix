@@ -49,15 +49,10 @@
           };
           devShell = {
             enable = true;
-            mkShellArgs = {
-              # shellHook = ''
-              #   export LD_LIBRARY_PATH=${pkgs.zlib.out}/lib:LD_LIBRARY_PATH
-              # '';
-            };
             tools = haskellPackages: {
-              # disable until haskell-language-server compatible with Aeson 2.2
+              # disable until NixPkgs-available Floskell compatible with Aeson 2.2
               haskell-language-server = null;
-              inherit (haskellPackages) zlib;
+              inherit (haskellPackages) zlib stylish-haskell;
             };
             hlsCheck.enable = false;
           };

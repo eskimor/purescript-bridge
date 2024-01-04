@@ -3,7 +3,8 @@
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE TypeApplications  #-}
 
-module RoundTripArgonautAesonGeneric.Spec where
+module RoundTripArgonautAesonGeneric.Spec (roundtripSpec)
+where
 
 import           Control.Exception (bracket)
 import           Data.Aeson (FromJSON, ToJSON (toJSON), eitherDecode, encode,
@@ -17,7 +18,7 @@ import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
                                              argonautAesonGeneric, buildBridge,
                                              defaultBridge, equal, functor,
-                                             genericShow, jsonHelper, mkSumType,
+                                             genericShow, jsonHelpers, mkSumType,
                                              order, writePSTypes,
                                              writePSTypesWith)
 import           Language.PureScript.Bridge.TypeParameters (A)
@@ -91,12 +92,13 @@ roundtripSpec = do
                         err <- hGetLine herr
                         output <- hGetLine hout
 
-                        -- empty string signifies no error from Purescript process
-                        -- assertEqual ("Error from Purescript, parsing: " <> input) "" err
+                        -- TODO get this passing on CI
+                        -- empty string signifies no error from PureScript process
+                        -- assertEqual ("Error from PureScript, parsing: " <> input) "" err
 
                         -- compare the value parsed by Purescipt to the
                         -- source value in Haskell
-                        assertEqual ("Mismatch between value sent to Purescript and value returned: " <> output) (Right testData)
+                        assertEqual ("Mismatch between value sent to PureScript and value returned: " <> output) (Right testData)
                           . eitherDecode @TestData
                           $ fromString output
 

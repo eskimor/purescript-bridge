@@ -154,7 +154,7 @@ import           Language.PureScript.Bridge.SumType as Bridge (CustomInstance (.
                                                                getUsedTypes,
                                                                importsFromList,
                                                                instanceToImportLines,
-                                                               jsonHelper,
+                                                               jsonHelpers,
                                                                lenses,
                                                                memberBindings,
                                                                memberBody,
@@ -195,7 +195,7 @@ import           Language.PureScript.Bridge.TypeInfo as Bridge (HasHaskType (..)
   > data Bar = A | B | C deriving (Eq, Ord, Generic)
   > data Baz = ... deriving (Generic)
   >
-  > -- | All types will have a `Generic` instance produced in Purescript.
+  > -- | All types will have a `Generic` instance produced in PureScript.
   > myTypes :: [SumType 'Haskell]
   > myTypes =
   >   [ equal (mkSumType @Foo)  -- Also produce a `Eq` instance.

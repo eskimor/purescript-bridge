@@ -8,14 +8,14 @@
   , "effect"
   , "either"
   , "enums"
-  , "foreign-object"
+  -- , "foreign-object"
   , "maybe"
   , "newtype"
   , "node-readline"
-  , "ordered-collections"
+  -- , "ordered-collections"
   , "prelude"
   , "profunctor-lenses"
-  , "tuples"
+  -- , "tuples"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]

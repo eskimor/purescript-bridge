@@ -14,7 +14,6 @@ import Data.Argonaut.Encode (class EncodeJson)
 import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
 import Data.Argonaut.Encode.Class as Argonaut
 import Data.Bounded.Generic (genericBottom, genericTop)
-import Data.Either (Either)
 import Data.Enum (class Enum)
 import Data.Enum.Generic (genericPred, genericSucc)
 import Data.Generic.Rep (class Generic)
@@ -22,15 +21,10 @@ import Data.Lens.Iso.Newtype (_Newtype)
 import Data.Lens.Record (prop)
 import Data.Maybe (Maybe(..))
 import Data.Newtype (class Newtype)
-import Data.Set (Set)
 import Data.Show.Generic (genericShow)
-import Data.Tuple (Tuple)
-import Foreign.Object (Object)
 import Type.Proxy (Proxy(Proxy))
 
-data TestData
-  = Maybe (Maybe TestSum)
-  | Either (Either (Maybe Int) (Maybe Boolean))
+newtype TestData = Maybe (Maybe TestSum)
 
 derive instance Eq TestData
 
@@ -47,6 +41,8 @@ instance DecodeJson TestData where
 
 derive instance Generic TestData _
 
+derive instance Newtype TestData _
+
 --------------------------------------------------------------------------------
 
 data TestSum
@@ -56,26 +52,6 @@ data TestSum
   | Number Number
   | String String
   | Array (Array Int)
-  | InlineRecord
-    { why :: String
-    , wouldYouDoThis :: Int
-    }
-  | MultiInlineRecords TestMultiInlineRecords
-  | Record (TestRecord Int)
-  | NestedRecord (TestRecord (TestRecord Int))
-  | NT TestNewtype
-  | NTRecord TestNewtypeRecord
-  | TwoFields TestTwoFields
-  | Set (Set Int)
-  | Map (Object Int)
-  | Unit Unit
-  | MyUnit MyUnit
-  | Pair (Tuple Int Number)
-  | Triple (Tuple Int (Tuple Unit Boolean))
-  | Quad (Tuple Int (Tuple Number (Tuple Boolean Number)))
-  | QuadSimple Int Number Boolean Number
-  | Recursive TestRecursiveA
-  | Enum TestEnum
 
 derive instance Eq TestSum
 

@@ -5,7 +5,6 @@
 {-# LANGUAGE MultiParamTypeClasses      #-}
 {-# LANGUAGE OverloadedStrings          #-}
 {-# LANGUAGE RankNTypes                 #-}
-{-# LANGUAGE TypeSynonymInstances       #-}
 
 {- | A bridge builder DSL, powered by 'Monad', 'Alternative' and lens.
 

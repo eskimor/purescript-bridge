@@ -5,7 +5,6 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TypeApplications      #-}
-{-# LANGUAGE TypeSynonymInstances  #-}
 
 module Main where
 
@@ -14,13 +13,26 @@ import           Data.Monoid ((<>))
 import           Data.Text (Text)
 import qualified Data.Text as T
 import           Data.Word (Word, Word64)
-import           Language.PureScript.Bridge
-import           Language.PureScript.Bridge.TypeParameters
+import           Language.PureScript.Bridge (CustomInstance (CustomInstance),
+                                             Instance (Custom),
+                                             InstanceImplementation (Derive, DeriveNewtype, Explicit),
+                                             InstanceMember (InstanceMember),
+                                             Language (Haskell, PureScript),
+                                             Modules, SumType (..),
+                                             TypeInfo (TypeInfo, _typeModule, _typeName, _typePackage, _typeParameters),
+                                             bridgeSumType, buildBridge,
+                                             defaultBridge, equal, equal1,
+                                             functor, genericShow, mkSumType,
+                                             mkTypeInfo, moduleToText, order,
+                                             renderText, sumTypeToDocs,
+                                             sumTypeToModule)
+import           Language.PureScript.Bridge.TypeParameters (A, B, C, M1)
 import qualified RoundTripArgonautAesonGeneric.Spec (roundtripSpec)
 import qualified RoundTripJsonHelpers.Spec (roundtripSpec)
 import           Test.Hspec (Spec, describe, hspec, it)
-import           Test.Hspec.Expectations.Pretty
-import           TestData
+import           Test.Hspec.Expectations.Pretty (Expectation, shouldBe)
+import           TestData (Bar, Foo, Func, Simple, SingleProduct, SingleRecord,
+                           SingleValueConstr, SomeNewtype)
 import           Text.PrettyPrint.Leijen.Text (Doc, cat, linebreak, punctuate,
                                                vsep)
 
@@ -34,7 +46,7 @@ import           Text.PrettyPrint.Leijen.Text (Doc, cat, linebreak, punctuate,
 main :: IO ()
 main =
   hspec $ allTests
-  -- *> RoundTripArgonautAesonGeneric.Spec.roundtripSpec
+  *> RoundTripArgonautAesonGeneric.Spec.roundtripSpec
   *> RoundTripJsonHelpers.Spec.roundtripSpec
 
 custom :: SumType 'Haskell -> SumType 'Haskell
@@ -324,7 +336,3 @@ allTests = do
 
 shouldRender :: Doc -> Text -> Expectation
 shouldRender actual expected = renderText actual `shouldBe` T.stripEnd expected
-
-                        -- , "instance Show Foo where"
-                        -- , "  show a = genericShow a"
-                        -- , ""

@@ -290,7 +290,7 @@ constructorToDoc (DataConstructor n args) =
             Normal ts -> NE.toList $ typeInfoToDoc <$> ts
             Record rs -> [vrecord $ fieldSignatures rs]
 
-{- | Given a Purescript type, generate instances for typeclass instances it claims to have.
+{- | Given a PureScript type, generate instances for typeclass instances it claims to have.
 -}
 instances :: SumType 'PureScript -> [Doc]
 instances st@(SumType t _ is) = go <$> is
@@ -363,7 +363,7 @@ instances st@(SumType t _ is) = go <$> is
             decodeJsonConstraints
             ["decodeJson = defer \\_ -> genericDecodeAeson Argonaut.defaultOptions"]
     {-|
-      This relies on unpublished Purescript library `purescript-bridge-json-helpers`:
+      This relies on unpublished PureScript library `purescript-bridge-json-helpers`:
       https://github.com/input-output-hk/purescript-bridge-json-helpers
       and `purescript-argonaut-codecs`
       https://pursuit.purescript.org/packages/purescript-argonaut-codecs

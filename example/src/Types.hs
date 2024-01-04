@@ -43,7 +43,6 @@ instance ToJSON Baz where
       }
     )
 
-
 makeLenses ''Baz
 
 data TestSum
@@ -119,9 +118,8 @@ myBridge = defaultBridge
 additionalInstances = lenses
   . genericShow
   . argonautAesonGeneric
-
-  -- . jsonHelper
-  -- To use json-helpers with the example, a modification is necessary
+  -- . jsonHelpers
+  -- To use json-helpers with the example, more work is needed
   -- in Main.purs
 
 myTypes :: [SumType 'Haskell]

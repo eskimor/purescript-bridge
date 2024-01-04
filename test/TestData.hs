@@ -6,17 +6,24 @@
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RankNTypes            #-}
 {-# LANGUAGE TypeApplications      #-}
-{-# LANGUAGE TypeSynonymInstances  #-}
 
 module TestData where
 
 import           Data.Functor.Classes (Eq1 (liftEq))
-import           Data.Proxy
+import           Data.Proxy ()
 import           Data.Text (Text)
-import           Data.Typeable
+import           Data.Typeable (Typeable)
 import           GHC.Generics (Generic)
-import           Language.PureScript.Bridge
-import           Language.PureScript.Bridge.PSTypes
+import           Language.PureScript.Bridge (BridgePart, DataConstructor,
+                                             FullBridge, HasHaskType (haskType),
+                                             HaskellType,
+                                             Language (Haskell, PureScript),
+                                             PSType, SumType (..), TypeInfo,
+                                             bridgeSumType, buildBridge,
+                                             defaultBridge, mkSumType,
+                                             mkTypeInfo, typeModule, typeName,
+                                             (<|>), (^==))
+import           Language.PureScript.Bridge.PSTypes (psString)
 
 -- Check that examples compile:
 textBridge :: BridgePart

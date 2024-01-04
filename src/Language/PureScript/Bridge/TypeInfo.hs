@@ -7,7 +7,6 @@
 {-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TemplateHaskell            #-}
 {-# LANGUAGE TypeApplications           #-}
-{-# LANGUAGE TypeSynonymInstances       #-}
 
 module Language.PureScript.Bridge.TypeInfo
     ( TypeInfo (..)
