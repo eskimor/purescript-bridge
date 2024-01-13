@@ -183,55 +183,8 @@ moduleToText m =
                 ]
                     <> punctuate (line <> line <> dashes <> line) (sumTypeToDocs =<< psTypes m)
   where
-    -- mergeImportLines :: ImportLines -> ImportLines -> ImportLines
-    -- mergeImportLines = Map.unionWith mergeLines
-    --   where
-    --     mergeLines a b =
-    --         ImportLine (importModule a) (importAlias a) (importTypes a `Set.union` importTypes b)
     allImports = Map.elems $ psImportLines m
     dashes = textStrict (T.replicate 80 "-")
-
-
--- importLineToText :: ImportLine -> Text
--- importLineToText = \case
---     ImportLine importModule Nothing importTypes ->
---         "import " <> importModule <> " (" <> typeList importTypes <> ")"
---     ImportLine importModule (Just importAlias) _ ->
---         "import " <> importModule <> " as " <> importAlias
---   where
---     typeList s = T.intercalate ", " (Set.toList s)
-
--- sumTypeToText :: Switches.Settings -> SumType 'PureScript -> Text
--- sumTypeToText settings st = let
---     additionalCode =
---         if Switches.generateLenses settings then lenses else mempty
---     lenses = "\n" <> sep <> "\n" <> sumTypeToOptics st <> sep
---     sep = T.replicate 80 "-"
---   in sumTypeToTypeDecls settings st <> additionalCode
-
--- sumTypeToTypeDecls :: Switches.Settings -> SumType 'PureScript -> Text
--- sumTypeToTypeDecls settings (SumType t cs is) =
---     T.unlines $
---         dataOrNewtype <> " " <> typeInfoToText True t <> " ="
---             : "    " <> T.intercalate "\n  | " (map (constructorToText 4) cs) <> "\n"
---             : instances settings (SumType t cs (filter genForeign . filter genArgonautCodec $ is))
---   where
---     dataOrNewtype = if isJust (nootype cs) then "newtype" else "data"
---     genForeign :: Instance -> Bool
---     genForeign = \case
---         Encode -> check
---         Decode -> check
---         _ -> True
---       where
---         check = (isJust . Switches.generateForeign) settings
-
---     genArgonautCodec :: Instance -> Bool
---     genArgonautCodec = \case
---         EncodeJson -> check
---         DecodeJson -> check
---         _ -> True
---       where
---         check = Switches.generateArgonautCodecs settings
 
 qualifiedImportToText :: Text -> Text -> Doc
 qualifiedImportToText m q = hsep ["import", textStrict m, "as", textStrict q]
@@ -485,61 +438,8 @@ sumTypeToEncode (SumType _ cs _)
 isTypeParam :: PSType -> PSType -> Bool
 isTypeParam t typ = _typeName typ `elem` map _typeName (_typeParameters t)
 
--- genericInstance :: Switches.Settings -> PSType -> Text
--- genericInstance settings params =
---     if not (Switches.genericsGenRep settings)
---         then "Generic " <> typeInfoToText False params
---         else "Generic " <> typeInfoToText False params <> " r" <> mergedTypeInfoToText params
-
--- sumTypeToOptics :: SumType 'PureScript -> Text
--- sumTypeToOptics st = constructorOptics st <> recordOptics st
-
--- constructorOptics :: SumType 'PureScript -> Text
--- constructorOptics st =
---     case st ^. sumTypeConstructors of
---         []  -> mempty -- No work required.
---         [c] -> constructorToOptic False typeInfo c
---         cs  -> T.unlines $ map (constructorToOptic True typeInfo) cs
---   where
---     typeInfo = st ^. sumTypeInfo
-
--- recordOptics :: SumType 'PureScript -> Text
--- -- Match on SumTypes with a single DataConstructor (that's a list of a single element)
--- recordOptics st@(SumType _ [_] _) = T.unlines $ recordEntryToLens st <$> dcRecords
---   where
---     cs = st ^. sumTypeConstructors
---     dcRecords = lensableConstructor ^.. traversed . sigValues . _Right . traverse . filtered hasUnderscore
---     hasUnderscore e = e ^. recLabel . to (T.isPrefixOf "_")
---     lensableConstructor = filter singleRecordCons cs ^? _head
---     singleRecordCons (DataConstructor _ (Right _)) = True
---     singleRecordCons _                             = False
--- recordOptics _ = ""
-
--- constructorToText :: Int -> DataConstructor 'PureScript -> Text
--- constructorToText _ (DataConstructor n (Left [])) = n
--- constructorToText _ (DataConstructor n (Left ts)) = n <> " " <> T.intercalate " " (map (typeInfoToText False) ts)
--- constructorToText indentation (DataConstructor n (Right rs)) =
---     n
---         <> " {\n"
---         <> spaces (indentation + 2)
---         <> T.intercalate intercalation (map recordEntryToText rs)
---         <> "\n"
---         <> spaces indentation
---         <> "}"
---   where
---     intercalation = "\n" <> spaces indentation <> "," <> " "
-
 spaces :: Int -> Text
 spaces c = T.replicate c " "
-
--- typeNameAndForall :: TypeInfo 'PureScript -> (Text, Text)
--- typeNameAndForall typeInfo = (typName, forAll)
---   where
---     typName = typeInfoToText False typeInfo
---     forAllParams = typeInfo ^.. typeParameters . traversed . to (typeInfoToText False)
---     forAll = case forAllParams of
---         [] -> " :: "
---         cs -> " :: forall " <> T.intercalate " " cs <> ". "
 
 fromEntries :: (RecordEntry a -> Text) -> [RecordEntry a] -> Text
 fromEntries mkElem rs = "{ " <> inners <> " }"
@@ -549,45 +449,6 @@ fromEntries mkElem rs = "{ " <> inners <> " }"
 mkFnArgs :: [RecordEntry 'PureScript] -> Text
 mkFnArgs [r] = r ^. recLabel
 mkFnArgs rs = fromEntries (\recE -> recE ^. recLabel <> ": " <> recE ^. recLabel) rs
-
--- mkTypeSig :: [RecordEntry 'PureScript] -> Text
--- mkTypeSig []  = "Unit"
--- mkTypeSig [r] = typeInfoToText False $ r ^. recValue
--- mkTypeSig rs  = fromEntries recordEntryToText rs
-
--- constructorToOptic :: Bool -> TypeInfo 'PureScript -> DataConstructor 'PureScript -> Text
--- constructorToOptic otherConstructors typeInfo (DataConstructor n args) =
---     case (args, otherConstructors) of
---         (Left [c], False) ->
---             pName
---                 <> forAll
---                 <> "Iso' "
---                 <> typName
---                 <> " "
---                 <> mkTypeSig (constructorTypes [c])
---                 <> "\n"
---                 <> pName
---                 <> " = _Newtype"
---                 <> "\n"
---         (Left cs, _) ->
---             pName
---                 <> forAll
---                 <> "Prism' "
---                 <> typName
---                 <> " "
---                 <> mkTypeSig types
---                 <> "\n"
---                 <> pName
---                 <> " = prism' "
---                 <> getter
---                 <> " f\n"
---                 <> spaces 2
---                 <> "where\n"
---                 <> spaces 4
---                 <> "f "
---                 <> mkF cs
---                 <> otherConstructorFallThrough
---                 <> "\n"
 
 flattenTuple :: [PSType] -> [PSType]
 flattenTuple [] = []
@@ -718,19 +579,6 @@ constructorToOptic hasOtherConstructors typeInfo (DataConstructor n args) =
             | hasOtherConstructors -> prism pName typeInfo toType fromExpr toExpr toMorph
             | otherwise -> iso pName typeInfo toType fromMorph toMorph
           where
-        --     fields' = fields $ typesToRecord ts
-        --     toType = recordType $ typesToRecord ts
-        --     fromExpr = parens $ normalPattern n ts
-        --     toExpr = hrecord fields'
-        --     fromMorph = parens $ lambda fromExpr toExpr
-        --     toMorph = parens $ lambda toExpr fromExpr
-        -- (Record rs, False) -> newtypeIso pName typeInfo $ recordType rs
-        -- (Record rs, True) ->
-        --     prism pName typeInfo (recordType rs) fromExpr toExpr cName
-        --   where
-        --     fromExpr = parens $ pattern n toExpr
-        --     toExpr = "a"
-
             fields' = fields $ typesToRecord ts
             toType = recordType $ typesToRecord ts
             fromExpr = parens $ normalPattern n ts
