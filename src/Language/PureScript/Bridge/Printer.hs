@@ -1,7 +1,6 @@
 {-# LANGUAGE BlockArguments    #-}
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE KindSignatures    #-}
-{-# LANGUAGE LambdaCase        #-}
 {-# LANGUAGE OverloadedLists   #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE RecordWildCards   #-}

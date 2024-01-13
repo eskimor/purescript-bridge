@@ -32,8 +32,7 @@ import           Test.QuickCheck (Arbitrary (..), chooseEnum, oneof, resize,
                                   sized)
 
 -- TODO resolve Argonaut-Aeson incompatiblity
-data TestData
-  = Maybe (Maybe TestSum)
+data TestData = Maybe (Maybe TestSum)
   -- | Either (Either (Maybe Int) (Maybe Bool))
   deriving (Eq, Generic, Ord, Show)
 

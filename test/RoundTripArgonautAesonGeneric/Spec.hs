@@ -18,8 +18,8 @@ import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (..), SumType,
                                              argonautAesonGeneric, buildBridge,
                                              defaultBridge, equal, functor,
-                                             genericShow, jsonHelpers, mkSumType,
-                                             order, writePSTypes,
+                                             genericShow, jsonHelpers,
+                                             mkSumType, order, writePSTypes,
                                              writePSTypesWith)
 import           Language.PureScript.Bridge.TypeParameters (A)
 import           RoundTripArgonautAesonGeneric.Types (MyUnit, TestData,
