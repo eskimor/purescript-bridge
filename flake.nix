@@ -1,6 +1,7 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/haskell-updates";
+    # nixpkgs.url = "github:nixos/nixpkgs/haskell-updates";
+    nixpkgs.url = "github:nixos/nixpkgs";
     flake-parts.url = "github:hercules-ci/flake-parts";
     haskell-flake.url = "github:srid/haskell-flake";
     check-flake.url = "github:srid/check-flake";
@@ -33,25 +34,17 @@
             purescript-bridge.check = false;
             example.check = true;
             # https://community.flake.parts/haskell-flake/dependency#nixpkgs
-            floskell = { super, ... }:
-              { custom = _: super.floskell_0_11_0; };
-            aeson = { super, ... }:
-              { custom = _: super.aeson_2_2_1_0; };
-            aeson-pretty = { super, ... }:
-              { custom = _: super.aeson-pretty_0_8_10; };
+            # aeson = { super, ... }:
+            #   { custom = _: super.aeson_2_2_1_0; };
           };
           packages = {
-            attoparsec-aeson.source = "2.2.0.1";
-            servant.source = "0.20.1";
-            servant-server.source = "0.20";
-            th-abstraction.source = "0.5.0.0";
-            http-conduit.source = "2.3.8.3";
+            # servant.source = "0.20.1";
           };
           devShell = {
             enable = true;
             tools = haskellPackages: {
-              # disable until NixPkgs-available Floskell compatible with Aeson 2.2
-              haskell-language-server = null;
+              # how to disable a package
+              # haskell-language-server = null;
               inherit (haskellPackages) zlib stylish-haskell;
             };
             hlsCheck.enable = false;
