@@ -220,7 +220,7 @@ derive instance (Eq a) => Eq (TestRecord a)
 
 derive instance (Ord a) => Ord (TestRecord a)
 
-instance (Show a) => Show (TestRecord a) where
+instance Show (TestRecord a) where
   show a = genericShow a
 
 instance (EncodeJson a) => EncodeJson (TestRecord a) where

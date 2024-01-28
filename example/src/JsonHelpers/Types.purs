@@ -143,7 +143,7 @@ instance (DecodeJson a, DecodeJsonField a) => DecodeJson (Bar a) where
 
 
 
-instance (Show a) => Show (Bar a) where
+instance Show (Bar a) where
   show a = genericShow a
 
 derive instance Generic (Bar a) _

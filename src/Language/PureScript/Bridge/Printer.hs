@@ -365,8 +365,9 @@ eqConstraints = constrainWith "Eq"
 ordConstraints :: PSType -> [PSType]
 ordConstraints = constrainWith "Ord"
 
+-- https://github.com/eskimor/purescript-bridge/pull/89#issuecomment-1890994859
 showConstraints :: PSType -> [PSType]
-showConstraints = constrainWith "Show"
+showConstraints _ = mempty -- constrainWith "Show"
 
 decodeJsonConstraints :: PSType -> [PSType]
 decodeJsonConstraints psType =
