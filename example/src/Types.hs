@@ -21,8 +21,8 @@ import           Data.Typeable (Typeable)
 import           GHC.Generics (Generic)
 import           Language.PureScript.Bridge (BridgePart, Language (Haskell),
                                              argonautAesonGeneric,
-                                             defaultBridge, genericShow, lenses,
-                                             mkSumType)
+                                             defaultBridge, genericShow,
+                                             jsonHelpers, lenses, mkSumType)
 import           Language.PureScript.Bridge.PSTypes ()
 import           Language.PureScript.Bridge.SumType (SumType)
 import           Language.PureScript.Bridge.TypeParameters (A)
@@ -112,21 +112,7 @@ data Bar a = Bar a
 
 makeLenses ''Bar
 
+additionalInstances = lenses . genericShow
+
 myBridge :: BridgePart
 myBridge = defaultBridge
-
-additionalInstances = lenses
-  . genericShow
-  . argonautAesonGeneric
-  -- . jsonHelpers
-  -- To use json-helpers with the example, more work is needed
-  -- in Main.purs
-
-myTypes :: [SumType 'Haskell]
-myTypes =
-  [ additionalInstances $ mkSumType @Baz
-  , additionalInstances $ mkSumType @Foo
-  , additionalInstances $ mkSumType @(Bar A)
-  , additionalInstances $ mkSumType @TestSum
-  , additionalInstances $ mkSumType @TestData
-  ]

@@ -9,7 +9,7 @@ build-type:          Simple
 extra-source-files:  CHANGELOG.md
 
 library
-  exposed-modules:     MyLib, Types
+  exposed-modules:     MyLib, Types, ArgonautTypes, JsonHelpersTypes
   hs-source-dirs:      src
   build-depends:       base >=4.8 && <5
                      , aeson >= 1.5.5.0

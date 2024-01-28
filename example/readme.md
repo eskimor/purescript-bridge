@@ -1,11 +1,18 @@
 # PureScript Bridge example
 
-This project demonstrates the libraries PureScript Bridge and [`purescript-argonaut-aeson-generic`](https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic) ([GitHub](https://github.com/coot/purescript-argonaut-aeson-generic))
+This project demonstrates:
+- PureScript Bridge
+- [`purescript-argonaut-aeson-generic`](https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic) ([GitHub](https://github.com/coot/purescript-argonaut-aeson-generic))
+- [`input-output-hk/purescript-bridge-json-helpers`](https://github.com/input-output-hk/purescript-bridge-json-helpers.git)
 
-It does not use [`input-output-hk/purescript-bridge-json-helpers`](https://github.com/input-output-hk/purescript-bridge-json-helpers.git).
-To demonstrate this library in the example, more work is needed in `Main.purs`.
+The Haskell type `Foo`, in `src/Types.hs`, is generated for PureScript by PureScript Bridge. Some of values in `Foo` are randomly generated every time the page is loaded.
 
-The Haskell type `Foo`, in `src/Types.hs`, is generated for PureScript by PureScript Bridge. Some of values in `Foo` are randomly generated every time the page is loaded. `purescript-argonaut-aeson-generic` is used to decode and encode this payload, client-side. The client modifies some of the payload's values and sends it back to the server.
+On page load, the client:
+- requests a `Foo` from the server
+- decodes this value using `purescript-argonaut-aeson-generic`
+- modifies some of the values
+- encodes this with `purescript-argonaut-aeson-generic`, and sends it back to the server
+- repeats these steps, encoding and decoding instead with `json-helpers`
 
 # Dependencies
 ## Nix

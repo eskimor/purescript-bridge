@@ -11,6 +11,8 @@
   , "control"
   , "effect"
   , "either"
+  , "tuples"
+  , "json-helpers"
   , "foldable-traversable"
   , "foreign-generic"
   , "foreign-object"

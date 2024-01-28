@@ -7,6 +7,4 @@ import qualified MyLib (main)
 import           Types
 
 main :: IO ()
-main = do
-  writePSTypesWith "src" (buildBridge myBridge) myTypes
-  MyLib.main
+main = MyLib.main

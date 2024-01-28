@@ -19,7 +19,9 @@ There are three PureScript libraries which can interface with Aeson through Pure
 
 Enable this on the Haskell side with `Language.PureScript.Bridge.SumType.jsonHelpers`.
 
-* see `./test/RoundTripJsonHelpers` for example
+
+* this library is demonstrated by the `example`; see `./example/readme.md`.
+* see `./test/RoundTripJsonHelpers` for an additional example
 * sample Dhall config (for [spago-legacy](https://github.com/purescript/spago-legacy)):
 ```
 , json-helpers =
@@ -55,18 +57,16 @@ Enable this on the Haskell side with `Language.PureScript.Bridge.SumType.jsonHel
   , version = "486db9ee62882baa42cca24f556848c5f6bec565"
   }
 ```
-
 #### [`purescript-argonaut-aeson-generic >=0.4.1`](https://pursuit.purescript.org/packages/purescript-argonaut-aeson-generic/0.4.1) ([GitHub](https://github.com/coot/purescript-argonaut-aeson-generic))
 
 Enable this on the Haskell side with `Language.PureScript.Bridge.SumType.argonautAesonGeneric`.
-
-This library is demonstrated by the `example`; see `./example/readme.md`.
 
 **TODO**: [resolve incompatibility between Argonaut and Aeson](https://github.com/purescript-contrib/purescript-argonaut-codecs/issues/115)
 
 **Additional requirement**: [`peterbecich/purescript-argonaut-codecs`](https://github.com/peterbecich/purescript-argonaut-codecs.git)
 * commit `04abb3eb24a4deafe125be0eb23e2786c642e66b`
-* see `./test/RoundTripArgonautAesonGeneric` for example
+* this library is demonstrated by the `example`; see `./example/readme.md`.
+* see `./test/RoundTripArgonautAesonGeneric` for additional example
   * note that some types have been disabled from the `RoundTripArgonautAesonGeneric` test
     * `RoundTripJsonHelpers` tests more types
   * the types tested can be expanded when the incompatibility issue is resolved
