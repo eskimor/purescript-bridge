@@ -16,7 +16,10 @@ import Data.Argonaut.Encode.Aeson ((>$<), (>/\<))
 import Data.Argonaut.Encode.Aeson as E
 import Data.Argonaut.Encode.Class (class EncodeJson, encodeJson)
 import Data.Argonaut.Encode.Class as Argonaut
+import Data.Bounded.Generic (genericBottom, genericTop)
 import Data.Either (Either)
+import Data.Enum (class Enum)
+import Data.Enum.Generic (genericPred, genericSucc)
 import Data.Generic.Rep (class Generic)
 import Data.Lens (Iso', Lens', Prism', iso, lens, prism')
 import Data.Lens.Iso.Newtype (_Newtype)
@@ -42,7 +45,7 @@ instance DecodeJson Baz where
 
 
 instance Show Baz where
-  show a = genericShow a
+  show = genericShow
 
 derive instance Generic Baz _
 
@@ -55,6 +58,61 @@ _Baz = _Newtype
 
 bazMessage :: Lens' Baz String
 bazMessage = _Newtype <<< prop (Proxy :: _"_bazMessage")
+
+--------------------------------------------------------------------------------
+
+data ID a = ID
+
+-- instance (EncodeJson a) => EncodeJson (ID a) where
+--   encodeJson = defer \_ -> E.encode E.enum
+
+-- instance (DecodeJson a, DecodeJsonField a) => DecodeJson (ID a) where
+--   decodeJson = defer \_ -> D.decode D.enum
+
+
+
+instance Show (ID a) where
+  show = genericShow
+
+derive instance Generic (ID a) _
+
+-- instance Enum (ID a) where
+--   succ = genericSucc
+--   pred = genericPred
+
+-- instance Bounded (ID a) where
+--   bottom = genericBottom
+--   top = genericTop
+
+--------------------------------------------------------------------------------
+
+_ID :: forall a. Iso' (ID a) Unit
+_ID = iso (const unit) (const ID)
+
+--------------------------------------------------------------------------------
+
+newtype ID2 a = ID2 { getID :: Int }
+
+instance (EncodeJson a) => EncodeJson (ID2 a) where
+  encodeJson = defer \_ -> E.encode $ unwrap >$< (E.record
+                                                 { getID: E.value :: _ Int })
+
+instance (DecodeJson a, DecodeJsonField a) => DecodeJson (ID2 a) where
+  decodeJson = defer \_ -> D.decode $ (ID2 <$> D.record "ID2" { getID: D.value :: _ Int })
+
+
+
+instance Show (ID2 a) where
+  show = genericShow
+
+derive instance Generic (ID2 a) _
+
+derive instance Newtype (ID2 a) _
+
+--------------------------------------------------------------------------------
+
+_ID2 :: forall a. Iso' (ID2 a) {getID :: Int}
+_ID2 = _Newtype
 
 --------------------------------------------------------------------------------
 
@@ -96,7 +154,7 @@ instance DecodeJson Foo where
 
 
 instance Show Foo where
-  show a = genericShow a
+  show = genericShow
 
 derive instance Generic Foo _
 
@@ -143,8 +201,8 @@ instance (DecodeJson a, DecodeJsonField a) => DecodeJson (Bar a) where
 
 
 
-instance Show (Bar a) where
-  show a = genericShow a
+instance (Show a) => Show (Bar a) where
+  show = genericShow
 
 derive instance Generic (Bar a) _
 
@@ -182,7 +240,7 @@ instance DecodeJson TestSum where
 
 
 instance Show TestSum where
-  show a = genericShow a
+  show = genericShow
 
 derive instance Generic TestSum _
 
@@ -229,7 +287,7 @@ instance DecodeJson TestData where
 
 
 instance Show TestData where
-  show a = genericShow a
+  show = genericShow
 
 derive instance Generic TestData _
 

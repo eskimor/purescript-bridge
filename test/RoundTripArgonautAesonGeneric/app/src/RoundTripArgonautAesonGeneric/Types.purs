@@ -31,7 +31,7 @@ derive instance Eq TestData
 derive instance Ord TestData
 
 instance Show TestData where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson TestData where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -58,7 +58,7 @@ derive instance Eq TestSum
 derive instance Ord TestSum
 
 instance Show TestSum where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson TestSum where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -79,7 +79,7 @@ derive instance Eq TestRecursiveA
 derive instance Ord TestRecursiveA
 
 instance Show TestRecursiveA where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson TestRecursiveA where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -98,7 +98,7 @@ derive instance Eq TestRecursiveB
 derive instance Ord TestRecursiveB
 
 instance Show TestRecursiveB where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson TestRecursiveB where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -123,8 +123,8 @@ derive instance (Eq a) => Eq (TestRecord a)
 
 derive instance (Ord a) => Ord (TestRecord a)
 
-instance Show (TestRecord a) where
-  show a = genericShow a
+instance (Show a) => Show (TestRecord a) where
+  show = genericShow
 
 instance (EncodeJson a) => EncodeJson (TestRecord a) where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -145,7 +145,7 @@ derive instance Eq TestNewtype
 derive instance Ord TestNewtype
 
 instance Show TestNewtype where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson TestNewtype where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -166,7 +166,7 @@ derive instance Eq TestNewtypeRecord
 derive instance Ord TestNewtypeRecord
 
 instance Show TestNewtypeRecord where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson TestNewtypeRecord where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -195,7 +195,7 @@ derive instance Eq TestMultiInlineRecords
 derive instance Ord TestMultiInlineRecords
 
 instance Show TestMultiInlineRecords where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson TestMultiInlineRecords where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -214,7 +214,7 @@ derive instance Eq TestTwoFields
 derive instance Ord TestTwoFields
 
 instance Show TestTwoFields where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson TestTwoFields where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -240,7 +240,7 @@ derive instance Eq TestEnum
 derive instance Ord TestEnum
 
 instance Show TestEnum where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson TestEnum where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions
@@ -267,7 +267,7 @@ derive instance Eq MyUnit
 derive instance Ord MyUnit
 
 instance Show MyUnit where
-  show a = genericShow a
+  show = genericShow
 
 instance EncodeJson MyUnit where
   encodeJson = defer \_ -> genericEncodeAeson Argonaut.defaultOptions

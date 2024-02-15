@@ -14,6 +14,8 @@ import           Types
 myJsonHelpersTypes :: [SumType 'Haskell]
 myJsonHelpersTypes =
   [ jsonHelpers . additionalInstances $ mkSumType @Baz
+  , jsonHelpers . additionalInstances $ mkSumType @(ID A)
+  , jsonHelpers . additionalInstances $ mkSumType @(ID2 A)
   , jsonHelpers . additionalInstances $ mkSumType @Foo
   , jsonHelpers . additionalInstances $ mkSumType @(Bar A)
   , jsonHelpers . additionalInstances $ mkSumType @TestSum
