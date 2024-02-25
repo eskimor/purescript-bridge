@@ -32,6 +32,7 @@
           basePackages = pkgs.haskellPackages;
           settings = {
             purescript-bridge.check = false;
+            purescript-bridge.extraBuildDepends = [ pkgs.spago ];
             example.check = true;
             # https://community.flake.parts/haskell-flake/dependency#nixpkgs
             # aeson = { super, ... }:

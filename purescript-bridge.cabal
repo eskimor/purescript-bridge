@@ -10,6 +10,14 @@ build-type:          Simple
 cabal-version:       >=1.10
 
 extra-source-files: README.md
+                  , test/RoundTripJsonHelpers/app/*.yaml
+                  , test/RoundTripJsonHelpers/app/*.lock
+                  , test/RoundTripJsonHelpers/app/src/*.purs
+                  , test/RoundTripJsonHelpers/app/src/RoundTripJsonHelpers/*.purs
+                  , test/RoundTripArgonautAesonGeneric/app/*.yaml
+                  , test/RoundTripArgonautAesonGeneric/app/*.lock
+                  , test/RoundTripArgonautAesonGeneric/app/src/*.purs
+                  , test/RoundTripArgonautAesonGeneric/app/src/RoundTripArgonautAesonGeneric/*.purs
 
 source-repository head
   type:     git
