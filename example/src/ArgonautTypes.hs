@@ -14,6 +14,8 @@ import           Types
 myArgonautTypes :: [SumType 'Haskell]
 myArgonautTypes =
   [ argonautAesonGeneric . additionalInstances $ mkSumType @Baz
+  , argonautAesonGeneric . additionalInstances $ mkSumType @(ID A)
+  , argonautAesonGeneric . additionalInstances $ mkSumType @(ID2 A)
   , argonautAesonGeneric . additionalInstances $ mkSumType @Foo
   , argonautAesonGeneric . additionalInstances $ mkSumType @(Bar A)
   , argonautAesonGeneric . additionalInstances $ mkSumType @TestSum

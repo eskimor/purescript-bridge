@@ -7,6 +7,10 @@
 
 module Language.PureScript.Bridge.Printer where
 
+import Debug.Trace
+import Data.Maybe (listToMaybe)
+import Data.Char (isLower)
+
 import           Control.Arrow ((&&&))
 import           Control.Lens (to, (%~), (<>~), (^.))
 import           Control.Monad (unless)
@@ -242,11 +246,27 @@ constructorToDoc (DataConstructor n args) =
             Normal ts -> NE.toList $ typeInfoToDoc <$> ts
             Record rs -> [vrecord $ fieldSignatures rs]
 
+getVariableFromTypeInfo :: TypeInfo 'PureScript -> Maybe Text
+getVariableFromTypeInfo ti =
+  let x = _typeName ti
+  in  case T.uncons x of
+        Nothing     -> Nothing
+        Just (f, _) -> if isLower f then Just x else Nothing
+
 {- | Given a PureScript type, generate instances for typeclass instances it claims to have.
 -}
 instances :: SumType 'PureScript -> [Doc]
-instances st@(SumType t _ is) = go <$> is
+instances st@(SumType t dcs is) = traceShow st $ go <$> is
   where
+    getVariablesFromDataConstructor :: DataConstructor 'PureScript -> [Text]
+    getVariablesFromDataConstructor dc = case _sigValues dc of
+      Nullary   -> []
+      Normal ne -> catMaybes $ NE.toList $ NE.map getVariableFromTypeInfo ne
+      Record re -> catMaybes $ NE.toList $ NE.map (getVariableFromTypeInfo . _recValue) re
+
+    usedVariables :: [Text]
+    usedVariables = concatMap getVariablesFromDataConstructor dcs
+
     mkConstraints :: (PSType -> [PSType]) -> [Doc]
     mkConstraints getConstraints = case getConstraints t of
         [] -> []
@@ -338,7 +358,7 @@ instances st@(SumType t _ is) = go <$> is
                     decodeJsonConstraints
                     [hang 2 $ "decodeJson = defer \\_ -> D.decode" <+> sumTypeToDecode st]
                 ]
-    go GenericShow = mkInstance (mkType "Show" [t]) showConstraints ["show a = genericShow a"]
+    go GenericShow = mkInstance (mkType "Show" [t]) (showConstraints usedVariables) ["show a = genericShow a"]
     go Functor = mkDerivedInstance (mkType "Functor" [toKind1 t]) (const [])
     go Eq = mkDerivedInstance (mkType "Eq" [t]) eqConstraints
     go Eq1 = mkDerivedInstance (mkType "Eq1" [toKind1 t]) (const [])
@@ -365,8 +385,12 @@ eqConstraints = constrainWith "Eq"
 ordConstraints :: PSType -> [PSType]
 ordConstraints = constrainWith "Ord"
 
-showConstraints :: PSType -> [PSType]
-showConstraints = constrainWith "Show"
+-- https://github.com/eskimor/purescript-bridge/pull/89#issuecomment-1890994859
+showConstraints :: [Text] -> PSType -> [PSType]
+showConstraints used_variable t =
+  let type_variables = catMaybes $ map getVariableFromTypeInfo $ _typeParameters t
+      used_type_variabled = filter (\v -> v `elem` used_variable) type_variables
+  in  map (\v -> mkType "Show" [mkType v []]) used_type_variabled
 
 decodeJsonConstraints :: PSType -> [PSType]
 decodeJsonConstraints psType =

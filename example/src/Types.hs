@@ -45,6 +45,15 @@ instance ToJSON Baz where
 
 makeLenses ''Baz
 
+-- https://github.com/eskimor/purescript-bridge/pull/89#issuecomment-1890994859
+data ID a = ID
+  deriving (Generic, Show)
+
+newtype ID2 a = ID2 {getID :: Int}
+  deriving (Generic, Show)
+
+
+
 data TestSum
   = Nullary
   | Bool Bool
