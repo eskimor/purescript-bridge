@@ -38,7 +38,7 @@ instance DecodeJson Baz where
 
 
 instance Show Baz where
-  show = genericShow
+  show a = genericShow a
 
 derive instance Generic Baz _
 
@@ -65,7 +65,7 @@ instance (DecodeJson a, DecodeJsonField a) => DecodeJson (ID a) where
 
 
 instance Show (ID a) where
-  show = genericShow
+  show a = genericShow a
 
 derive instance Generic (ID a) _
 
@@ -95,7 +95,7 @@ instance (DecodeJson a, DecodeJsonField a) => DecodeJson (ID2 a) where
 
 
 instance Show (ID2 a) where
-  show = genericShow
+  show a = genericShow a
 
 derive instance Generic (ID2 a) _
 
@@ -128,7 +128,7 @@ instance DecodeJson Foo where
 
 
 instance Show Foo where
-  show = genericShow
+  show a = genericShow a
 
 derive instance Generic Foo _
 
@@ -176,7 +176,7 @@ instance (DecodeJson a, DecodeJsonField a) => DecodeJson (Bar a) where
 
 
 instance (Show a) => Show (Bar a) where
-  show = genericShow
+  show a = genericShow a
 
 derive instance Generic (Bar a) _
 
@@ -204,7 +204,7 @@ instance DecodeJson TestSum where
 
 
 instance Show TestSum where
-  show = genericShow
+  show a = genericShow a
 
 derive instance Generic TestSum _
 
@@ -245,7 +245,7 @@ instance DecodeJson TestData where
 
 
 instance Show TestData where
-  show = genericShow
+  show a = genericShow a
 
 derive instance Generic TestData _
 

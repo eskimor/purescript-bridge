@@ -43,7 +43,7 @@ derive instance Eq TestData
 derive instance Ord TestData
 
 instance Show TestData where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson TestData where
   encodeJson = defer \_ -> case _ of
@@ -94,7 +94,7 @@ derive instance Eq TestSum
 derive instance Ord TestSum
 
 instance Show TestSum where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson TestSum where
   encodeJson = defer \_ -> case _ of
@@ -170,7 +170,7 @@ derive instance Eq TestRecursiveA
 derive instance Ord TestRecursiveA
 
 instance Show TestRecursiveA where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson TestRecursiveA where
   encodeJson = defer \_ -> case _ of
@@ -195,7 +195,7 @@ derive instance Eq TestRecursiveB
 derive instance Ord TestRecursiveB
 
 instance Show TestRecursiveB where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson TestRecursiveB where
   encodeJson = defer \_ -> E.encode $ unwrap >$< E.value
@@ -221,7 +221,7 @@ derive instance (Eq a) => Eq (TestRecord a)
 derive instance (Ord a) => Ord (TestRecord a)
 
 instance (Show a) => Show (TestRecord a) where
-  show = genericShow
+  show a = genericShow a
 
 instance (EncodeJson a) => EncodeJson (TestRecord a) where
   encodeJson = defer \_ -> E.encode $ unwrap >$< (E.record
@@ -248,7 +248,7 @@ derive instance Eq TestNewtype
 derive instance Ord TestNewtype
 
 instance Show TestNewtype where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson TestNewtype where
   encodeJson = defer \_ -> E.encode $ unwrap >$< E.value
@@ -269,7 +269,7 @@ derive instance Eq TestNewtypeRecord
 derive instance Ord TestNewtypeRecord
 
 instance Show TestNewtypeRecord where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson TestNewtypeRecord where
   encodeJson = defer \_ -> E.encode $ unwrap >$< (E.record
@@ -299,7 +299,7 @@ derive instance Eq TestMultiInlineRecords
 derive instance Ord TestMultiInlineRecords
 
 instance Show TestMultiInlineRecords where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson TestMultiInlineRecords where
   encodeJson = defer \_ -> case _ of
@@ -338,7 +338,7 @@ derive instance Eq TestTwoFields
 derive instance Ord TestTwoFields
 
 instance Show TestTwoFields where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson TestTwoFields where
   encodeJson = defer \_ -> E.encode $ (case _ of TestTwoFields a b -> (a /\ b)) >$< (E.tuple (E.value >/\< E.value))
@@ -364,7 +364,7 @@ derive instance Eq TestEnum
 derive instance Ord TestEnum
 
 instance Show TestEnum where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson TestEnum where
   encodeJson = defer \_ -> E.encode E.enum
@@ -391,7 +391,7 @@ derive instance Eq MyUnit
 derive instance Ord MyUnit
 
 instance Show MyUnit where
-  show = genericShow
+  show a = genericShow a
 
 instance EncodeJson MyUnit where
   encodeJson = defer \_ -> E.encode E.enum
