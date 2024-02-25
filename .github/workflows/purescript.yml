@@ -19,10 +19,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Set up a PureScript toolchain
-        uses: purescript-contrib/setup-purescript@main
-        with: # https://github.com/purescript-contrib/setup-purescript#specify-versions
-          purescript: "0.15.13"
+      # - name: Set up a PureScript toolchain
+      #   uses: purescript-contrib/setup-purescript@main
+      #   with: # https://github.com/purescript-contrib/setup-purescript#specify-versions
+      #     spago: "latest"
+      #     purescript: "0.15.13"
+
+      - name: Set up new Spago
+        run: npm install -g spago@next purescript
 
       - name: Cache PureScript dependencies
         uses: actions/cache@v2
@@ -38,10 +42,10 @@ jobs:
           spago install
 
       - name: Build source
-        run: spago build --no-install
+        run: spago build
 
       - name: Bundle app
-        run: spago bundle-app --to static/index.js
+        run: spago bundle --bundle-type app --outfile static/index.js
 
       - name: Run tests
-        run: spago test --no-install
+        run: spago test
