@@ -81,4 +81,4 @@ workspace:
       git: https://github.com/input-output-hk/purescript-bridge-json-helpers.git
       ref: 486db9ee62882baa42cca24f556848c5f6bec565
   package_set:
-    url: https://raw.githubusercontent.com/purescript/package-sets/psc-0.15.4-20220901/packages.json
+    registry: 50.1.0
