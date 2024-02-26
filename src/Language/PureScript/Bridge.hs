@@ -1,5 +1,7 @@
+{-# LANGUAGE BlockArguments    #-}
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 
 module Language.PureScript.Bridge
     ( bridgeSumType
@@ -7,23 +9,181 @@ module Language.PureScript.Bridge
     , module Bridge
     , writePSTypes
     , writePSTypesWith
-    , defaultSwitch
-    , noLenses
-    , genLenses
+    , writePSTypesWithNamespace
     ) where
 
-import           Control.Applicative
+import           Control.Applicative (Alternative ((<|>)))
+import           Control.Lens (over, traversed)
 import qualified Data.Map as M
 import qualified Data.Set as Set
 import qualified Data.Text.IO as T
-
-import           Language.PureScript.Bridge.Builder as Bridge
-import           Language.PureScript.Bridge.CodeGenSwitches as Switches
-import           Language.PureScript.Bridge.Primitives as Bridge
-import           Language.PureScript.Bridge.Printer as Bridge
-import           Language.PureScript.Bridge.SumType as Bridge
-import           Language.PureScript.Bridge.Tuple as Bridge
-import           Language.PureScript.Bridge.TypeInfo as Bridge
+import           Language.PureScript.Bridge.Builder as Bridge (BridgeBuilder,
+                                                               BridgeData,
+                                                               BridgePart,
+                                                               FixUpBridge,
+                                                               FixUpBuilder,
+                                                               FullBridge,
+                                                               buildBridge,
+                                                               buildBridgeWithCustomFixUp,
+                                                               clearPackageFixUp,
+                                                               doCheck,
+                                                               errorFixUp,
+                                                               fullBridge,
+                                                               psTypeParameters,
+                                                               (<|>), (^==))
+import           Language.PureScript.Bridge.Primitives as Bridge (boolBridge,
+                                                                  doubleBridge,
+                                                                  dummyBridge,
+                                                                  eitherBridge,
+                                                                  intBridge,
+                                                                  listBridge,
+                                                                  mapBridge,
+                                                                  maybeBridge,
+                                                                  noContentBridge,
+                                                                  setBridge,
+                                                                  strMapBridge,
+                                                                  stringBridge,
+                                                                  textBridge,
+                                                                  unitBridge,
+                                                                  word16Bridge,
+                                                                  word32Bridge,
+                                                                  word64Bridge,
+                                                                  word8Bridge,
+                                                                  wordBridge)
+import           Language.PureScript.Bridge.Printer as Bridge (Module (..),
+                                                               Modules,
+                                                               PSModule,
+                                                               PackageName (..),
+                                                               branch, caseOf,
+                                                               case_of,
+                                                               constrainWith,
+                                                               constructor,
+                                                               constructorOptics,
+                                                               constructorPattern,
+                                                               constructorToDecode,
+                                                               constructorToDoc,
+                                                               constructorToOptic,
+                                                               decodeJsonConstraints,
+                                                               def, encloseHsep,
+                                                               encloseVsep,
+                                                               encodeJsonConstraints,
+                                                               eqConstraints,
+                                                               field,
+                                                               fieldSignature,
+                                                               fieldSignatures,
+                                                               fields,
+                                                               flattenTuple,
+                                                               fromEntries,
+                                                               hasUnderscore,
+                                                               hrecord,
+                                                               importLineToText,
+                                                               instanceToQualifiedImports,
+                                                               instances,
+                                                               instancesToImportLines,
+                                                               instancesToQualifiedImports,
+                                                               isEnum,
+                                                               isTypeParam, iso,
+                                                               lambda,
+                                                               memberToMethod,
+                                                               mkFnArgs,
+                                                               mkPackageName,
+                                                               mkType,
+                                                               moduleToText,
+                                                               newtypeIso,
+                                                               normalExpr,
+                                                               normalLabels,
+                                                               normalPattern,
+                                                               nullaryExpr,
+                                                               nullaryPattern,
+                                                               ordConstraints,
+                                                               pattern,
+                                                               printModule,
+                                                               prism,
+                                                               qualifiedImportToText,
+                                                               recordEntryToLens,
+                                                               recordOptics,
+                                                               recordPattern,
+                                                               renderText,
+                                                               showConstraints,
+                                                               signature,
+                                                               signature',
+                                                               spaces,
+                                                               sumTypeToDecode,
+                                                               sumTypeToDocs,
+                                                               sumTypeToEncode,
+                                                               sumTypeToModule,
+                                                               sumTypeToNeededPackages,
+                                                               sumTypeToOptics,
+                                                               sumTypeToTypeDecls,
+                                                               sumTypesToModules,
+                                                               sumTypesToNeededPackages,
+                                                               typeInfoToDecl,
+                                                               typeInfoToDoc,
+                                                               typeParams,
+                                                               typeToDecode,
+                                                               typeToEncode,
+                                                               typeToImportLines,
+                                                               typesToImportLines,
+                                                               typesToRecord,
+                                                               unionImportLine,
+                                                               unionImportLines,
+                                                               unionModules,
+                                                               unionQualifiedImports,
+                                                               unlessM, vrecord)
+import           Language.PureScript.Bridge.SumType as Bridge (CustomInstance (..),
+                                                               DataConstructor (..),
+                                                               DataConstructorArgs (..),
+                                                               GDataConstructor,
+                                                               ImportLine (..),
+                                                               ImportLines,
+                                                               Instance (..),
+                                                               InstanceImplementation (..),
+                                                               InstanceMember (..),
+                                                               PSInstance,
+                                                               RecordEntry (..),
+                                                               SumType (..),
+                                                               argonautAesonGeneric,
+                                                               baselineImports,
+                                                               constructorToTypes,
+                                                               customConstraints,
+                                                               customHead,
+                                                               customImplementation,
+                                                               equal, equal1,
+                                                               functor,
+                                                               genericShow,
+                                                               getUsedTypes,
+                                                               importsFromList,
+                                                               instanceToImportLines,
+                                                               jsonHelpers,
+                                                               lenses,
+                                                               memberBindings,
+                                                               memberBody,
+                                                               memberDependencies,
+                                                               memberImportLines,
+                                                               memberName,
+                                                               mkSumType,
+                                                               nootype, order,
+                                                               prisms, recLabel,
+                                                               recValue,
+                                                               sigConstructor,
+                                                               sigValues,
+                                                               sumTypeConstructors,
+                                                               sumTypeInfo)
+import           Language.PureScript.Bridge.Tuple as Bridge (TupleParserState (..),
+                                                             isTuple, step,
+                                                             tupleBridge)
+import           Language.PureScript.Bridge.TypeInfo as Bridge (HasHaskType (..),
+                                                                HaskellType,
+                                                                Language (..),
+                                                                PSType,
+                                                                TypeInfo (..),
+                                                                flattenTypeInfo,
+                                                                mkTypeInfo,
+                                                                mkTypeInfo',
+                                                                typeModule,
+                                                                typeName,
+                                                                typePackage,
+                                                                typeParameters)
 
 {- | Your entry point to this library and quite likely all you will need.
   Make sure all your types derive `Generic` and `Typeable`.
@@ -35,12 +195,12 @@ import           Language.PureScript.Bridge.TypeInfo as Bridge
   > data Bar = A | B | C deriving (Eq, Ord, Generic)
   > data Baz = ... deriving (Generic)
   >
-  > -- | All types will have a `Generic` instance produced in Purescript.
+  > -- | All types will have a `Generic` instance produced in PureScript.
   > myTypes :: [SumType 'Haskell]
   > myTypes =
-  >   [ let p = (Proxy :: Proxy Foo) in equal p (mkSumType p)  -- Also produce a `Eq` instance.
-  >   , let p = (Proxy :: Proxy Bar) in order p (mkSumType p)  -- Produce both `Eq` and `Ord`.
-  >   , mkSumType (Proxy :: Proxy Baz)  -- Just produce a `Generic` instance.
+  >   [ equal (mkSumType @Foo)  -- Also produce a `Eq` instance.
+  >   , order (mkSumType @Bar)  -- Produce both `Eq` and `Ord`.
+  >   , mkSumType @Baz  -- Just produce a `Generic` instance.
   >   ]
   >
   >  writePSTypes "path/to/your/purescript/project" (buildBridge defaultBridge) myTypes
@@ -79,7 +239,7 @@ import           Language.PureScript.Bridge.TypeInfo as Bridge
   This function overwrites files - make backups or use version control!
 -}
 writePSTypes :: FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
-writePSTypes = writePSTypesWith Switches.defaultSwitch
+writePSTypes = writePSTypesWith
 
 {- | Works like `writePSTypes` but you can add additional switches to control the generation of your PureScript code
 
@@ -90,20 +250,23 @@ writePSTypes = writePSTypesWith Switches.defaultSwitch
  == /WARNING/:
   This function overwrites files - make backups or use version control!
 -}
-writePSTypesWith :: Switches.Switch -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
-writePSTypesWith switch root bridge sts = do
-    mapM_ (printModule settings root) modules
-    T.putStrLn "The following purescript packages are needed by the generated code:\n"
+writePSTypesWith :: FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
+writePSTypesWith = writePSTypesWithNamespace Nothing
+
+writePSTypesWithNamespace
+    :: Maybe PackageName -> FilePath -> FullBridge -> [SumType 'Haskell] -> IO ()
+writePSTypesWithNamespace packageName root bridge sts = do
+    mapM_ (printModule root) modules
+    T.putStrLn
+        "The following purescript packages are needed by the generated code:\n"
     mapM_ (T.putStrLn . mappend "  - ") packages
     T.putStrLn "\nSuccessfully created your PureScript modules!"
   where
-    settings = Switches.getSettings switch
     bridged = map (bridgeSumType bridge) sts
-    modules = M.elems $ sumTypesToModules M.empty bridged
+    modules = M.elems $ sumTypesToModules packageName bridged
     packages =
-        if Switches.generateLenses settings
-            then Set.insert "purescript-profunctor-lenses" $ sumTypesToNeededPackages bridged
-            else sumTypesToNeededPackages bridged
+        sumTypesToNeededPackages bridged
+            <> Set.singleton "purescript-profunctor-lenses"
 
 {- | Translate all 'TypeInfo' values in a 'SumType' to PureScript types.
 
@@ -111,10 +274,42 @@ writePSTypesWith switch root bridge sts = do
 
 > data Foo = Foo | Bar Int | FooBar Int Text deriving (Generic, Typeable, Show)
 
-> bridgeSumType (buildBridge defaultBridge) (mkSumType (Proxy :: Proxy Foo))
+> bridgeSumType (buildBridge defaultBridge) (mkSumType @Foo)
 -}
 bridgeSumType :: FullBridge -> SumType 'Haskell -> SumType 'PureScript
-bridgeSumType br (SumType t cs is) = SumType (br t) (map (bridgeConstructor br) cs) is
+bridgeSumType br (SumType t cs is) =
+    SumType (br t) (map (bridgeConstructor br) cs) $ bridgeInstance <$> (is <> extraInstances)
+  where
+    bridgeInstance (Custom CustomInstance {..}) =
+        Custom $
+            CustomInstance
+                (br <$> _customConstraints)
+                (br _customHead)
+                case _customImplementation of
+                    Derive           -> Derive
+                    DeriveNewtype    -> DeriveNewtype
+                    Explicit members -> Explicit $ bridgeMember <$> members
+    bridgeInstance Bounded = Bounded
+    bridgeInstance Enum = Enum
+    bridgeInstance EncodeJson = EncodeJson
+    bridgeInstance DecodeJson = DecodeJson
+    bridgeInstance EncodeJsonHelper = EncodeJsonHelper
+    bridgeInstance DecodeJsonHelper = DecodeJsonHelper
+    bridgeInstance (ForeignObject x y) = ForeignObject x y
+    bridgeInstance GenericShow = GenericShow
+    bridgeInstance Functor = Functor
+    bridgeInstance Eq = Eq
+    bridgeInstance Eq1 = Eq1
+    bridgeInstance Ord = Ord
+    bridgeInstance Generic = Generic
+    bridgeInstance Newtype = Newtype
+    bridgeInstance Lenses = Lenses
+    bridgeInstance Prisms = Prisms
+    bridgeMember = over (memberDependencies . traversed) br
+    extraInstances
+        | not (null cs) && all isNullary cs = [Enum, Bounded]
+        | otherwise = []
+    isNullary (DataConstructor _ args) = args == Nullary
 
 {- | Default bridge for mapping primitive/common types:
   You can append your own bridges like this:
@@ -137,6 +332,8 @@ defaultBridge =
         <|> doubleBridge
         <|> tupleBridge
         <|> unitBridge
+        <|> mapBridge
+        <|> setBridge
         <|> noContentBridge
         <|> wordBridge
         <|> word8Bridge
@@ -145,12 +342,16 @@ defaultBridge =
         <|> word64Bridge
 
 -- | Translate types in a constructor.
-bridgeConstructor :: FullBridge -> DataConstructor 'Haskell -> DataConstructor 'PureScript
-bridgeConstructor br (DataConstructor name (Left infos)) =
-    DataConstructor name . Left $ map br infos
-bridgeConstructor br (DataConstructor name (Right record)) =
-    DataConstructor name . Right $ map (bridgeRecordEntry br) record
+bridgeConstructor
+    :: FullBridge -> DataConstructor 'Haskell -> DataConstructor 'PureScript
+bridgeConstructor _ (DataConstructor name Nullary) =
+    DataConstructor name Nullary
+bridgeConstructor br (DataConstructor name (Normal infos)) =
+    DataConstructor name . Normal $ fmap br infos
+bridgeConstructor br (DataConstructor name (Record record)) =
+    DataConstructor name . Record $ fmap (bridgeRecordEntry br) record
 
 -- | Translate types in a record entry.
-bridgeRecordEntry :: FullBridge -> RecordEntry 'Haskell -> RecordEntry 'PureScript
+bridgeRecordEntry
+    :: FullBridge -> RecordEntry 'Haskell -> RecordEntry 'PureScript
 bridgeRecordEntry br (RecordEntry label value) = RecordEntry label $ br value

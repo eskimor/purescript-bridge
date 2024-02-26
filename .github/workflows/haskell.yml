@@ -1,6 +1,10 @@
 # modified from https://github.com/jgm/pandoc/blob/master/.github/workflows/ci.yml
 name: Haskell library and example
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches:
@@ -17,16 +21,12 @@ jobs:
       fail-fast: false
       matrix:
         versions:
-          - ghc: '8.6.5'
-            cabal: '3.6'
-          - ghc: '8.8.4'
-            cabal: '3.6'
-          - ghc: '8.10.4'
-            cabal: '3.6'
-          - ghc: '9.0.2'
-            cabal: '3.6'
           - ghc: '9.2.4'
             cabal: '3.6'
+          - ghc: '9.4.6'
+            cabal: '3.6'
+          # - ghc: '9.6.3'
+          #   cabal: '3.6'
     steps:
     - uses: actions/checkout@v2
 
@@ -58,13 +58,49 @@ jobs:
           dist-newstyle
         key: ${{ runner.os }}-${{ matrix.versions.ghc }}-${{ matrix.versions.cabal }}-cabal-local
 
+    # - name: Set up a PureScript toolchain
+    #   uses: purescript-contrib/setup-purescript@main
+    #   with: # https://github.com/purescript-contrib/setup-purescript#specify-versions
+    #     spago: "latest"
+    #     purescript: "0.15.13"
+
+    - name: Set up new Spago
+      run: npm install -g spago@next purescript
+
+    - name: Cache PureScript dependencies
+      uses: actions/cache@v2
+      with:
+        key: ${{ runner.os }}-spago-${{ hashFiles('**/*.dhall') }}
+        path: |
+          .spago
+          output
+          test/RoundTripArgonautAesonGeneric/app/output
+          test/RoundTripJsonHelpers/app/output
+
     - name: Install dependencies
       run: |
-          cabal update
-          cabal build all --dependencies-only --enable-tests --disable-optimization
-    - name: Build
+        cabal update
+        cabal build all --dependencies-only --enable-tests --disable-optimization
+    - name: Build Haskell
       run: |
-          cabal build all --enable-tests --disable-optimization 2>&1 | tee build.log
+        cabal build all --enable-tests --disable-optimization 2>&1 | tee build.log
+    - name: Build PureScript Argonaut test project
+      run: |
+        cd test/RoundTripArgonautAesonGeneric/app
+        spago build
+    - name: Build PureScript JsonHelpers test project
+      run: |
+        cd test/RoundTripJsonHelpers/app
+        spago build
     - name: Test
       run: |
-          cabal test all --disable-optimization
+        # There are two PureScript projects which the Haskell tests build and run.
+        # The first build produces warnings which cause the Haskell tests to fail;
+        # pre-building these two projects clears these warnings.
+        cd test/RoundTripArgonautAesonGeneric/app
+        spago build
+        cd ../../../
+        cd test/RoundTripJsonHelpers/app
+        spago build
+        cd ../../../
+        cabal test all --disable-optimization

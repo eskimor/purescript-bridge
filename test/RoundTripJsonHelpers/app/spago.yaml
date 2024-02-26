@@ -1,0 +1,76 @@
+package:
+  dependencies:
+  - argonaut
+  - argonaut-aeson-generic
+  - argonaut-codecs
+  - argonaut-core
+  - console
+  - control
+  - effect
+  - either
+  - enums
+  - foreign-object
+  - json-helpers
+  - maybe
+  - newtype
+  - node-readline
+  - ordered-collections
+  - prelude
+  - profunctor-lenses
+  - tuples
+  name: my-project
+workspace:
+  extra_packages:
+    argonaut-aeson-generic:
+      dependencies:
+      - argonaut
+      - argonaut-codecs
+      - argonaut-generic
+      - console
+      - effect
+      - foreign-object
+      - test-unit
+      git: https://github.com/peterbecich/purescript-argonaut-aeson-generic.git
+      ref: e22b1b9046aef15d6441ea90870dfbfa455a70fb
+    foreign-generic:
+      dependencies:
+      - effect
+      - exceptions
+      - foreign
+      - foreign-object
+      - identity
+      - ordered-collections
+      - record
+      git: https://github.com/jsparkes/purescript-foreign-generic.git
+      ref: 844f2ababa2c7a0482bf871e1e6bf970b7e51313
+    json-helpers:
+      dependencies:
+      - aff
+      - argonaut-codecs
+      - argonaut-core
+      - arrays
+      - bifunctors
+      - contravariant
+      - control
+      - effect
+      - either
+      - enums
+      - foldable-traversable
+      - foreign-object
+      - maybe
+      - newtype
+      - ordered-collections
+      - prelude
+      - profunctor
+      - psci-support
+      - quickcheck
+      - record
+      - spec
+      - spec-quickcheck
+      - transformers
+      - tuples
+      - typelevel-prelude
+      git: https://github.com/input-output-hk/purescript-bridge-json-helpers.git
+      ref: 486db9ee62882baa42cca24f556848c5f6bec565
+  package_set:
+    url: https://raw.githubusercontent.com/purescript/package-sets/psc-0.15.7-20230331/packages.json

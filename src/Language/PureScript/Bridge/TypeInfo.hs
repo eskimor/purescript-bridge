@@ -1,10 +1,12 @@
+{-# LANGUAGE AllowAmbiguousTypes        #-}
 {-# LANGUAGE DataKinds                  #-}
 {-# LANGUAGE FlexibleInstances          #-}
 {-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE KindSignatures             #-}
 {-# LANGUAGE OverloadedStrings          #-}
+{-# LANGUAGE ScopedTypeVariables        #-}
 {-# LANGUAGE TemplateHaskell            #-}
-{-# LANGUAGE TypeSynonymInstances       #-}
+{-# LANGUAGE TypeApplications           #-}
 
 module Language.PureScript.Bridge.TypeInfo
     ( TypeInfo (..)
@@ -22,11 +24,13 @@ module Language.PureScript.Bridge.TypeInfo
     , flattenTypeInfo
     ) where
 
-import           Control.Lens
-import           Data.Proxy
+import           Control.Lens (Lens', makeLenses)
+import           Data.Proxy (Proxy (Proxy))
 import           Data.Text (Text)
 import qualified Data.Text as T
-import           Data.Typeable
+import           Data.Typeable (TypeRep, Typeable, tyConModule, tyConName,
+                                tyConPackage, typeRep, typeRepArgs,
+                                typeRepTyCon)
 
 data Language = Haskell | PureScript
 
@@ -57,20 +61,18 @@ class HasHaskType t where
 instance HasHaskType HaskellType where
     haskType inj = inj
 
-mkTypeInfo :: Typeable t => Proxy t -> HaskellType
-mkTypeInfo = mkTypeInfo' . typeRep
+mkTypeInfo :: forall t. (Typeable t) => HaskellType
+mkTypeInfo = mkTypeInfo' . typeRep $ Proxy @t
 
 mkTypeInfo' :: TypeRep -> HaskellType
 mkTypeInfo' rep =
-    let
-        con = typeRepTyCon rep
-     in
-        TypeInfo
-            { _typePackage = T.pack $ tyConPackage con
-            , _typeModule = T.pack $ tyConModule con
-            , _typeName = T.pack $ tyConName con
-            , _typeParameters = map mkTypeInfo' (typeRepArgs rep)
-            }
+    let con = typeRepTyCon rep
+    in TypeInfo
+        { _typePackage = T.pack $ tyConPackage con
+        , _typeModule = T.pack $ tyConModule con
+        , _typeName = T.pack $ tyConName con
+        , _typeParameters = map mkTypeInfo' (typeRepArgs rep)
+        }
 
 -- | Put the TypeInfo in a list together with all its '_typeParameters' (recursively)
 flattenTypeInfo :: TypeInfo lang -> [TypeInfo lang]

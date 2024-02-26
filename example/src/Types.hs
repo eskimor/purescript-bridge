@@ -1,62 +1,127 @@
-{-# LANGUAGE DataKinds       #-}
-{-# LANGUAGE DeriveAnyClass  #-}
-{-# LANGUAGE DeriveGeneric   #-}
-{-# LANGUAGE KindSignatures  #-}
-{-# LANGUAGE TemplateHaskell #-}
-{-# LANGUAGE TypeOperators   #-}
+{-# LANGUAGE DataKinds         #-}
+{-# LANGUAGE DeriveAnyClass    #-}
+{-# LANGUAGE DeriveGeneric     #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE KindSignatures    #-}
+{-# LANGUAGE TemplateHaskell   #-}
+{-# LANGUAGE TypeApplications  #-}
+{-# LANGUAGE TypeOperators     #-}
 
 module Types where
 
 import           Control.Lens.TH (makeLenses)
-import           Data.Aeson
+import           Data.Aeson (FromJSON, SumEncoding (..), ToJSON (toEncoding),
+                             defaultOptions, defaultTaggedObject,
+                             genericToEncoding, sumEncoding,
+                             tagSingleConstructors, unwrapUnaryRecords)
 import qualified Data.Map.Lazy as Map
-import           Data.Proxy
-import           Data.Text
-import           Data.Typeable
-import           GHC.Generics
-import           Language.PureScript.Bridge
-import           Language.PureScript.Bridge.PSTypes
+import           Data.Proxy ()
+import           Data.Text (Text, pack)
+import           Data.Typeable (Typeable)
+import           GHC.Generics (Generic)
+import           Language.PureScript.Bridge (BridgePart, Language (Haskell),
+                                             argonautAesonGeneric,
+                                             defaultBridge, genericShow,
+                                             jsonHelpers, lenses, mkSumType)
+import           Language.PureScript.Bridge.PSTypes ()
+import           Language.PureScript.Bridge.SumType (SumType)
 import           Language.PureScript.Bridge.TypeParameters (A)
+import           Test.QuickCheck (Arbitrary (..), chooseEnum, oneof, resize,
+                                  sized)
 
 data Baz = Baz
   { _bazMessage :: Text
   }
-  deriving (FromJSON, Generic, ToJSON)
+  deriving (FromJSON, Generic, Show)
+
+instance ToJSON Baz where
+  toEncoding = genericToEncoding
+    (
+      defaultOptions
+      { tagSingleConstructors = True
+      , unwrapUnaryRecords = True
+      }
+    )
 
 makeLenses ''Baz
 
-bazProxy :: Proxy Baz
-bazProxy = Proxy
+-- https://github.com/eskimor/purescript-bridge/pull/89#issuecomment-1890994859
+data ID a = ID
+  deriving (Generic, Show)
+
+newtype ID2 a = ID2 {getID :: Int}
+  deriving (Generic, Show)
+
+
+
+data TestSum
+  = Nullary
+  | Bool Bool
+  | Int Int
+  | Number Double
+  deriving (Eq, FromJSON, Generic, Ord, Show, ToJSON)
+
+instance Arbitrary Text where
+    arbitrary = pure $ pack "foooo"
+
+instance Arbitrary TestSum where
+    arbitrary =
+        oneof
+            [ pure Nullary
+            , Bool <$> arbitrary
+            , Int <$> arbitrary
+            , Number <$> arbitrary
+            ]
+
+data TestData
+  = TMaybe (Maybe TestSum)
+  | TEither Text -- (Either Int Text) -- (Either (Maybe Int) (Maybe Bool))
+  deriving (Eq, FromJSON, Generic, Ord, Show, ToJSON)
+
+instance Arbitrary TestData where
+    arbitrary =
+        oneof
+            [ -- Maybe <$> arbitrary
+            -- ,
+              TEither <$> arbitrary
+            ]
+
 
 data Foo = Foo
-  { _fooMessage :: Text
-  , _fooNumber  :: Int
-  , _fooList    :: [Int]
-  , _fooMap     :: Map.Map Text Int
-  , _fooBaz     :: Baz
+  { _fooMessage  :: Text
+  , _fooE        :: Either Text Int
+  , _fooNumber   :: Int
+  , _fooList     :: [Int]
+  , _fooMap      :: Map.Map Text Int
+  , _fooBaz      :: Baz
+  , _fooTestSum  :: TestSum
+  , _fooTestData :: TestData
   }
-  deriving (FromJSON, Generic, ToJSON)
+  deriving (FromJSON, Generic, Show, ToJSON)
+
+
+
+instance {-# OVERLAPPING #-} ToJSON (Either Text Int) where
+  toEncoding = genericToEncoding
+    (
+      defaultOptions
+      { tagSingleConstructors = True
+      , unwrapUnaryRecords = True
+      -- , sumEncoding = TaggedObject "foo" "bar" -- defaultTaggedObject { contentsFieldName = "value" }
+      }
+    )
+
+instance {-# OVERLAPPING #-} FromJSON (Either Text Int)
 
 makeLenses ''Foo
 
-fooProxy :: Proxy Foo
-fooProxy = Proxy
-
 -- TODO newtype
 data Bar a = Bar a
-  deriving (Generic, Show, Typeable, FromJSON, ToJSON)
+  deriving (FromJSON, Generic, Show, ToJSON, Typeable)
 
 makeLenses ''Bar
 
-barProxy :: Proxy Bar
-barProxy = Proxy
+additionalInstances = lenses . genericShow
 
 myBridge :: BridgePart
 myBridge = defaultBridge
-
-myTypes :: [SumType 'Haskell]
-myTypes =
-  [ mkSumType (Proxy :: Proxy Baz)
-  , mkSumType (Proxy :: Proxy Foo)
-  , mkSumType (Proxy :: Proxy (Bar A))
-  ]

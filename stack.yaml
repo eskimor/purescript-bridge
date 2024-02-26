@@ -1,11 +1,9 @@
-resolver: lts-13.15
+resolver: lts-21.16
 packages:
 - '.'
+- 'example/.'
 extra-deps: []
 
 flags: {}
 
 extra-package-dbs: []
-
-nix:
-  shell-file: stack-8.0.nix

@@ -2,14 +2,23 @@
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE FlexibleContexts  #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeApplications  #-}
 
 module Language.PureScript.Bridge.Primitives where
 
-import           Control.Monad.Reader.Class
-import           Data.Proxy
-import           Language.PureScript.Bridge.Builder
-import           Language.PureScript.Bridge.PSTypes
-import           Language.PureScript.Bridge.TypeInfo
+import           Control.Monad.Reader.Class (MonadReader)
+import           Language.PureScript.Bridge.Builder (BridgeData, BridgePart,
+                                                     clearPackageFixUp, (<|>),
+                                                     (^==))
+import           Language.PureScript.Bridge.PSTypes (psArray, psBool, psEither,
+                                                     psInt, psMap, psMaybe,
+                                                     psNumber, psObject, psSet,
+                                                     psString, psUnit, psWord,
+                                                     psWord16, psWord32,
+                                                     psWord64, psWord8)
+import           Language.PureScript.Bridge.TypeInfo (HasHaskType (haskType),
+                                                      PSType, mkTypeInfo,
+                                                      typeModule, typeName)
 
 boolBridge :: BridgePart
 boolBridge = typeName ^== "Bool" >> return psBool
@@ -20,8 +29,20 @@ eitherBridge = typeName ^== "Either" >> psEither
 strMapBridge :: BridgePart
 strMapBridge = typeName ^== "Map" >> psObject
 
+setBridge :: BridgePart
+setBridge = do
+    typeName ^== "Set"
+    typeModule ^== "Data.Set" <|> typeModule ^== "Data.Set.Internal"
+    psSet
+
+mapBridge :: BridgePart
+mapBridge = do
+    typeName ^== "Map"
+    typeModule ^== "Data.Map" <|> typeModule ^== "Data.Map.Internal"
+    psMap
+
 -- | Dummy bridge, translates every type with 'clearPackageFixUp'
-dummyBridge :: MonadReader BridgeData m => m PSType
+dummyBridge :: (MonadReader BridgeData m) => m PSType
 dummyBridge = clearPackageFixUp
 
 intBridge :: BridgePart
@@ -41,12 +62,14 @@ maybeBridge :: BridgePart
 maybeBridge = typeName ^== "Maybe" >> psMaybe
 
 stringBridge :: BridgePart
-stringBridge = haskType ^== mkTypeInfo (Proxy :: Proxy String) >> return psString
+stringBridge =
+    haskType ^== mkTypeInfo @String >> return psString
 
 textBridge :: BridgePart
 textBridge = do
     typeName ^== "Text"
-    typeModule ^== "Data.Text.Internal" <|> typeModule ^== "Data.Text.Internal.Lazy"
+    typeModule ^== "Data.Text.Internal"
+        <|> typeModule ^== "Data.Text.Internal.Lazy"
     return psString
 
 unitBridge :: BridgePart

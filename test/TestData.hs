@@ -1,19 +1,29 @@
 {-# LANGUAGE DataKinds             #-}
+{-# LANGUAGE DeriveFunctor         #-}
 {-# LANGUAGE DeriveGeneric         #-}
 {-# LANGUAGE FlexibleInstances     #-}
 {-# LANGUAGE MultiParamTypeClasses #-}
 {-# LANGUAGE OverloadedStrings     #-}
 {-# LANGUAGE RankNTypes            #-}
-{-# LANGUAGE TypeSynonymInstances  #-}
+{-# LANGUAGE TypeApplications      #-}
 
 module TestData where
 
-import           Data.Proxy
+import           Data.Functor.Classes (Eq1 (liftEq))
+import           Data.Proxy ()
 import           Data.Text (Text)
-import           Data.Typeable
+import           Data.Typeable (Typeable)
 import           GHC.Generics (Generic)
-import           Language.PureScript.Bridge
-import           Language.PureScript.Bridge.PSTypes
+import           Language.PureScript.Bridge (BridgePart, DataConstructor,
+                                             FullBridge, HasHaskType (haskType),
+                                             HaskellType,
+                                             Language (Haskell, PureScript),
+                                             PSType, SumType (..), TypeInfo,
+                                             bridgeSumType, buildBridge,
+                                             defaultBridge, mkSumType,
+                                             mkTypeInfo, typeModule, typeName,
+                                             (<|>), (^==))
+import           Language.PureScript.Bridge.PSTypes (psString)
 
 -- Check that examples compile:
 textBridge :: BridgePart
@@ -24,7 +34,7 @@ textBridge = do
 
 stringBridge :: BridgePart
 stringBridge = do
-    haskType ^== mkTypeInfo (Proxy :: Proxy String)
+    haskType ^== mkTypeInfo @String
     return psString
 
 data Simple a = Simple a
@@ -35,6 +45,12 @@ data Foo
   | Bar Int
   | FooBar Int Text
   deriving (Eq, Generic, Ord, Show, Typeable)
+
+data Func a = Func Int a
+  deriving (Eq, Functor, Generic, Ord, Show, Typeable)
+
+instance Eq1 Func where
+    liftEq eq (Func n x) (Func m y) = n == m && x `eq` y
 
 data Test
   = TestIntInt Int Int
@@ -58,7 +74,7 @@ data SingleRecord a b = SingleRecord
   , _b :: b
   , c  :: String
   }
-  deriving (Generic, Show, Typeable)
+  deriving (Eq, Generic, Ord, Show, Typeable)
 
 data TwoRecords
   = FirstRecord
@@ -82,7 +98,7 @@ data SingleProduct = SingleProduct Text Int
   deriving (Generic, Show, Typeable)
 
 a :: HaskellType
-a = mkTypeInfo (Proxy :: Proxy (Either String Int))
+a = mkTypeInfo @(Either String Int)
 
 applyBridge :: FullBridge
 applyBridge = buildBridge defaultBridge
@@ -91,7 +107,7 @@ psA :: PSType
 psA = applyBridge a
 
 b :: SumType 'Haskell
-b = mkSumType (Proxy :: Proxy (Either String Int))
+b = mkSumType @(Either String Int)
 
 t :: TypeInfo 'PureScript
 cs :: [DataConstructor 'PureScript]
