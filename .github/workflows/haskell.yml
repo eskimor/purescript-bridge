@@ -1,6 +1,10 @@
 # modified from https://github.com/jgm/pandoc/blob/master/.github/workflows/ci.yml
 name: Haskell library and example
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 on:
   push:
     branches:
