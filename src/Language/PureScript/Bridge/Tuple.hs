@@ -1,3 +1,4 @@
+{-# LANGUAGE CPP               #-}
 {-# LANGUAGE DataKinds         #-}
 {-# LANGUAGE OverloadedStrings #-}
 
@@ -10,7 +11,11 @@ import           Language.PureScript.Bridge.PSTypes (psTuple)
 import           Language.PureScript.Bridge.TypeInfo
 
 tupleBridge :: BridgePart
+#if __GLASGOW_HASKELL__>=908
+tupleBridge = typeName ^== "Tuple2" >> psTuple
+#else
 tupleBridge = doCheck haskType isTuple >> psTuple
+#endif
 
 data TupleParserState = Start | OpenFound | ColonFound | Tuple | NoTuple
   deriving (Eq, Show)
