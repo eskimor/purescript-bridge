@@ -1,0 +1,10 @@
+cradle:
+  cabal:
+    - path: "./example/src"
+      component: "lib:example"
+
+    - path: "./src"
+      component: "lib:purescript-bridge"
+
+    - path: "./test"
+      component: "purescript-bridge:test:tests"

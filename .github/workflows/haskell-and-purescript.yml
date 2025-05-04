@@ -1,0 +1,76 @@
+# modified from https://github.com/jgm/pandoc/blob/master/.github/workflows/ci.yml
+name: Haskell library and example
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+    - '**'
+    paths-ignore: []
+  pull_request:
+    paths-ignore: []
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        ghc: ['9.6.7','9.8.4','9.10.1']
+        cabal: ['3.14.2.0']
+        os: [ubuntu-latest]
+    name: Haskell GHC ${{ matrix.ghc }} sample
+    steps:
+      - uses: actions/checkout@v4
+      - uses: haskell/ghcup-setup@v1.2.2
+        with:
+          ghc: ${{ matrix.ghc }}
+          cabal: ${{ matrix.cabal }}
+          config: |
+            # don't cache metadata files based on last access time
+            meta-cache: 0
+            # see https://github.com/haskell/ghcup-hs/blob/master/data/config.yaml
+            # for full documentation
+            url-source:
+              - GHCupURL
+              - prereleases
+      - name: Cabal Update
+        run: |
+          cabal update
+
+      - name: Build Haskell
+        run: |
+          cabal build all --enable-tests
+
+      - uses: purescript-contrib/setup-purescript@main
+        with:
+          spago: "unstable"
+
+      - name: Cache PureScript dependencies
+        uses: actions/cache@v4.2.3
+        with:
+          key: ${{ runner.os }}-spago-${{ hashFiles('**/spago.yaml') }}
+          path: |
+            .spago
+            output
+            test/RoundTripArgonautAesonGeneric/app/output
+            test/RoundTripJsonHelpers/app/output
+
+      - name: Build PureScript
+        run: |
+          spago build
+          cd test/RoundTripArgonautAesonGeneric/app
+          spago build
+          cd ../../../
+          cd test/RoundTripJsonHelpers/app
+          spago build
+
+      - name: Haskell Tests
+        run: |
+          cabal test all --disable-optimization
+
+      - name: Spago Tests
+        run: |
+          spago test

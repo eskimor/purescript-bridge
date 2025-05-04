@@ -3,21 +3,22 @@ module Main where
 import           Control.Lens
 import           Data.Text (pack)
 import           Language.PureScript.Bridge
-import           Language.PureScript.Bridge.CodeGenSwitches (ForeignOptions (ForeignOptions),
-                                                             genForeign,
-                                                             useGenRep)
 
+import           ArgonautTypes
+import           JsonHelpersTypes
 import qualified MyLib
-import           Types
-
-frontEndRoot :: String
-frontEndRoot = "src"
+import           Types (myBridge)
 
 -- https://discourse.purescript.org/t/latest-and-greatest-haskell-purescript-serialization/1640/6
 main :: IO ()
 main = do
-  writePSTypesWith
-    (useGenRep <> genForeign (ForeignOptions False False))
-    frontEndRoot
+  writePSTypesWithNamespace
+    (Just . PackageName $ pack "Argonaut")
+    "src"
     (buildBridge myBridge)
-    myTypes
+    myArgonautTypes
+  writePSTypesWithNamespace
+    (Just . PackageName $ pack "JsonHelpers")
+    "src"
+    (buildBridge myBridge)
+    myJsonHelpersTypes

@@ -1,0 +1,16 @@
+package:
+  name: argonaut-round-trip-test
+  dependencies:
+    - argonaut-aeson-generic
+    - argonaut-codecs
+    - argonaut-core
+    - console
+    - control
+    - effect
+    - either
+    - enums
+    - maybe
+    - newtype
+    - node-readline
+    - prelude
+    - profunctor-lenses

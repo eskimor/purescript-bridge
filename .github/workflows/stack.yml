@@ -1,0 +1,57 @@
+name: Haskell Stack
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+    - '**'
+    paths-ignore: []
+  pull_request:
+    paths-ignore: []
+
+jobs:
+  stack-build:
+    runs-on: ubuntu-latest
+    name: Haskell Stack
+    steps:
+      - uses: actions/checkout@v4
+      - uses: haskell-actions/setup@v2
+        with:
+          enable-stack: true
+          stack-version: 'latest'
+
+      - uses: freckle/stack-cache-action@v2
+
+      - name: Build Haskell with Stack
+        run: |
+          stack build
+
+      - uses: purescript-contrib/setup-purescript@main
+        with:
+          spago: "unstable"
+
+      - name: Cache PureScript dependencies
+        uses: actions/cache@v4.2.3
+        with:
+          key: ${{ runner.os }}-spago-${{ hashFiles('**/spago.yaml') }}
+          path: |
+            .spago
+            output
+            test/RoundTripArgonautAesonGeneric/app/output
+            test/RoundTripJsonHelpers/app/output
+
+      - name: Build PureScript
+        run: |
+          spago build
+          cd test/RoundTripArgonautAesonGeneric/app
+          spago build
+          cd ../../../
+          cd test/RoundTripJsonHelpers/app
+          spago build
+
+      - name: Haskell Tests with Stack
+        run: |
+          stack test
